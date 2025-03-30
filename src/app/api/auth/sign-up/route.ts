@@ -1,11 +1,12 @@
-import databaseConnection from "@/lib/databseConnection";
+// src/api/sign-up/route.ts
 import bcrypt from "bcryptjs";
 import { sendVerificationEmail } from "@/helpers/sendVerificationEmail";
 import { createUser, getUserByEmail, getUserByUsername } from "@/model/User";
-import UserModel from "@/model/UserModel";
+// import databaseConnection from "@/lib/databseConnection";
+// import UserModel from "@/model/UserModel";
 
 export const POST = async (req: Request) => {
-    await databaseConnection();
+    // await databaseConnection();
 
     try {
         const { fullName, username, email, password, contact } = await req.json();

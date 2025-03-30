@@ -87,6 +87,7 @@ SELECT * FROM `Bike`;
 SELECT * FROM `BikeImage`;
 SELECT * FROM `Booking`;
 SELECT * FROM `Review`;
+SELECT * FROM `Notification`;
 
 INSERT INTO `User` (`id`, `fullName`, `email`, `contact`, `password`, `role`)
 VALUES (1, "Subham Adhikari", "bikebuddy_admin@gmail.com", "9876543210", "admin@123", "admin");
