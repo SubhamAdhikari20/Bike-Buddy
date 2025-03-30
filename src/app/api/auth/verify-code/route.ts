@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { usernameValidation } from "@/schemas/signUPSchema";
+import { usernameValidation } from "@/schemas/user-schemas/signUPSchema";
 import { getUserByUsername } from "@/model/User";
 
 export async function POST(request: Request) {
