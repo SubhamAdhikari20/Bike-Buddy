@@ -1,0 +1,116 @@
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "mysql"
+    url      = env("DATABASE_URL")
+}
+
+enum Role {
+    customer
+    owner
+    admin
+}
+
+enum BookingStatus {
+    pending
+    active
+    completed
+    cancelled
+}
+
+enum Rating {
+    one   @map("1")
+    two   @map("2")
+    three @map("3")
+    four  @map("4")
+    five  @map("5")
+}
+
+model User {
+    id                   Int       @id @default(autoincrement())
+    fullName             String    @db.VarChar(255)
+    username             String    @unique @db.VarChar(255)
+    email                String    @unique @db.VarChar(255)
+    password             String    @db.VarChar(255)
+    contact              String    @db.VarChar(255)
+    profilePictureUrl    String?    @db.VarChar(500)
+    verifyCode           String?   @db.VarChar(255)
+    verifyCodeExpiryDate DateTime?
+    isVerified           Boolean   @default(false)
+    role                 Role      @default(customer)
+    createdAt            DateTime  @default(now())
+    updatedAt            DateTime  @updatedAt
+
+    // Relationships
+    messages Message[]
+    bikes    Bike[]
+    bookings Booking[]
+    reviews  Review[]
+}
+
+model Message {
+    id        Int      @id @default(autoincrement())
+    content   String   @db.Text
+    createdAt DateTime @default(now())
+
+    // Optional relation to associate message with a user
+    user   User? @relation(fields: [userId], references: [id])
+    userId Int?
+}
+
+model Bike {
+    id              Int      @id @default(autoincrement())
+    bikeName        String   @db.VarChar(255)
+    bikeDescription String   @db.Text
+    bikeLocation    String   @db.VarChar(255)
+    pricePerHour    Decimal  @db.Decimal(10, 2)
+    available       Boolean  @default(true)
+    createdAt       DateTime @default(now())
+    updatedAt       DateTime @updatedAt
+    ownerId         Int
+
+    // Relationships
+    owner    User        @relation(fields: [ownerId], references: [id])
+    bookings Booking[]
+    reviews  Review[]
+    images   BikeImage[]
+}
+
+model BikeImage {
+    id     Int    @id @default(autoincrement())
+    url    String @db.VarChar(500)
+    bike   Bike   @relation(fields: [bikeId], references: [id])
+    bikeId Int
+}
+
+model Booking {
+    id               Int           @id @default(autoincrement())
+    startTime        DateTime
+    endTime          DateTime
+    totalPrice       Float
+    status           BookingStatus @default(pending)
+    paymentReference String?
+    createdAt        DateTime      @default(now())
+    updatedAt        DateTime      @updatedAt
+    customerId       Int
+    bikeId           Int
+
+    // Relationships
+    customer User @relation(fields: [customerId], references: [id])
+    bike     Bike @relation(fields: [bikeId], references: [id])
+}
+
+model Review {
+    id         Int      @id @default(autoincrement())
+    rating     Rating
+    comment    String   @db.Text
+    createdAt  DateTime @default(now())
+    customerId Int
+    bikeId     Int
+
+    // Relationships
+    customer User @relation(fields: [customerId], references: [id])
+    bike     Bike @relation(fields: [bikeId], references: [id])
+}

@@ -1,36 +1,85 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Bike Buddy
 
-## Getting Started
+**Bike Buddy** is a premium, state-of-the-art bike rental platform designed for urban explorers and cycling enthusiasts. This repository contains the complete source code for our dynamic, feature-packed website that transforms the way you rent bikes—making it fast, secure, and stylish.
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Table of Contents
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- [Overview](#overview)
+- [Features](#features)
+- [Technologies Used](#technologies-used)
+- [Demo](#demo)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Contributing](#contributing)
+- [License](#license)
+- [Contact](#contact)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Overview
 
-## Learn More
+Bike Buddy brings luxury and convenience to urban mobility. Whether you're a tourist looking to explore new cityscapes or a local in need of a quick, reliable ride, our platform offers a seamless bike rental experience. With real-time updates, secure transactions, and an elegant design, Bike Buddy ensures every ride is an adventure in style.
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Features
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **Dynamic Bike Inventory**  
+  Browse a comprehensive, real-time updated catalog of bikes available for rental.
+- **Instant Booking & Reservation**  
+  Reserve your bike with just a few clicks through our fast, user-friendly booking system.
+- **Secure Payment Integration**  
+  Enjoy peace of mind with our integrated, secure payment gateway via **Khalti**.
+- **Interactive Map Integration**  
+  Easily locate rental stations and check bike availability via an intuitive, interactive map.
+- **User Profiles & Dashboards**  
+  Create and manage your account, track your rental history, manage payments, and leave feedback—all from your personalized dashboard.
+- **Mobile-Responsive Design**  
+  Experience seamless performance across all devices—smartphones, tablets, and desktops.
+- **Real-Time Bike Tracking**  
+  Monitor your bike’s status and location live, ensuring a safe and efficient rental journey.
+- **Customer Reviews & Ratings**  
+  Read reviews from other riders and share your own experiences to help build our community.
+- **Administrative Dashboard**  
+  A powerful admin panel lets you manage inventory, oversee bookings, process payments, and handle customer inquiries effortlessly.
+- **Multi-Language Support**  
+  Cater to a global audience with support for multiple languages, making navigation easy for users worldwide.
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Technologies Used
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **Database:**  
+  **MySQL**, managed through **Prisma** as our ORM.
+- **Frontend:**  
+  Built with **Next.js** for a fast, SEO-friendly experience combined with **Tailwind CSS** for rapid, responsive UI development.
+- **Authentication:**  
+  Secure authentication powered by **NextAuth**.
+- **Payment Integration:**  
+  Integrated with **Khalti** for secure and seamless transactions.
+- **Mapping & Geolocation:**  
+  Interactive mapping features using popular mapping APIs like **Google Maps API** or **Mapbox** for precise, interactive mapping features.
+- **Real-Time Communication:**  
+  Implemented using modern web technologies like **WebSockets** for live bike tracking and notifications.
+
+---
+
+## Demo
+
+Experience Bike Buddy in action!  
+Check out our [live demo](#) or watch a quick walkthrough video to see the platform’s features in motion.
+
+![Bike Buddy Demo Screenshot](./assets/demo-screenshot.png)
+
+---
+
+## Installation
+
+To set up Bike Buddy locally, follow these steps:
+
+1. **Clone the repository:**
+    ```bash
+    git clone https://github.com/yourusername/bike-buddy.git
+    ```
