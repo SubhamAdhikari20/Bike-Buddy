@@ -35,7 +35,7 @@ model User {
     email                String    @unique @db.VarChar(255)
     password             String    @db.VarChar(255)
     contact              String    @db.VarChar(255)
-    profilePictureUrl    String?    @db.VarChar(500)
+    profilePictureUrl    String?   @db.VarChar(500)
     verifyCode           String?   @db.VarChar(255)
     verifyCodeExpiryDate DateTime?
     isVerified           Boolean   @default(false)
@@ -44,10 +44,11 @@ model User {
     updatedAt            DateTime  @updatedAt
 
     // Relationships
-    messages Message[]
-    bikes    Bike[]
-    bookings Booking[]
-    reviews  Review[]
+    messages      Message[]
+    bikes         Bike[]
+    bookings      Booking[]
+    reviews       Review[]
+    notifications Notification[]
 }
 
 model Message {
@@ -98,8 +99,9 @@ model Booking {
     bikeId           Int
 
     // Relationships
-    customer User @relation(fields: [customerId], references: [id])
-    bike     Bike @relation(fields: [bikeId], references: [id])
+    customer User     @relation(fields: [customerId], references: [id])
+    bike     Bike     @relation(fields: [bikeId], references: [id])
+    payment  Payment? // Optional one-to-one relation with Payment
 }
 
 model Review {
@@ -113,4 +115,32 @@ model Review {
     // Relationships
     customer User @relation(fields: [customerId], references: [id])
     bike     Bike @relation(fields: [bikeId], references: [id])
+}
+
+model Notification {
+    id        Int      @id @default(autoincrement())
+    title     String   @db.VarChar(255)
+    message   String   @db.Text
+    type      String   @db.VarChar(255)
+    isRead    Boolean  @default(false)
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    userId    Int
+
+    // Relationship: Each notification belongs to a user
+    user User @relation(fields: [userId], references: [id])
+}
+
+model Payment {
+    id            Int      @id @default(autoincrement())
+    transactionId String   @db.VarChar(255) // Token or transaction id from payment gateway
+    amount        Float
+    method        String   @db.VarChar(255) // e.g., "Khalti"
+    status        String   @db.VarChar(255) // e.g., "Success", "Pending", "Failed"
+    createdAt     DateTime @default(now())
+    updatedAt     DateTime @updatedAt
+    bookingId     Int      @unique // One-to-one: each booking has one payment
+
+    // Relationship: Each Payment is linked to one Booking
+    booking Booking @relation(fields: [bookingId], references: [id])
 }
