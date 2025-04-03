@@ -17,7 +17,7 @@ export const authOptions: NextAuthOptions = {
             async authorize(credentials: any): Promise<any> {
                 
                 try {
-                    const user = await getUserByEmailOrUsername(credentials.email, credentials.username);
+                    const user = await getUserByEmailOrUsername(credentials.identifier);
                     
                     // const user = await UserModel.findOne({
                     //     $or: [

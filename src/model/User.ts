@@ -47,12 +47,12 @@ export async function getUserByUsername(username: string): Promise<User | null> 
     });
 }
 
-export async function getUserByEmailOrUsername(email: string, username: string): Promise<User | null> {
+export async function getUserByEmailOrUsername(identifier: string): Promise<User | null> {
     return await prisma.user.findFirst({
         where: {
             OR: [
-                { email },
-                { username }
+                { email: identifier },
+                { username: identifier }
             ]
         }
     });

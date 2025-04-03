@@ -28,6 +28,11 @@ export const passwordValidation = z     // Password validation
     .max(20, { message: "Password must not exceed 20 characters" })
     .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,20}$/, { message: "Password must contain atleast 1 uppercase, 1 lowercase, 1 digit and 1 special character" });
 
+export const confirmPasswordValidation = z     // Confirm Password validation
+    .string()
+    .min(8, { message: "Confirm Password must be atleast 8 characters long" })
+    .max(20, { message: "Confirm Password must not exceed 20 characters" })
+    .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,20}$/, { message: "Confirm Password must contain atleast 1 uppercase, 1 lowercase, 1 digit and 1 special character" });
 
 export const contactValidation = z      // Contact validation
     .string()
@@ -39,7 +44,16 @@ export const contactValidation = z      // Contact validation
 export const signUpSchema = z.object({    // Sign Up Schema
     fullName: fullNameValidation,
     username: usernameValidation,
+    contact: contactValidation,
     email: emailValidation,
     password: passwordValidation,
-    contact: contactValidation
+    confirmPassword: confirmPasswordValidation
+}).superRefine((values, ctx) => {
+    if (values.password !== values.confirmPassword) {
+        ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "Passwords do not match",
+            path: ["confirmPassword"],
+        });
+    }
 });
