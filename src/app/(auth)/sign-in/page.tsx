@@ -13,6 +13,7 @@ import { ApiResponse } from "@/types/ApiResponse";
 import { loginSchema } from "@/schemas/user-schemas/loginSchema";
 import { signIn } from "next-auth/react";
 import { Loader2 } from "lucide-react";
+import Link from "next/link";
 
 const SignIn = () => {
     const router = useRouter();
@@ -88,9 +89,9 @@ const SignIn = () => {
                                     <FormItem>
                                         <FormLabel>Password</FormLabel>
                                         <FormControl>
-                                            <Input 
-                                            type="password"
-                                            placeholder="Password" {...field} />
+                                            <Input
+                                                type="password"
+                                                placeholder="Password" {...field} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -98,11 +99,19 @@ const SignIn = () => {
                             />
                             <div className="flex items-center justify-center">
                                 <Button type="submit" className="cursor-pointer">
-                                    Sign In
+                                    Sign in
                                 </Button>
                             </div>
                         </form>
                     </Form>
+                    <div className="text-center mt-4">
+                        <p>
+                            Don't have an account?{" "}
+                            <Link href="/sign-up" className="text-blue-600">
+                                Sign Up
+                            </Link>
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>
