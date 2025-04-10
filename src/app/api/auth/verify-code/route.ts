@@ -1,8 +1,18 @@
 import { z } from "zod";
 import { usernameValidation } from "@/schemas/user-schemas/signUPSchema";
-import { getUserByUsername } from "@/model/User";
+import { getUserByUsername, updateUser } from "@/model/User";
 
 export async function POST(request: Request) {
+    if (request.method !== "POST") {
+        return Response.json(
+            {
+                success: false,
+                message: "Method not allowed!",
+            },
+            { status: 405 }
+        );
+    }
+
     try {
         const { username, code } = await request.json();
 
@@ -21,12 +31,12 @@ export async function POST(request: Request) {
         }
 
         const isCodeValid = user.verifyCode === code;
-        
+
         const expiryDate = user.verifyCodeExpiryDate ? new Date(user.verifyCodeExpiryDate) : null;
         const isCodeNotExpired = expiryDate ? expiryDate > new Date() : false;
 
         if (isCodeValid && isCodeNotExpired) {
-            user.isVerified = true;
+            await updateUser(user.id, { isVerified: true });
 
             return Response.json(
                 {

@@ -40,6 +40,9 @@ export const contactValidation = z      // Contact validation
     .max(10, { message: "Contact must be 10 digits long" })
     .regex(/^[0-9]+$/, { message: "Contact must contain only digits" });
 
+export const roleValidation = z.enum(["customer", "owner", "admin"], {
+    required_error: "Role is required",
+});
 
 export const signUpSchema = z.object({    // Sign Up Schema
     fullName: fullNameValidation,
@@ -47,7 +50,8 @@ export const signUpSchema = z.object({    // Sign Up Schema
     contact: contactValidation,
     email: emailValidation,
     password: passwordValidation,
-    confirmPassword: confirmPasswordValidation
+    confirmPassword: confirmPasswordValidation,
+    role: roleValidation
 }).superRefine((values, ctx) => {
     if (values.password !== values.confirmPassword) {
         ctx.addIssue({

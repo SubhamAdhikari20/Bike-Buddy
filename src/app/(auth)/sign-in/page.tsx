@@ -5,6 +5,15 @@ import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+    Select,
+    SelectContent,
+    SelectGroup,
+    SelectItem,
+    SelectLabel,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import * as z from "zod";
@@ -22,7 +31,8 @@ const SignIn = () => {
         resolver: zodResolver(loginSchema),
         defaultValues: {
             identifier: "",
-            password: ""
+            password: "",
+            role: "customer"
         }
     });
 
@@ -30,7 +40,8 @@ const SignIn = () => {
         const result = await signIn("credentials", {
             redirect: false,
             identifier: data.identifier,
-            password: data.password
+            password: data.password,
+            role: data.role,
         });
 
         if (result?.error) {
@@ -97,6 +108,29 @@ const SignIn = () => {
                                     </FormItem>
                                 )}
                             />
+                            <FormField
+                                name="role"
+                                control={form.control}
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Role</FormLabel>
+                                        <Select value={field.value} onValueChange={field.onChange}>
+                                            <FormControl>
+                                                <SelectTrigger className="w-full">
+                                                    <SelectValue placeholder="Select a role" />
+                                                </SelectTrigger>
+                                            </FormControl>
+                                            <SelectContent className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500">
+                                                <SelectItem value="customer">Customer</SelectItem>
+                                                <SelectItem value="owner">Owner</SelectItem>
+                                                <SelectItem value="admin">Admin</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+
                             <div className="flex items-center justify-center">
                                 <Button type="submit" className="cursor-pointer">
                                     Sign in
@@ -105,6 +139,11 @@ const SignIn = () => {
                         </form>
                     </Form>
                     <div className="text-center mt-4">
+                        <p className="text-sm">
+                            <Link href="/forgot-password" className="text-blue-600 hover:underline">
+                                Forgot Password?
+                            </Link>
+                        </p>
                         <p>
                             Don't have an account?{" "}
                             <Link href="/sign-up" className="text-blue-600">

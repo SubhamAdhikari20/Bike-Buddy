@@ -11,6 +11,15 @@ import { signUpSchema } from "@/schemas/user-schemas/signUPSchema";
 import axios, { AxiosError } from "axios";
 import { ApiResponse } from "@/types/ApiResponse";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+    Select,
+    SelectContent,
+    SelectGroup,
+    SelectItem,
+    SelectLabel,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from 'lucide-react';
@@ -67,6 +76,7 @@ const SignUp = () => {
 
     const onSubmit = async (data: z.infer<typeof signUpSchema>) => {
         setIsSubmitting(true);
+
         try {
             const response = await axios.post<ApiResponse>("/api/auth/sign-up", data);
 
@@ -205,6 +215,30 @@ const SignUp = () => {
                                 </FormItem>
                             )}
                         />
+
+                        <FormField
+                            name="role"
+                            control={form.control}
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Role</FormLabel>
+                                    <Select value={field.value} onValueChange={field.onChange}>
+                                        <FormControl>
+                                            <SelectTrigger className="w-full">
+                                                <SelectValue placeholder="Select a role" />
+                                            </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500">
+                                            <SelectItem value="customer">Customer</SelectItem>
+                                            <SelectItem value="owner">Owner</SelectItem>
+                                            <SelectItem value="admin">Admin</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
                         <div className="flex items-center justify-center">
                             <Button type="submit" className="cursor-pointer" disabled={isSubmitting}>
                                 {
