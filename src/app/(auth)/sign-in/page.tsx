@@ -31,8 +31,7 @@ const SignIn = () => {
         resolver: zodResolver(loginSchema),
         defaultValues: {
             identifier: "",
-            password: "",
-            role: "customer"
+            password: ""
         }
     });
 
@@ -67,19 +66,19 @@ const SignIn = () => {
     }
 
     return (
-        <div className="flex justify-center items-center min-h-screen bg-gray-100">
-            <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-md">
+        <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4 sm:px-6 lg:px-8">
+            <div className="w-full max-w-md space-y-8 bg-white p-8 rounded-lg shadow-lg">
                 <div className="text-center">
-                    <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl mb-6">
+                    <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900">
                         Bike Buddy
                     </h1>
-                    <p className="mb-4">
+                    <p className="mt-2 text-sm sm:text-base text-gray-600">
                         Sign in to start your adventure
                     </p>
                 </div>
                 <div>
                     <Form {...form}>
-                        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                        <form onSubmit={form.handleSubmit(onSubmit)} className="mt-8 space-y-6">
                             <FormField
                                 name="identifier"
                                 control={form.control}
@@ -87,7 +86,9 @@ const SignIn = () => {
                                     <FormItem>
                                         <FormLabel>Username/Email</FormLabel>
                                         <FormControl>
-                                            <Input placeholder="Username or Email" {...field} />
+                                            <Input placeholder="Username or Email" {...field}
+                                                className="w-full"
+                                            />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -102,7 +103,9 @@ const SignIn = () => {
                                         <FormControl>
                                             <Input
                                                 type="password"
-                                                placeholder="Password" {...field} />
+                                                placeholder="Password" {...field}
+                                                className="w-full"
+                                            />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -114,26 +117,33 @@ const SignIn = () => {
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormLabel>Role</FormLabel>
-                                        <Select value={field.value} onValueChange={field.onChange}>
-                                            <FormControl>
+                                        <FormControl>
+                                            <Select value={field.value} onValueChange={field.onChange}>
                                                 <SelectTrigger className="w-full">
                                                     <SelectValue placeholder="Select a role" />
                                                 </SelectTrigger>
-                                            </FormControl>
-                                            <SelectContent className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500">
-                                                <SelectItem value="customer">Customer</SelectItem>
-                                                <SelectItem value="owner">Owner</SelectItem>
-                                                <SelectItem value="admin">Admin</SelectItem>
-                                            </SelectContent>
-                                        </Select>
+                                                <SelectContent className="w-full">
+                                                    <SelectItem value="customer">Customer</SelectItem>
+                                                    <SelectItem value="owner">Owner</SelectItem>
+                                                    <SelectItem value="admin">Admin</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                        </FormControl>
                                         <FormMessage />
                                     </FormItem>
                                 )}
                             />
 
-                            <div className="flex items-center justify-center">
-                                <Button type="submit" className="cursor-pointer">
-                                    Sign in
+                            <div className="flex justify-center">
+                                <Button type="submit" disabled={form.formState.isSubmitting} className="w-full sm:w-auto">
+                                    {form.formState.isSubmitting ? (
+                                        <>
+                                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                            Please wait
+                                        </>
+                                    ) : (
+                                        "Sign in"
+                                    )}
                                 </Button>
                             </div>
                         </form>
@@ -144,10 +154,10 @@ const SignIn = () => {
                                 Forgot Password?
                             </Link>
                         </p>
-                        <p>
+                        <p className="mt-2 text-sm">
                             Don't have an account?{" "}
-                            <Link href="/sign-up" className="text-blue-600">
-                                Sign Up
+                            <Link href="/sign-up" className="text-blue-600 hover:underline">
+                                Sign up
                             </Link>
                         </p>
                     </div>

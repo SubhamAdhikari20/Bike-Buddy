@@ -79,6 +79,7 @@ const SignUp = () => {
 
         try {
             const response = await axios.post<ApiResponse>("/api/auth/sign-up", data);
+            console.log(data);
 
             toast('Success', {
                 description: response.data.message
@@ -101,13 +102,13 @@ const SignUp = () => {
     }
 
     return (
-        <div className="flex justify-center items-center min-h-screen bg-gray-100">
-            <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-md">
+        <div className="flex justify-center items-center min-h-screen bg-gray-100 px-4 sm:px-6 lg:px-8">
+            <div className="w-full max-w-md space-y-8 bg-white p-8 rounded-lg shadow-lg">
                 <div className="text-center">
-                    <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl mb-6">
+                    <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900">
                         Bike Buddy
                     </h1>
-                    <p className="mb-4">
+                    <p className="mt-2 text-sm sm:text-base text-gray-600">
                         Sign up to start your adventure
                     </p>
                 </div>
@@ -222,44 +223,49 @@ const SignUp = () => {
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Role</FormLabel>
-                                    <Select value={field.value} onValueChange={field.onChange}>
-                                        <FormControl>
+                                    <FormControl>
+                                        <Select
+                                            value={field.value}
+                                            onValueChange={(value) => field.onChange(value)}
+                                        >
                                             <SelectTrigger className="w-full">
                                                 <SelectValue placeholder="Select a role" />
                                             </SelectTrigger>
-                                        </FormControl>
-                                        <SelectContent className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500">
-                                            <SelectItem value="customer">Customer</SelectItem>
-                                            <SelectItem value="owner">Owner</SelectItem>
-                                            <SelectItem value="admin">Admin</SelectItem>
-                                        </SelectContent>
-                                    </Select>
+                                            <SelectContent className="mt-1">
+                                                <SelectItem value="customer">Customer</SelectItem>
+                                                <SelectItem value="owner">Owner</SelectItem>
+                                                <SelectItem value="admin">Admin</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </FormControl>
                                     <FormMessage />
                                 </FormItem>
                             )}
                         />
 
                         <div className="flex items-center justify-center">
-                            <Button type="submit" className="cursor-pointer" disabled={isSubmitting}>
-                                {
-                                    isSubmitting ? (
-                                        <>
-                                            <Loader2
-                                                className="mr-2 h-4 w-4 animate-spin"
-                                            />
-                                            Please wait
-                                        </>
-                                    ) : ("Sign Up")
-                                }
+                            <Button
+                                type="submit"
+                                disabled={isSubmitting}
+                                className="w-full sm:w-auto"
+                            >
+                                {isSubmitting ? (
+                                    <>
+                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                        Please wait
+                                    </>
+                                ) : (
+                                    "Sign up"
+                                )}
                             </Button>
                         </div>
                     </form>
                 </Form>
                 <div className="text-center mt-4">
-                    <p>
+                    <p className="text-sm">
                         Already have an account?{" "}
-                        <Link href="/sign-in" className="text-blue-600">
-                            Sign In
+                        <Link href="/sign-in" className="text-blue-600 hover:underline">
+                            Sign in
                         </Link>
                     </p>
                 </div>

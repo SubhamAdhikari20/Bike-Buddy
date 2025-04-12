@@ -9,7 +9,7 @@ export const POST = async (req: Request) => {
     // await databaseConnection();
 
     try {
-        const { fullName, username, email, password, contact } = await req.json();
+        const { fullName, username, email, password, contact, role } = await req.json();
 
         const existingUserVerifiedByUsername = await getUserByUsername(username);
 
@@ -86,7 +86,8 @@ export const POST = async (req: Request) => {
                 profilePictureUrl: "",
                 verifyCode: otp,
                 verifyCodeExpiryDate: expiryDate,
-                isVerified: false
+                isVerified: false,
+                role
             });
             // const newUser = new UserModel({
             //     fullName,
