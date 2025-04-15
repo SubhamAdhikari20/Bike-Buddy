@@ -13,6 +13,8 @@ CREATE TABLE `User` (
   `verifyCode` VARCHAR(255),
   `verifyCodeExpiryDate` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   `isVerified` BOOLEAN DEFAULT FALSE,
+  `verifyEmailResetPassword` VARCHAR(255),
+  `verifyEmailResetPasswordExpiryDate` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   `role` ENUM('customer', 'owner', 'admin') NOT NULL DEFAULT 'customer',
   `createdAt` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   `updatedAt` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP

@@ -12,7 +12,7 @@ const Footer = () => {
                 <div className="flex items-center space-x-4">
                     <Link href="/">
                         <Image
-                            src="/next.svg"
+                            src="/bike-buddy-logo.png"
                             alt="Bike Buddy Logo"
                             width={75}
                             height={75}

@@ -1,3 +1,4 @@
+// src/app/(auth)/sign-in/page.tsx
 "use client"
 import React, { useState } from 'react';
 import { useParams, useRouter } from "next/navigation";
@@ -23,6 +24,7 @@ import { loginSchema } from "@/schemas/user-schemas/loginSchema";
 import { signIn } from "next-auth/react";
 import { Loader2 } from "lucide-react";
 import Link from "next/link";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 const SignIn = () => {
     const router = useRouter();
@@ -34,6 +36,10 @@ const SignIn = () => {
             password: ""
         }
     });
+
+    // State to control password visibility
+    const [showPassword, setShowPassword] = useState(false);
+    const togglePasswordVisibility = () => setShowPassword((prev) => !prev);
 
     const onSubmit = async (data: z.infer<typeof loginSchema>) => {
         const result = await signIn("credentials", {
@@ -100,13 +106,22 @@ const SignIn = () => {
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormLabel>Password</FormLabel>
-                                        <FormControl>
-                                            <Input
-                                                type="password"
-                                                placeholder="Password" {...field}
-                                                className="w-full"
-                                            />
-                                        </FormControl>
+                                        <div className="relative">
+                                            <FormControl>
+                                                <Input
+                                                    type={showPassword ? "text" : "password"}
+                                                    placeholder="Password" {...field}
+                                                    className="w-full pr-10"
+                                                />
+                                            </FormControl>
+                                            <button
+                                                type="button"
+                                                onClick={togglePasswordVisibility}
+                                                className="cursor-pointer absolute inset-y-0 end-2.5 z-20 text-gray-400  focus:outline-hidden focus:text-blue-600 dark:text-neutral-600 dark:focus:text-blue-500"
+                                            >
+                                                {showPassword ? <FaEye size={18} /> : <FaEyeSlash size={18} />}
+                                            </button>
+                                        </div>
                                         <FormMessage />
                                     </FormItem>
                                 )}
@@ -135,7 +150,7 @@ const SignIn = () => {
                             />
 
                             <div className="flex justify-center">
-                                <Button type="submit" disabled={form.formState.isSubmitting} className="w-full sm:w-auto">
+                                <Button type="submit" disabled={form.formState.isSubmitting} className="w-full">
                                     {form.formState.isSubmitting ? (
                                         <>
                                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />

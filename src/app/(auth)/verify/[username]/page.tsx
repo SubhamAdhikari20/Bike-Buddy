@@ -1,3 +1,4 @@
+// src/app/(auth)/verify/[username]/page.tsx
 "use client"
 import React from 'react';
 import { useParams, useRouter } from "next/navigation";

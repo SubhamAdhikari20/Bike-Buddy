@@ -1,3 +1,4 @@
+// src/app/(auth)/sign-up/page.tsx
 "use client"
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -23,6 +24,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from 'lucide-react';
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 
 const SignUp = () => {
@@ -53,6 +55,12 @@ const SignUp = () => {
         }
     });
 
+    const [showPassword, setShowPassword] = useState(false);
+    const togglePasswordVisibility = () => setShowPassword((prev) => !prev);
+
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const toggleConfirmPasswordVisibility = () => setShowConfirmPassword((prev) => !prev);
+
     useEffect(() => {
         const checkUsernameUnique = async () => {
             if (username) {
@@ -79,7 +87,6 @@ const SignUp = () => {
 
         try {
             const response = await axios.post<ApiResponse>("/api/auth/sign-up", data);
-            console.log(data);
 
             toast('Success', {
                 description: response.data.message
@@ -190,12 +197,21 @@ const SignUp = () => {
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Password</FormLabel>
-                                    <FormControl>
-                                        <Input
-                                            type="password"
-                                            placeholder="Password" {...field}
-                                        />
-                                    </FormControl>
+                                    <div className="relative">
+                                        <FormControl>
+                                            <Input
+                                                type={showPassword ? "text" : "password"}
+                                                placeholder="Password" {...field}
+                                            />
+                                        </FormControl>
+                                        <button
+                                            type="button"
+                                            onClick={togglePasswordVisibility}
+                                            className="cursor-pointer absolute inset-y-0 end-2.5 z-20 text-gray-400  focus:outline-hidden focus:text-blue-600 dark:text-neutral-600 dark:focus:text-blue-500"
+                                        >
+                                            {showPassword ? <FaEye size={18} /> : <FaEyeSlash size={18} />}
+                                        </button>
+                                    </div>
                                     <FormMessage />
                                 </FormItem>
                             )}
@@ -206,12 +222,21 @@ const SignUp = () => {
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Confirm Password</FormLabel>
-                                    <FormControl>
-                                        <Input
-                                            type="password"
-                                            placeholder="Confirm Password" {...field}
-                                        />
-                                    </FormControl>
+                                    <div className="relative">
+                                        <FormControl>
+                                            <Input
+                                                type={showConfirmPassword ? "text" : "password"}
+                                                placeholder="Confirm Password" {...field}
+                                            />
+                                        </FormControl>
+                                        <button
+                                            type="button"
+                                            onClick={toggleConfirmPasswordVisibility}
+                                            className="cursor-pointer absolute inset-y-0 end-2.5 z-20 text-gray-400  focus:outline-hidden focus:text-blue-600 dark:text-neutral-600 dark:focus:text-blue-500"
+                                        >
+                                            {showConfirmPassword ? <FaEye size={18} /> : <FaEyeSlash size={18} />}
+                                        </button>
+                                    </div>
                                     <FormMessage />
                                 </FormItem>
                             )}
@@ -247,7 +272,7 @@ const SignUp = () => {
                             <Button
                                 type="submit"
                                 disabled={isSubmitting}
-                                className="w-full sm:w-auto"
+                                className="w-full"
                             >
                                 {isSubmitting ? (
                                     <>

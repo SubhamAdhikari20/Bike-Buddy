@@ -1,3 +1,4 @@
+// src/app/(auth)/forgot-password/page.tsx
 "use client";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -31,7 +32,7 @@ const ForgotPassword = () => {
                 description: response.data.message
             });
 
-            router.replace(`/verify-otp`);
+            router.replace(`/verify-email-reset-password/${data.email}`);
         }
         catch (error) {
             console.error("Error sending forgot password request", error);
@@ -43,31 +44,6 @@ const ForgotPassword = () => {
         finally {
             setIsSubmitting(false);
         }
-
-        /*
-        try {
-            const res = await fetch("/api/auth/forgot-password", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(data),
-            });
-
-            const response = await res.json();
-            if (response.success) {
-                toast.success("Password reset instructions have been sent to your email");
-                // Optionally, redirect or clear the form
-                // router.push("/auth/confirm-reset");
-            } 
-            else {
-                toast.error(response.message || "Something went wrong");
-            }
-        } 
-        catch (error) {
-            console.error("Error sending forgot password request", error);
-            toast.error("Failed to send reset instructions");
-        } 
-            */
-
     };
 
     return (
@@ -77,7 +53,6 @@ const ForgotPassword = () => {
                 <p className="text-sm text-center text-gray-600 mb-6">
                     Enter your email address to receive password reset instructions.
                 </p>
-
 
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -92,7 +67,7 @@ const ForgotPassword = () => {
                                             placeholder="you@example.com"
                                             {...field}
                                             className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500"
-                                            
+
                                         />
                                     </FormControl>
                                     <FormMessage />
@@ -112,7 +87,7 @@ const ForgotPassword = () => {
                     <p>
                         Back to sign in?{" "}
                         <Link href="/sign-in" className="text-blue-600">
-                            Sign In
+                            Sign in
                         </Link>
                     </p>
                 </div>

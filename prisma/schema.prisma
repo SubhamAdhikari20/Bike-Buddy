@@ -29,19 +29,21 @@ enum Rating {
 }
 
 model User {
-    id                   Int       @id @default(autoincrement())
-    fullName             String    @db.VarChar(255)
-    username             String    @unique @db.VarChar(255)
-    email                String    @unique @db.VarChar(255)
-    password             String    @db.VarChar(255)
-    contact              String    @db.VarChar(255)
-    profilePictureUrl    String?   @db.VarChar(500)
-    verifyCode           String?   @db.VarChar(255)
-    verifyCodeExpiryDate DateTime?
-    isVerified           Boolean   @default(false)
-    role                 Role      @default(customer)
-    createdAt            DateTime  @default(now())
-    updatedAt            DateTime  @updatedAt
+    id                                 Int       @id @default(autoincrement())
+    fullName                           String    @db.VarChar(255)
+    username                           String    @unique @db.VarChar(255)
+    email                              String    @unique @db.VarChar(255)
+    password                           String    @db.VarChar(255)
+    contact                            String    @db.VarChar(255)
+    profilePictureUrl                  String?   @db.VarChar(500)
+    verifyCode                         String?   @db.VarChar(255)
+    verifyCodeExpiryDate               DateTime?
+    isVerified                         Boolean   @default(false)
+    verifyEmailResetPassword           String?   @db.VarChar(255)
+    verifyEmailResetPasswordExpiryDate DateTime?
+    role                               Role      @default(customer)
+    createdAt                          DateTime  @default(now())
+    updatedAt                          DateTime  @updatedAt
 
     // Relationships
     messages      Message[]

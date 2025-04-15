@@ -30,7 +30,7 @@ export const POST = async (req: Request) => {
             );
         }
 
-        const existingUserByEmail = await getUserByEmail(username);
+        const existingUserByEmail = await getUserByEmail(email);
 
         // const existingUserByEmail = await UserModel.findOne({ email });
 

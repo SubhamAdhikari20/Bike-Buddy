@@ -10,6 +10,8 @@ export async function createUser(data: {
     profilePictureUrl?: string;
     verifyCode?: string;
     verifyCodeExpiryDate?: Date;
+    verifyEmailResetPassword?: string;
+    verifyEmailResetPasswordExpiryDate?: Date;
     isVerified?: boolean;
     role?: Role;
 }): Promise<User> {
@@ -23,6 +25,8 @@ export async function createUser(data: {
             profilePictureUrl: data.profilePictureUrl ?? null,
             verifyCode: data.verifyCode,
             verifyCodeExpiryDate: data.verifyCodeExpiryDate,
+            verifyEmailResetPassword: data.verifyEmailResetPassword,
+            verifyEmailResetPasswordExpiryDate: data.verifyEmailResetPasswordExpiryDate,
             isVerified: data.isVerified ?? false,
             role: data.role || 'customer',
         },
@@ -67,11 +71,13 @@ export async function updateUser(
         email: string;
         password: string;
         contact: string;
-        profilePictureUrl: string;
-        verifyCode: string;
-        verifyCodeExpiryDate: Date;
-        isVerified: boolean;
-        role: Role;
+        profilePictureUr?: string;
+        verifyCode?: string | null;
+        verifyCodeExpiryDate?: Date | null;
+        isVerified?: boolean;
+        verifyEmailResetPassword?: string | null;
+        verifyEmailResetPasswordExpiryDate?: Date | null;
+        role?: Role;
     }>
 ): Promise<User> {
     return await prisma.user.update({
@@ -88,4 +94,17 @@ export async function deleteUser(id: number): Promise<User> {
 
 export async function getAllUsers(): Promise<User[]> {
     return await prisma.user.findMany();
+}
+
+export async function resetPassword(
+    id: number,
+    data: Partial<{
+        email: string;
+        password: string;
+    }>
+): Promise<User> {
+    return await prisma.user.update({
+        where: { id },
+        data,
+    });
 }
