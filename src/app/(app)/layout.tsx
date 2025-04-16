@@ -8,9 +8,9 @@ export default function AppLayout({
 }>) {
     return (
         <>
-            <NavBar />
+            {/* <NavBar /> */}
             <main className="min-h-screen bg-[size:20px_20px]">{children}</main>
-            <Footer />
+            {/* <Footer /> */}
         </>
     );
 }

@@ -18,8 +18,8 @@ const NavBar = () => {
     };
 
     return (
-        <nav className="sticky top-0 inset-x-0 z-50 bg-white shadow-md transition-all">
-            <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
+        <header className="sticky top-0 inset-x-0 z-50 bg-white shadow-md transition-all">
+            <nav className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
                 {/* Branding */}
                 <Link href="/" className="flex items-center gap-2">
                     <Image
@@ -77,10 +77,10 @@ const NavBar = () => {
                         {mobileMenuOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
                     </button>
                 </div>
-            </div>
+            </nav>
 
             {/* Mobile Navigation Menu */}
-            <div className={`md:hidden bg-white shadow-md overflow-hidden transition-all duration-300 ${mobileMenuOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+            <nav className={`md:hidden bg-white shadow-md overflow-hidden transition-all duration-300 ${mobileMenuOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
                 }`}>
                 <div className="container mx-auto px-4 py-4 flex justify-center items-center flex-col ">
                     <ul className="flex flex-col gap-4 text-gray-700">
@@ -136,8 +136,8 @@ const NavBar = () => {
                         )}
                     </div>
                 </div>
-            </div>
-        </nav>
+            </nav>
+        </header>
     );
 };
 
