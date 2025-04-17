@@ -1,6 +1,6 @@
 // src/app/(auth)/sign-in/page.tsx
 "use client"
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
@@ -14,7 +14,15 @@ import {
     SelectLabel,
     SelectTrigger,
     SelectValue,
-} from "@/components/ui/select"
+} from "@/components/ui/select";
+import {
+    Dialog,
+    DialogTrigger,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogFooter
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import * as z from "zod";
@@ -27,7 +35,11 @@ import Link from "next/link";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 const SignIn = () => {
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [emailToVerify, setEmailToVerify] = useState("");
+    const [sendingCode, setSendingCode] = useState(false);
     const router = useRouter();
+    const params = useParams<{ username: string }>();
 
     const form = useForm<z.infer<typeof loginSchema>>({
         resolver: zodResolver(loginSchema),
@@ -65,6 +77,12 @@ const SignIn = () => {
 
         const session = await getSession();
         const user = session?.user;
+        if (!user?.isVerified) {
+            toast.warning("Account not verified. Please verify first.");
+            setEmailToVerify(user?.email || "");
+            setIsDialogOpen(true);
+            return;
+        }
         if (!user?.username || !user?.role) {
             toast.error("Could not determine your user profile");
             return;
@@ -180,6 +198,64 @@ const SignIn = () => {
                     </div>
                 </div>
             </div>
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Verify your Email</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4 py-2">
+                        <Form {...form}>
+                            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                                <FormField
+                                    name="email"
+                                    control={form.control}
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Email</FormLabel>
+                                            <FormControl>
+                                                <Input placeholder="Enter the code" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <div className="flex items-center justify-center">
+                                    <Button type="submit" className="cursor-pointer">Submit</Button>
+                                </div>
+                            </form>
+                        </Form>
+
+                        {/* <div>
+                            <FormLabel>Email</FormLabel>
+                            <Input disabled value={emailToVerify} />
+                        </div> */}
+                        <Button
+                            onClick={async () => {
+                                setSendingCode(true);
+                                try {
+                                    const res = await axios.put("/api/auth/send-verification-email", data);
+                                    toast.success("Verification code sent");
+                                    router.replace(`/verify/${username}`);
+                                }
+                                catch (err) {
+                                    toast.error("Failed to send code");
+                                }
+                                finally {
+                                    setSendingCode(false);
+                                }
+                            }}
+                            disabled={sendingCode}
+                        >
+                            {sendingCode ? <Loader2 className="animate-spin mr-2 h-4 w-4" /> : null}
+                            Send Verification Code
+                        </Button>
+                    </div>
+                    <DialogFooter>
+                        <Button variant="ghost" onClick={() => setIsDialogOpen(false)}>Close</Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
         </div>
     );
 };

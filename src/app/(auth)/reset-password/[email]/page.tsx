@@ -136,7 +136,7 @@ const ResetPassword = () => {
                                         Please wait
                                     </>
                                 ) : (
-                                    "Sign up"
+                                    "Reset"
                                 )}
                             </Button>
                         </div>

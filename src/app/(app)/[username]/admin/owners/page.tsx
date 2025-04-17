@@ -34,6 +34,18 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -78,6 +90,23 @@ const ManageOwners = () => {
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const toggleConfirmPasswordVisibility = () => setShowConfirmPassword((prev) => !prev);
 
+    const fetchOwners = async () => {
+        try {
+            const res = await axios.get(`/api/admin/owners`);
+            setOwners(res.data);
+        }
+        catch (error) {
+            toast.error("Failed to load bikes.");
+        }
+        finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchOwners();
+    }, []);
+
     useEffect(() => {
         const checkUsernameUnique = async () => {
             if (username) {
@@ -109,7 +138,8 @@ const ManageOwners = () => {
                 description: response.data.message
             });
 
-            router.replace(`/verify/${username}`);
+            setDialogOpen(false);
+            fetchOwners();
         }
         catch (error) {
             console.error("Error in sign up of user", error);
@@ -122,6 +152,18 @@ const ManageOwners = () => {
         }
         finally {
             setIsSubmitting(false);
+        }
+    }
+
+    const handleDelete = async (owner: User) => {
+        try {
+            const res = await axios.delete(
+                `/api/admin/owners/${owner.id}`
+            );
+            toast.success(res.data.message);
+            fetchOwners();
+        } catch (error) {
+            toast.error("Failed to delete owner");
         }
     }
 
@@ -199,22 +241,6 @@ const ManageOwners = () => {
                                             <FormLabel>Contact Number</FormLabel>
                                             <FormControl>
                                                 <Input {...field} />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                                <FormField
-                                    name="email"
-                                    control={form.control}
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Email</FormLabel>
-                                            <FormControl>
-                                                <Input
-                                                    type="email"
-                                                    placeholder="Email" {...field}
-                                                />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -322,11 +348,14 @@ const ManageOwners = () => {
                     <Loader2 className="h-8 w-8 animate-spin" />
                 </div>
             ) : (
-                <div className="rounded-md border">
+                <div className="overflow-x-auto rounded-md border shadow-sm">
                     <Table>
                         <TableHeader>
                             <TableRow>
+                                <TableHead>Id</TableHead>
+                                <TableHead>Profile</TableHead>
                                 <TableHead>Name</TableHead>
+                                <TableHead>Username</TableHead>
                                 <TableHead>Email</TableHead>
                                 <TableHead>Contact</TableHead>
                                 <TableHead className="text-right">Actions</TableHead>
@@ -335,17 +364,52 @@ const ManageOwners = () => {
                         <TableBody>
                             {owners.map((owner) => (
                                 <TableRow key={owner.id}>
+                                    <TableCell className="font-medium">{owner.id}</TableCell>
+                                    <TableCell>
+                                        <Avatar className="h-10 w-10">
+                                            <AvatarImage
+                                                src={owner.profilePictureUrl || undefined}
+                                                alt={owner.fullName}
+                                            />
+                                            <AvatarFallback>
+                                                {owner.fullName
+                                                    .split(" ")
+                                                    .map((n) => n[0])
+                                                    .join("")
+                                                    .slice(0, 2)
+                                                    .toUpperCase()}
+                                            </AvatarFallback>
+                                        </Avatar>
+                                    </TableCell>
                                     <TableCell className="font-medium">{owner.fullName}</TableCell>
+                                    <TableCell>{owner.username}</TableCell>
                                     <TableCell>{owner.email}</TableCell>
                                     <TableCell>{owner.contact}</TableCell>
                                     <TableCell className="text-right">
-                                        <Button
-                                            variant="destructive"
-                                            size="sm"
-                                        >
-                                            <Trash2 className="h-4 w-4" />
-                                            <span className="sr-only md:not-sr-only md:ml-2">Delete</span>
-                                        </Button>
+                                        <AlertDialog>
+                                            <AlertDialogTrigger asChild>
+                                                <Button variant="destructive" size="sm">
+                                                    <Trash2 className="h-4 w-4" />
+                                                    <span className="sr-only md:not-sr-only md:ml-2">Delete</span>
+                                                </Button>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent>
+                                                <AlertDialogHeader>
+                                                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                                    <AlertDialogDescription>
+                                                        This action cannot be undone. This will permanently delete the owner
+                                                        <strong> "{owner.fullName}"</strong> and remove their data from the system.
+                                                    </AlertDialogDescription>
+                                                </AlertDialogHeader>
+                                                <AlertDialogFooter>
+                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                    <AlertDialogAction onClick={() => handleDelete(owner)}>
+                                                        Confirm Delete
+                                                    </AlertDialogAction>
+                                                </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
+
                                     </TableCell>
                                 </TableRow>
                             ))}

@@ -4,6 +4,18 @@ import React, { useState } from 'react';
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { FaUserCircle, FaSignOutAlt, FaClipboardList, FaLocationArrow, FaUserPlus, FaBars, FaTimes } from 'react-icons/fa';
 import { signOut } from "next-auth/react";
 import { User } from "next-auth";
@@ -14,6 +26,7 @@ interface CurrentUser {
     username?: string;
     email?: string;
     role?: string;
+    profilePictureUrl?: string;
 }
 
 interface SideBarProps {
@@ -48,10 +61,26 @@ const SideBar: React.FC<SideBarProps> = ({ currentUser }) => {
                         <div
                             className="flex items-center w-full focus:outline-none "
                         >
-                            <FaUserCircle onClick={handleToggleProfile} size={40} className="mr-3 cursor-pointer" />
-                            <span className="font-semibold">
-                                {currentUser.fullName || currentUser.username || currentUser.email || "Admin"}
-                            </span>
+                            <div onClick={handleToggleProfile} className="flex items-center gap-3 cursor-pointer">
+                                <Avatar className="h-10 w-10">
+                                    <AvatarImage
+                                        src={currentUser.profilePictureUrl || undefined}
+                                        alt={currentUser.fullName || currentUser.username || "Admin"}
+                                    />
+                                    <AvatarFallback>
+                                        {(currentUser.fullName || currentUser.username || "A")
+                                            .split(" ")
+                                            .map((n) => n[0])
+                                            .join("")
+                                            .slice(0, 2)
+                                            .toUpperCase()}
+                                    </AvatarFallback>
+                                </Avatar>
+                                <span className="font-semibold text-sm sm:text-base">
+                                    {currentUser.fullName || currentUser.username || currentUser.email || "Admin"}
+                                </span>
+                            </div>
+
                         </div>
                         {isProfileOpen && (
                             <div className="absolute top-14 left-0 w-full bg-gray-700 rounded shadow-lg z-50">
@@ -66,15 +95,33 @@ const SideBar: React.FC<SideBarProps> = ({ currentUser }) => {
                                         </Link>
                                     </li>
                                     <li>
-                                        <div
-                                            onClick={() => {
-                                                signOut();
-                                                setIsMobileOpen(false);
-                                            }}
-                                            className="flex items-center px-4 py-2 hover:bg-gray-600 w-full text-left cursor-pointer"
-                                        >
-                                            <FaSignOutAlt className="mr-2" /> Logout
-                                        </div>
+                                        <AlertDialog>
+                                            <AlertDialogTrigger asChild>
+                                                <div className="flex items-center px-4 py-2 hover:bg-gray-600 w-full text-left cursor-pointer">
+                                                    <FaSignOutAlt className="mr-2" /> Logout
+                                                </div>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent className="rounded-lg">
+                                                <AlertDialogHeader>
+                                                    <AlertDialogTitle>Are you sure you want to logout?</AlertDialogTitle>
+                                                    <AlertDialogDescription>
+                                                        This will end your session and return you to the sign-in page.
+                                                    </AlertDialogDescription>
+                                                </AlertDialogHeader>
+                                                <AlertDialogFooter>
+                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                    <AlertDialogAction
+                                                        className="bg-red-600 hover:bg-red-700 text-white"
+                                                        onClick={() => {
+                                                            signOut();
+                                                            setIsMobileOpen(false);
+                                                        }}
+                                                    >
+                                                        Logout
+                                                    </AlertDialogAction>
+                                                </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
                                     </li>
                                 </ul>
                             </div>

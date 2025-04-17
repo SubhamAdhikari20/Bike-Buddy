@@ -2,7 +2,7 @@
 import bcrypt from "bcryptjs";
 import { getUserByEmail, updateUser } from "@/model/User";
 
-export async function POST(request: Request) {
+export async function PUT(request: Request) {
     try {
         const { email, password } = await request.json();
         const decodedEmail = decodeURIComponent(email);

@@ -8,8 +8,9 @@ export async function GET() {
         const owners = await prisma.user.findMany({
             where: { role: Role.owner },
         });
-        return NextResponse.json(owners);
-    } catch (error) {
+        return NextResponse.json(owners, { status: 200 });
+    } 
+    catch (error) {
         return NextResponse.json(
             { error: "Failed to fetch owners" },
             { status: 500 }
