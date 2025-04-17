@@ -35,9 +35,13 @@ import Link from "next/link";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 const SignIn = () => {
-    const [isDialogOpen, setIsDialogOpen] = useState(false);
+    // OTP dialog state
+    const [dialogOpen, setDialogOpen] = useState(false);
     const [emailToVerify, setEmailToVerify] = useState("");
+    const [code, setCode] = useState("");
     const [sendingCode, setSendingCode] = useState(false);
+    const [verifying, setVerifying] = useState(false);
+
     const router = useRouter();
     const params = useParams<{ username: string }>();
 
@@ -79,9 +83,8 @@ const SignIn = () => {
         const user = session?.user;
         if (!user?.isVerified) {
             toast.warning("Account not verified. Please verify first.");
-            setEmailToVerify(user?.email || "");
-            setIsDialogOpen(true);
-            return;
+            setEmailToVerify(user?.email!);
+            return setDialogOpen(true);
         }
         if (!user?.username || !user?.role) {
             toast.error("Could not determine your user profile");
