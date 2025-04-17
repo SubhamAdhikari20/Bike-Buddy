@@ -1,17 +1,26 @@
 // src/components/admin/SideBar.tsx
 "use client"
-import React, { useState } from 'react'
+import React, { useState } from 'react';
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { FaUserCircle, FaSignOutAlt, FaClipboardList, FaLocationArrow, FaUserPlus, FaBars, FaTimes } from 'react-icons/fa';
-import { useSession, signOut } from "next-auth/react";
-import { User } from "next-auth"
+import { signOut } from "next-auth/react";
+import { User } from "next-auth";
 
-const SideBar = () => {
-    const { data: session } = useSession();
-    const user = session?.user;
+interface CurrentUser {
+    id?: string,
+    fullName?: string;
+    username?: string;
+    email?: string;
+    role?: string;
+}
 
+interface SideBarProps {
+    currentUser: CurrentUser;
+}
+
+const SideBar: React.FC<SideBarProps> = ({ currentUser }) => {
     const [isProfileOpen, setIsProfileOpen] = useState(false);
     const [isMobileOpen, setIsMobileOpen] = useState(false);
 
@@ -26,7 +35,6 @@ const SideBar = () => {
                     {isMobileOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
                 </Button>
                 {/* <span className="font-bold">Dashboard</span> */}
-                {/* <div></div> */}
             </header>
 
             {/* Sidebar - Visible on Desktop or Mobile when toggled */}
@@ -42,7 +50,7 @@ const SideBar = () => {
                         >
                             <FaUserCircle onClick={handleToggleProfile} size={40} className="mr-3 cursor-pointer" />
                             <span className="font-semibold">
-                                {user?.fullName || user?.username || "Admin"}
+                                {currentUser.fullName || currentUser.username || currentUser.email || "Admin"}
                             </span>
                         </div>
                         {isProfileOpen && (
@@ -78,7 +86,7 @@ const SideBar = () => {
                         <ul className="space-y-4">
                             <li>
                                 <Link
-                                    href="/admin/owners"
+                                    href={`/${currentUser.username}/admin/owners`}
                                     className="flex items-center px-4 py-2 hover:bg-gray-700 rounded"
                                     onClick={() => setIsMobileOpen(false)}
                                 >
@@ -87,7 +95,7 @@ const SideBar = () => {
                             </li>
                             <li>
                                 <Link
-                                    href="/admin/live-tracking"
+                                    href={`/${currentUser.username}/admin/live-tracking`}
                                     className="flex items-center px-4 py-2 hover:bg-gray-700 rounded"
                                     onClick={() => setIsMobileOpen(false)}
                                 >
@@ -96,7 +104,7 @@ const SideBar = () => {
                             </li>
                             <li>
                                 <Link
-                                    href="/admin/rental-report"
+                                    href={`/${currentUser.username}/admin/rental-report`}
                                     className="flex items-center px-4 py-2 hover:bg-gray-700 rounded"
                                     onClick={() => setIsMobileOpen(false)}
                                 >
@@ -105,7 +113,7 @@ const SideBar = () => {
                             </li>
                             <li>
                                 <Link
-                                    href="/admin/transactions"
+                                    href={`/${currentUser.username}/admin/transactions`}
                                     className="flex items-center px-4 py-2 hover:bg-gray-700 rounded"
                                     onClick={() => setIsMobileOpen(false)}
                                 >

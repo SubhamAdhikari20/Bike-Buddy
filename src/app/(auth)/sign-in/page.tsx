@@ -21,7 +21,7 @@ import * as z from "zod";
 import axios, { AxiosError } from "axios";
 import { ApiResponse } from "@/types/ApiResponse";
 import { loginSchema } from "@/schemas/user-schemas/loginSchema";
-import { signIn } from "next-auth/react";
+import { signIn, getSession } from "next-auth/react";
 import { Loader2 } from "lucide-react";
 import Link from "next/link";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
@@ -50,10 +50,6 @@ const SignIn = () => {
         });
 
         if (result?.error) {
-            // toast('Login Failed', {
-            //     description: "Incorrect username or password"
-            // });
-
             if (result.error == "CredentialsSignIn") {
                 toast('Login Failed', {
                     description: "Incorrect username or password"
@@ -64,11 +60,17 @@ const SignIn = () => {
                     description: result.error
                 });
             }
+            return;
         }
 
-        if (result?.url) {
-            router.replace("/dashboard");
+        const session = await getSession();
+        const user = session?.user;
+        if (!user?.username || !user?.role) {
+            toast.error("Could not determine your user profile");
+            return;
         }
+
+        router.replace(`/${user.username}/${user.role}/dashboard`);
     }
 
     return (

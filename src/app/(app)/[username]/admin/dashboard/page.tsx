@@ -1,4 +1,4 @@
-// src/app/(app)/admin/dashboard/page.tsx
+// src/app/(app)/[username]/admin/dashboard/page.tsx
 import React from 'react';
 
 const AdminDashboard = () => {
