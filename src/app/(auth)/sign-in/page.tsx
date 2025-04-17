@@ -94,6 +94,43 @@ const SignIn = () => {
         router.replace(`/${user.username}/${user.role}/dashboard`);
     }
 
+    async function sendCode() {
+        setSendingCode(true);
+        try {
+            await axios.put("/api/auth/send-verification-email", {
+                email: emailToVerify,
+            });
+            toast.success("Verification code sent");
+        } catch {
+            toast.error("Failed to send code");
+        } finally {
+            setSendingCode(false);
+        }
+    }
+
+    async function verifyCode() {
+        if (code.length !== 6) {
+            return toast.error("Please enter the 6‑digit code");
+        }
+        setVerifying(true);
+        try {
+            const res = await axios.post("/api/auth/verify-email", {
+                email: emailToVerify,
+                code,
+            });
+            toast.success("Email verified! Redirecting…");
+            setDialogOpen(false);
+            // now redirect
+            const sess = await getSession();
+            const user = sess?.user!;
+            router.replace(`/${user.username}/${user.role}/dashboard`);
+        } catch (err: any) {
+            toast.error(err.response?.data?.message || "Verification failed");
+        } finally {
+            setVerifying(false);
+        }
+    }
+
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4 sm:px-6 lg:px-8">
             <div className="w-full max-w-md space-y-8 bg-white p-8 rounded-lg shadow-lg">
@@ -201,61 +238,56 @@ const SignIn = () => {
                     </div>
                 </div>
             </div>
-            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+
+            {/* ─── VERIFY DIALOG ───────────────────────────────────── */}
+            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle>Verify your Email</DialogTitle>
+                        <DialogTitle>Verify Your Email</DialogTitle>
                     </DialogHeader>
-                    <div className="space-y-4 py-2">
-                        <Form {...form}>
-                            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                                <FormField
-                                    name="email"
-                                    control={form.control}
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Email</FormLabel>
-                                            <FormControl>
-                                                <Input placeholder="Enter the code" {...field} />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                                <div className="flex items-center justify-center">
-                                    <Button type="submit" className="cursor-pointer">Submit</Button>
-                                </div>
-                            </form>
-                        </Form>
-
-                        {/* <div>
+                    <div className="space-y-4">
+                        <div>
                             <FormLabel>Email</FormLabel>
                             <Input disabled value={emailToVerify} />
-                        </div> */}
-                        <Button
-                            onClick={async () => {
-                                setSendingCode(true);
-                                try {
-                                    const res = await axios.put("/api/auth/send-verification-email", data);
-                                    toast.success("Verification code sent");
-                                    router.replace(`/verify/${username}`);
-                                }
-                                catch (err) {
-                                    toast.error("Failed to send code");
-                                }
-                                finally {
-                                    setSendingCode(false);
-                                }
-                            }}
-                            disabled={sendingCode}
-                        >
-                            {sendingCode ? <Loader2 className="animate-spin mr-2 h-4 w-4" /> : null}
-                            Send Verification Code
-                        </Button>
+                        </div>
+                        <div className="flex gap-2">
+                            <Button
+                                onClick={sendCode}
+                                disabled={sendingCode}
+                                className="flex-1"
+                            >
+                                {sendingCode && <Loader2 className="animate-spin mr-2 h-4 w-4" />}
+                                Send Code
+                            </Button>
+                        </div>
+                        <div>
+                            <FormLabel>Enter 6‑digit Code</FormLabel>
+                            <Input
+                                value={code}
+                                onChange={(e) => setCode(e.target.value)}
+                                maxLength={6}
+                                placeholder="Code"
+                            />
+                        </div>
+                        <div className="flex gap-2">
+                            <Button
+                                variant="secondary"
+                                onClick={() => setDialogOpen(false)}
+                            >
+                                Cancel
+                            </Button>
+                            <Button
+                                onClick={verifyCode}
+                                disabled={verifying}
+                                className="flex-1"
+                            >
+                                {verifying && (
+                                    <Loader2 className="animate-spin mr-2 h-4 w-4" />
+                                )}
+                                Verify
+                            </Button>
+                        </div>
                     </div>
-                    <DialogFooter>
-                        <Button variant="ghost" onClick={() => setIsDialogOpen(false)}>Close</Button>
-                    </DialogFooter>
                 </DialogContent>
             </Dialog>
 

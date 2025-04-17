@@ -5,10 +5,35 @@ import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { FaUserCircle, FaSignOutAlt, FaClipboardList, FaBiking, FaUserPlus, FaBars, FaTimes, FaLocationArrow } from 'react-icons/fa';
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { useSession, signOut } from "next-auth/react";
-import { User } from "next-auth"
+import { User } from "next-auth";
 
-const SideBar = () => {
+interface CurrentUser {
+    id?: string,
+    fullName?: string;
+    username?: string;
+    email?: string;
+    role?: string;
+    profilePictureUrl?: string;
+}
+
+interface SideBarProps {
+    currentUser: CurrentUser;
+}
+
+const SideBar: React.FC<SideBarProps> = ({ currentUser }) => {
     const { data: session } = useSession();
     const user = session?.user;
 
@@ -40,10 +65,25 @@ const SideBar = () => {
                         <div
                             className="flex items-center w-full focus:outline-none "
                         >
-                            <FaUserCircle onClick={handleToggleProfile} size={40} className="mr-3 cursor-pointer" />
-                            <span className="font-semibold">
-                                {user?.fullName || user?.username || "Owner"}
-                            </span>
+                            <div onClick={handleToggleProfile} className="flex items-center gap-3 cursor-pointer">
+                                <Avatar className="h-10 w-10">
+                                    <AvatarImage
+                                        src={currentUser.profilePictureUrl || undefined}
+                                        alt={currentUser.fullName || currentUser.username || "Admin"}
+                                    />
+                                    <AvatarFallback>
+                                        {(currentUser.fullName || currentUser.username || "A")
+                                            .split(" ")
+                                            .map((n) => n[0])
+                                            .join("")
+                                            .slice(0, 2)
+                                            .toUpperCase()}
+                                    </AvatarFallback>
+                                </Avatar>
+                                <span className="font-semibold text-sm sm:text-base">
+                                    {currentUser.fullName || currentUser.username || currentUser.email || "Admin"}
+                                </span>
+                            </div>
                         </div>
                         {isProfileOpen && (
                             <div className="absolute top-14 left-0 w-full bg-gray-700 rounded shadow-lg z-50">
@@ -58,15 +98,33 @@ const SideBar = () => {
                                         </Link>
                                     </li>
                                     <li>
-                                        <div
-                                            onClick={() => {
-                                                signOut();
-                                                setIsMobileOpen(false);
-                                            }}
-                                            className="flex items-center px-4 py-2 hover:bg-gray-600 w-full text-left cursor-pointer"
-                                        >
-                                            <FaSignOutAlt className="mr-2" /> Logout
-                                        </div>
+                                        <AlertDialog>
+                                            <AlertDialogTrigger asChild>
+                                                <div className="flex items-center px-4 py-2 hover:bg-gray-600 w-full text-left cursor-pointer">
+                                                    <FaSignOutAlt className="mr-2" /> Logout
+                                                </div>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent className="rounded-lg">
+                                                <AlertDialogHeader>
+                                                    <AlertDialogTitle>Are you sure you want to logout?</AlertDialogTitle>
+                                                    <AlertDialogDescription>
+                                                        This will end your session and return you to the sign-in page.
+                                                    </AlertDialogDescription>
+                                                </AlertDialogHeader>
+                                                <AlertDialogFooter>
+                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                    <AlertDialogAction
+                                                        className="bg-red-600 hover:bg-red-700 text-white"
+                                                        onClick={() => {
+                                                            signOut();
+                                                            setIsMobileOpen(false);
+                                                        }}
+                                                    >
+                                                        Logout
+                                                    </AlertDialogAction>
+                                                </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
                                     </li>
                                 </ul>
                             </div>
@@ -114,16 +172,18 @@ const SideBar = () => {
                             </li> */}
                         </ul>
                     </nav>
-                </aside>
+                </aside >
 
                 {/* Mobile Sidebar Overlay */}
-                {isMobileOpen && (
-                    <div
-                        className="fixed inset-0 bg-black opacity-50 z-30"
-                        onClick={handleMobileToggle}
-                    />
-                )}
-            </div>
+                {
+                    isMobileOpen && (
+                        <div
+                            className="fixed inset-0 bg-black opacity-50 z-30"
+                            onClick={handleMobileToggle}
+                        />
+                    )
+                }
+            </div >
         </>
     );
 };
