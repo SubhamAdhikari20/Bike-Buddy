@@ -87,7 +87,7 @@ const SideBar: React.FC<SideBarProps> = ({ currentUser }) => {
                                 <ul>
                                     <li>
                                         <Link
-                                            href="/my-profile"
+                                            href={`/${currentUser.username}/admin/my-profile`}
                                             className="flex items-center px-4 py-2 hover:bg-gray-600 w-full"
                                             onClick={() => setIsMobileOpen(false)}
                                         >

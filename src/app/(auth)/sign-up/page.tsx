@@ -109,7 +109,7 @@ const SignUp = () => {
     }
 
     return (
-        <div className="flex justify-center items-center min-h-screen bg-gray-100 px-4 sm:px-6 lg:px-8">
+        <section className="flex justify-center items-center min-h-screen bg-gray-100 px-5 py-10 sm:px-6 lg:px-8">
             <div className="w-full max-w-md space-y-8 bg-white p-8 rounded-lg shadow-lg">
                 <div className="text-center">
                     <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900">
@@ -295,7 +295,7 @@ const SignUp = () => {
                     </p>
                 </div>
             </div>
-        </div>
+        </section>
     );
 };
 

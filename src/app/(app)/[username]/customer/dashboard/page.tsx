@@ -1,33 +1,49 @@
 "use client";
-import React from "react";
+import React, { useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
+import { Loader2 } from "lucide-react";
 
 export default function CustomerDashboard() {
-    const currentYear = new Date().getFullYear();
+    const { data: session, status } = useSession();
+    const router = useRouter();
+
+    useEffect(() => {
+        if (status === "unauthenticated") {
+            router.replace("/sign-in");
+        }
+    }, [status, router])
+
+    if (status === "loading") {
+        return (
+            <div className="flex h-screen items-center justify-center">
+                <Loader2 className="animate-spin h-10 w-10 text-gray-600" />
+            </div>
+        );
+    }
 
     return (
         <>
             {/* Hero Section */}
             <section className="bg-gray-100 py-12 px-4 md:px-0">
                 <div className="container mx-auto flex flex-col items-center justify-center text-center gap-6">
-                    <div className="flex flex-col items-center">
-                        <h1 className="text-4xl md:text-6xl font-extrabold text-gray-800 mt-4">
-                            Bike Buddy
-                        </h1>
-                        <p className="text-lg md:text-xl text-gray-600 mt-2">
-                            Your Premium Bike Rental Experience
-                        </p>
-                    </div>
-                    <p className="max-w-2xl text-gray-700 text-sm md:text-base">
-                        Discover the freedom of urban mobility with Bike Buddy. Rent the perfect bike quickly and securely with real-time tracking, seamless payments, and a user-friendly platform.
+                    <h1 className="text-4xl md:text-6xl font-extrabold text-gray-800">
+                        Welcome back, {session?.user?.fullName ?? session?.user?.username}!
+                    </h1>
+                    <p className="text-lg md:text-xl text-gray-600">
+                        Your Premium Bike Rental Dashboard
                     </p>
                     <div className="flex flex-col sm:flex-row gap-4">
-                        <Link href="/sign-in">
-                            <Button variant="default" className="px-6 py-3 text-base">
-                                Get Started
+                        <Link href={`/${session?.user?.username}/customer/bikes`}>
+                            <Button className="px-6 py-3 text-base">Browse Bikes</Button>
+                        </Link>
+                        <Link href={`/${session?.user?.username}/customer/history`}>
+                            <Button variant="outline" className="px-6 py-3 text-base">
+                                Rental History
                             </Button>
                         </Link>
                     </div>
@@ -44,15 +60,15 @@ export default function CustomerDashboard() {
                                 <CardTitle className="text-xl font-semibold">Wide Range of Bikes</CardTitle>
                             </CardHeader>
                             <CardContent className="text-gray-600 text-sm">
-                                From city bikes to electric bikes, find the perfect ride for any occasion.
+                                From city bikes to e‑bikes, find the perfect ride for any occasion.
                             </CardContent>
                         </Card>
                         <Card className="p-4">
                             <CardHeader>
-                                <CardTitle className="text-xl font-semibold">Real-Time Tracking</CardTitle>
+                                <CardTitle className="text-xl font-semibold">Real‑Time Tracking</CardTitle>
                             </CardHeader>
                             <CardContent className="text-gray-600 text-sm">
-                                Stay updated with live GPS tracking for a safe and reliable rental experience.
+                                Stay updated with live GPS tracking for a safe and reliable rental.
                             </CardContent>
                         </Card>
                         <Card className="p-4">
@@ -60,7 +76,7 @@ export default function CustomerDashboard() {
                                 <CardTitle className="text-xl font-semibold">Secure Payments</CardTitle>
                             </CardHeader>
                             <CardContent className="text-gray-600 text-sm">
-                                Enjoy a smooth and secure payment process with integrated payment gateways.
+                                Enjoy a smooth & secure payment process with integrated gateways.
                             </CardContent>
                         </Card>
                     </div>
@@ -78,7 +94,7 @@ export default function CustomerDashboard() {
                             title="Bike Buddy Demo Video"
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                             allowFullScreen
-                        ></iframe>
+                        />
                     </div>
                 </div>
             </section>

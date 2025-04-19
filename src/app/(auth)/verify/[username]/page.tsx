@@ -12,6 +12,7 @@ import { ApiResponse } from "@/types/ApiResponse";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { signOut } from "next-auth/react";
 
 const VerifyAccount = () => {
     const router = useRouter();
@@ -29,12 +30,14 @@ const VerifyAccount = () => {
             const response = await axios.post(`/api/auth/verify-code`, {
                 username: params.username,
                 code: data.code
-            })
+            });
 
+            
             toast('Success', {
                 description: response.data.message
             });
-
+            
+            signOut({ callbackUrl: "/sign-in" });
             router.replace("/sign-in");
         }
         catch (error) {

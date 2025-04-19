@@ -1,16 +1,11 @@
 "use client";
 import React, { useState } from "react";
 import Link from "next/link";
-import { useSession, signOut } from "next-auth/react";
-import { User } from "next-auth"
 import Image from "next/image";
 import { Button } from "./ui/button";
 import { FaBars, FaTimes } from "react-icons/fa";
 
 const NavBar = () => {
-    const { data: session } = useSession();
-    const user: User = session?.user as User;
-
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
     const toggleMenu = () => {
@@ -52,24 +47,9 @@ const NavBar = () => {
                             </Link>
                         </li>
                     </ul>
-                    {session ? (
-                        <div className="flex items-center gap-4">
-                            <span className="text-gray-800 text-sm">
-                                Welcome, {user?.fullName || user?.username || user?.email}
-                            </span>
-                            <Button
-                                variant="outline"
-                                onClick={() => signOut()}
-                                className="text-sm"
-                            >
-                                Logout
-                            </Button>
-                        </div>
-                    ) : (
-                        <Link href="/sign-in">
-                            <Button className="text-sm">Login</Button>
-                        </Link>
-                    )}
+                    <Link href="/sign-in">
+                        <Button className="text-sm">Login</Button>
+                    </Link>
                 </div>
                 {/* Mobile Menu Toggle */}
                 <div className="md:hidden">
@@ -113,27 +93,9 @@ const NavBar = () => {
                         </li>
                     </ul>
                     <div className="mt-4">
-                        {session ? (
-                            <div className="flex flex-col gap-2">
-                                <span className="text-gray-800 text-base">
-                                    Welcome, {user?.fullName || user?.username || user?.email}
-                                </span>
-                                <Button
-                                    variant="outline"
-                                    onClick={() => {
-                                        signOut();
-                                        setMobileMenuOpen(false);
-                                    }}
-                                    className="text-base"
-                                >
-                                    Logout
-                                </Button>
-                            </div>
-                        ) : (
-                            <Link href="/sign-in" onClick={() => setMobileMenuOpen(false)}>
-                                <Button className="text-base">Login</Button>
-                            </Link>
-                        )}
+                        <Link href="/sign-in" onClick={() => setMobileMenuOpen(false)}>
+                            <Button className="text-base">Login</Button>
+                        </Link>
                     </div>
                 </div>
             </nav>

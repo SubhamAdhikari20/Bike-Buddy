@@ -96,6 +96,12 @@ export async function getAllUsers(): Promise<User[]> {
     return await prisma.user.findMany();
 }
 
+export async function getAllOwners(): Promise<User[]> {
+    return await prisma.user.findMany({
+        where: { role: Role.owner },
+    });
+}
+
 export async function resetPassword(
     id: number,
     data: Partial<{

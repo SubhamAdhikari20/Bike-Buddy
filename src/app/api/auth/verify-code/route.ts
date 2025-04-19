@@ -36,7 +36,11 @@ export async function POST(request: Request) {
         const isCodeNotExpired = expiryDate ? expiryDate > new Date() : false;
 
         if (isCodeValid && isCodeNotExpired) {
-            await updateUser(user.id, { isVerified: true });
+            await updateUser(user.id, {
+                isVerified: true,
+                verifyCode: null,
+                verifyCodeExpiryDate: null,
+            });
 
             return Response.json(
                 {

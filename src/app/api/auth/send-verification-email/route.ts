@@ -1,16 +1,16 @@
-import { NextResponse } from "next/server";
+
 import { getUserByEmail, updateUser } from "@/model/User";
 import { sendVerificationEmail } from "@/helpers/sendVerificationEmail";
 
 export async function PUT(req: Request) {
     const { email } = await req.json();
     if (!email) {
-        return NextResponse.json({ message: "Email required" }, { status: 400 });
+        return Response.json({ message: "Email required" }, { status: 400 });
     }
 
     const user = await getUserByEmail(email);
     if (!user) {
-        return NextResponse.json({ message: "User not found" }, { status: 404 });
+        return Response.json({ message: "User not found" }, { status: 404 });
     }
 
     // generate 6‑digit OTP & expiry
@@ -23,10 +23,10 @@ export async function PUT(req: Request) {
         isVerified: false,
     });
 
-    const emailRes = await sendVerificationEmail(user.fullName, email, otp);
-    if (!emailRes.success) {
-        return NextResponse.json({ message: emailRes.message }, { status: 500 });
+    const emailResponse = await sendVerificationEmail(user.fullName, email, otp);
+    if (!emailResponse.success) {
+        return Response.json({ message: emailResponse.message }, { status: 500 });
     }
 
-    return NextResponse.json({ message: "Code sent" }, { status: 200 });
+    return Response.json({ message: emailResponse.message }, { status: 200 });
 }

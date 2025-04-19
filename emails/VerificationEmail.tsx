@@ -27,7 +27,7 @@ export default function VerificationEmail({ fullName, email, otp }: Verification
 
             <Section>
                 <Row>
-                    <Heading as="h2">Hello {fullName}</Heading>
+                    <Heading as="h2">Hello, {fullName}</Heading>
                 </Row>
                 <Row>
                     <Text>

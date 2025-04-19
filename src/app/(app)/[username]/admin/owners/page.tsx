@@ -92,11 +92,12 @@ const ManageOwners = () => {
 
     const fetchOwners = async () => {
         try {
-            const res = await axios.get(`/api/admin/owners`);
-            setOwners(res.data);
+            const response = await axios.get(`/api/admin/owners`);
+            setOwners(response.data);
         }
         catch (error) {
-            toast.error("Failed to load bikes.");
+            const axiosError = error as AxiosError<ApiResponse>;
+            toast.error(axiosError.response?.data.message);
         }
         finally {
             setLoading(false);
@@ -157,13 +158,15 @@ const ManageOwners = () => {
 
     const handleDelete = async (owner: User) => {
         try {
-            const res = await axios.delete(
+            const response = await axios.delete(
                 `/api/admin/owners/${owner.id}`
             );
-            toast.success(res.data.message);
+            toast.success(response.data.message);
             fetchOwners();
-        } catch (error) {
-            toast.error("Failed to delete owner");
+        }
+        catch (error) {
+            const axiosError = error as AxiosError<ApiResponse>;
+            toast.error(axiosError.response?.data.message || "Failed to delete owner");
         }
     }
 

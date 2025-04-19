@@ -38,9 +38,9 @@ export const authOptions: NextAuthOptions = {
                         throw new Error("Role does not match");
                     }
 
-                    if (!user.isVerified) {
-                        throw new Error("Please, verifiy your account before login");
-                    }
+                    // if (!user.isVerified) {
+                    //     throw new Error("Could not determine your user profile. Please, verifiy your account before login");
+                    // }
 
                     const isPasswordCorrect = await bcrypt.compare(credentials.password, user.password);
 

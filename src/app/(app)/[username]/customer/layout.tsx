@@ -1,4 +1,4 @@
-// src/app/(app)/dashboard/owner/layout.tsx
+// src/app/(app)/[username]/dashboard/customer/layout.tsx
 "use client"
 
 import React, { useEffect } from "react";
@@ -6,9 +6,9 @@ import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import SideBar from "@/components/owner/SideBar";
+import NavBar from "@/components/customer/NavBar";
 
-export default function OwnerLayout({
+export default function CustomerLayout({
     children,
 }: Readonly<{
     children: React.ReactNode;
@@ -18,12 +18,10 @@ export default function OwnerLayout({
 
     useEffect(() => {
         if (status === "loading") return;
-        // Check if session exists and user is owner
-        if (session?.user.role !== "owner") {
-            toast.error("Access denied. Owner only.");
+        // Check if session exists and user is customer
+        if (!session || session.user.role !== "customer") {
             router.replace("/sign-in");
         }
-        
     }, [session, status, router]);
 
     if (status === "loading" || !session) {
@@ -37,7 +35,7 @@ export default function OwnerLayout({
     return (
         <>
             <div className="flex gap-3 flex-col md:flex-row">
-                <SideBar currentUser={session.user} />
+                <NavBar currentUser={session.user} />
                 <main className="min-h-screen p-2 md:p-2 w-full">{children}</main>
             </div>
         </>

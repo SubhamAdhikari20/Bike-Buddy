@@ -1,11 +1,12 @@
 // src/app/(auth)/sign-in/page.tsx
 "use client"
 import React, { useState, useEffect } from 'react';
-import { useParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Label } from "@/components/ui/label";
 import {
     Select,
     SelectContent,
@@ -29,21 +30,20 @@ import * as z from "zod";
 import axios, { AxiosError } from "axios";
 import { ApiResponse } from "@/types/ApiResponse";
 import { loginSchema } from "@/schemas/user-schemas/loginSchema";
-import { signIn, getSession } from "next-auth/react";
+import { signIn, getSession, useSession } from "next-auth/react";
 import { Loader2 } from "lucide-react";
 import Link from "next/link";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 const SignIn = () => {
+    const router = useRouter();
+    const { data: session, status } = useSession();
+
     // OTP dialog state
     const [dialogOpen, setDialogOpen] = useState(false);
     const [emailToVerify, setEmailToVerify] = useState("");
     const [code, setCode] = useState("");
     const [sendingCode, setSendingCode] = useState(false);
-    const [verifying, setVerifying] = useState(false);
-
-    const router = useRouter();
-    const params = useParams<{ username: string }>();
 
     const form = useForm<z.infer<typeof loginSchema>>({
         resolver: zodResolver(loginSchema),
@@ -57,6 +57,7 @@ const SignIn = () => {
     const [showPassword, setShowPassword] = useState(false);
     const togglePasswordVisibility = () => setShowPassword((prev) => !prev);
 
+    // Sign In
     const onSubmit = async (data: z.infer<typeof loginSchema>) => {
         const result = await signIn("credentials", {
             redirect: false,
@@ -64,6 +65,7 @@ const SignIn = () => {
             password: data.password,
             role: data.role,
         });
+
 
         if (result?.error) {
             if (result.error == "CredentialsSignIn") {
@@ -79,60 +81,69 @@ const SignIn = () => {
             return;
         }
 
-        const session = await getSession();
-        const user = session?.user;
-        if (!user?.isVerified) {
-            toast.warning("Account not verified. Please verify first.");
-            setEmailToVerify(user?.email!);
-            return setDialogOpen(true);
-        }
-        if (!user?.username || !user?.role) {
-            toast.error("Could not determine your user profile");
+        // if (status !== "authenticated") return;
+        // if (!session) {
+        //     toast.error("No Session");
+        //     return;
+        // }
+
+        // const { user } = session;
+        // if (user.isVerified) {
+        //     toast('Login Successful', {
+        //         description: `Logged in as ${user.role}`
+        //     });
+        //     router.replace(`/${user.username}/${user.role}/dashboard`);
+        //     return;
+        // }
+        // else {
+        //     setEmailToVerify(user.email!);
+        //     return setDialogOpen(true);
+        // }
+    }
+
+    useEffect(() => {
+        if (status !== "authenticated") return;
+
+        if (!session) {
+            toast.error("No Session");
             return;
         }
 
-        router.replace(`/${user.username}/${user.role}/dashboard`);
-    }
+        const { user } = session;
+        if (user.isVerified) {
+            toast('Login Successful', {
+                description: `Logged in as ${user.role}`
+            });
+            router.replace(`/${user.username}/${user.role}/dashboard`);
+            return;
+        }
+        else {
+            setEmailToVerify(user.email!);
+            return setDialogOpen(true);
+        }
 
-    async function sendCode() {
+    }, [status, session, router]);
+
+    const sendCode = async () => {
         setSendingCode(true);
         try {
-            await axios.put("/api/auth/send-verification-email", {
+            const response = await axios.put("/api/auth/send-verification-email", {
                 email: emailToVerify,
             });
-            toast.success("Verification code sent");
-        } catch {
-            toast.error("Failed to send code");
-        } finally {
+            toast.success(response.data.message);
+            router.replace(`/verify/${session?.user.username}`);
+        }
+        catch (error) {
+            const axiosError = error as AxiosError<ApiResponse>;
+            toast.error(axiosError.response?.data.message || "Failed to send code");
+        }
+        finally {
             setSendingCode(false);
         }
     }
 
-    async function verifyCode() {
-        if (code.length !== 6) {
-            return toast.error("Please enter the 6‑digit code");
-        }
-        setVerifying(true);
-        try {
-            const res = await axios.post("/api/auth/verify-email", {
-                email: emailToVerify,
-                code,
-            });
-            toast.success("Email verified! Redirecting…");
-            setDialogOpen(false);
-            // now redirect
-            const sess = await getSession();
-            const user = sess?.user!;
-            router.replace(`/${user.username}/${user.role}/dashboard`);
-        } catch (err: any) {
-            toast.error(err.response?.data?.message || "Verification failed");
-        } finally {
-            setVerifying(false);
-        }
-    }
-
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4 sm:px-6 lg:px-8">
+        <section className="min-h-screen flex items-center justify-center bg-gray-100 px-5 py-10 sm:px-6 lg:px-8">
             <div className="w-full max-w-md space-y-8 bg-white p-8 rounded-lg shadow-lg">
                 <div className="text-center">
                     <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900">
@@ -247,8 +258,8 @@ const SignIn = () => {
                     </DialogHeader>
                     <div className="space-y-4">
                         <div>
-                            <FormLabel>Email</FormLabel>
-                            <Input disabled value={emailToVerify} />
+                            <Label className="mb-2">Email</Label>
+                            <Input value={emailToVerify} onChange={(e) => setEmailToVerify(e.target.value)} />
                         </div>
                         <div className="flex gap-2">
                             <Button
@@ -260,38 +271,11 @@ const SignIn = () => {
                                 Send Code
                             </Button>
                         </div>
-                        <div>
-                            <FormLabel>Enter 6‑digit Code</FormLabel>
-                            <Input
-                                value={code}
-                                onChange={(e) => setCode(e.target.value)}
-                                maxLength={6}
-                                placeholder="Code"
-                            />
-                        </div>
-                        <div className="flex gap-2">
-                            <Button
-                                variant="secondary"
-                                onClick={() => setDialogOpen(false)}
-                            >
-                                Cancel
-                            </Button>
-                            <Button
-                                onClick={verifyCode}
-                                disabled={verifying}
-                                className="flex-1"
-                            >
-                                {verifying && (
-                                    <Loader2 className="animate-spin mr-2 h-4 w-4" />
-                                )}
-                                Verify
-                            </Button>
-                        </div>
                     </div>
                 </DialogContent>
             </Dialog>
 
-        </div>
+        </section>
     );
 };
 

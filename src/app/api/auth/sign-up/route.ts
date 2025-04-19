@@ -1,4 +1,4 @@
-// src/api/sign-up/route.ts
+// src/app/api/auth/sign-up/route.ts
 import bcrypt from "bcryptjs";
 import { sendVerificationEmail } from "@/helpers/sendVerificationEmail";
 import { createUser, getUserByEmail, getUserByUsername } from "@/model/User";
@@ -57,7 +57,7 @@ export const POST = async (req: Request) => {
                 existingUserByEmail.password = hashedPassword;
                 existingUserByEmail.verifyCode = otp;
                 existingUserByEmail.verifyCodeExpiryDate = expiryDate;
-                
+
                 // await existingUserByEmail.save();
             }
             return Response.json(

@@ -20,10 +20,24 @@ export async function middleware(request: NextRequest) {
             url.pathname.startsWith("/")
         )
     ) {
-        return NextResponse.redirect(new URL(`/${username}/${role}/dashboard`, request.url));
+        if (token && token.isVerified) {
+            return NextResponse.redirect(new URL(`/${username}/${role}/dashboard`, request.url));
+        }
+        // return NextResponse.redirect(new URL('/home', request.url));
+        return NextResponse.next();
     }
 
-    // return NextResponse.redirect(new URL('/home', request.url));
+    // any /[user]/[role]/... route must be both signed‑in AND verified
+    const protectedRoute = /^\/[^\/]+\/(customer|owner|admin)\//.test(url.pathname);
+    if (protectedRoute) {
+        if (!token) {
+            return NextResponse.redirect(new URL("/sign-in", request.url));
+        }
+        if (!token.isVerified) {
+            // send unverified users to the verify page
+            return NextResponse.redirect(new URL(`/verify/${token.username}`, request.url));
+        }
+    }
     return NextResponse.next();
 }
 

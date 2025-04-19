@@ -90,7 +90,7 @@ const SideBar: React.FC<SideBarProps> = ({ currentUser }) => {
                                 <ul>
                                     <li>
                                         <Link
-                                            href="/owner/my-profile"
+                                            href={`/${currentUser.username}/owner/my-profile`}
                                             className="flex items-center px-4 py-2 hover:bg-gray-600 w-full"
                                             onClick={() => setIsMobileOpen(false)}
                                         >
@@ -136,7 +136,7 @@ const SideBar: React.FC<SideBarProps> = ({ currentUser }) => {
                         <ul className="space-y-4">
                             <li>
                                 <Link
-                                    href="/owner/bikes"
+                                    href={`/${currentUser.username}/owner/bikes`}
                                     className="flex items-center px-4 py-2 hover:bg-gray-700 rounded"
                                     onClick={() => setIsMobileOpen(false)}
                                 >
@@ -145,7 +145,7 @@ const SideBar: React.FC<SideBarProps> = ({ currentUser }) => {
                             </li>
                             <li>
                                 <Link
-                                    href="/owner/live-tracking"
+                                    href={`/${currentUser.username}/owner/live-tracking`}
                                     className="flex items-center px-4 py-2 hover:bg-gray-700 rounded"
                                     onClick={() => setIsMobileOpen(false)}
                                 >

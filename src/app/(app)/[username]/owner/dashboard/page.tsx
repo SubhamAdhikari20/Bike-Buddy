@@ -3,7 +3,7 @@ import React from 'react';
 const OwnerDashboard = () => {
     return (
         <section>
-            
+
         </section>
     );
 };
