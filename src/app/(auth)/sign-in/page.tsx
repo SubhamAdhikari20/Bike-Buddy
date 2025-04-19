@@ -69,19 +69,50 @@ const SignIn = () => {
 
         if (result?.error) {
             if (result.error == "CredentialsSignIn") {
-                toast('Login Failed', {
+                toast.error('Login Failed', {
                     description: "Incorrect username or password"
                 });
             }
             else {
-                toast('Error', {
+                toast.error('Error', {
                     description: result.error
                 });
             }
             return;
         }
 
-        // if (status !== "authenticated") return;
+        const updatedSession = await getSession();
+
+        if (!updatedSession) {
+            toast.error("Session not found.");
+            return;
+        }
+
+        const { user } = updatedSession;
+
+        if (user.isVerified) {
+            toast.success('Login Successful', {
+                description: `Logged in as ${user.role}`
+            });
+            router.replace(`/${user.username}/${user.role}/dashboard`);
+        } else {
+            toast.warning('Account Not Verified', {
+                description: `Do you want to verify your account?`,
+                action: {
+                    label: "Yes",
+                    onClick: () => {
+                        setEmailToVerify(user.email!);
+                        setDialogOpen(true);
+                    }
+                }
+            });
+        }
+
+        // if (status !== "authenticated") {
+        //     toast.error("Session not authenticated!");
+        //     return;
+        // }
+
         // if (!session) {
         //     toast.error("No Session");
         //     return;
@@ -89,40 +120,62 @@ const SignIn = () => {
 
         // const { user } = session;
         // if (user.isVerified) {
-        //     toast('Login Successful', {
+        //     toast.success('Login Successful', {
         //         description: `Logged in as ${user.role}`
         //     });
         //     router.replace(`/${user.username}/${user.role}/dashboard`);
         //     return;
         // }
         // else {
-        //     setEmailToVerify(user.email!);
-        //     return setDialogOpen(true);
+        //     toast.warning('Account Not verified!', {
+        //         description: `Do you want to verify your account?`,
+        //         action: {
+        //             label: "Yes",
+        //             onClick: () => {
+        //                 setEmailToVerify(user.email!);
+        //                 return setDialogOpen(true);
+        //             },
+        //         },
+        //     });
         // }
     }
 
-    useEffect(() => {
-        if (status !== "authenticated") return;
+    // useEffect(() => {
 
-        if (!session) {
-            toast.error("No Session");
-            return;
-        }
+    //     if (status !== "authenticated") {
+    //         toast.error("Session not authenticated!");
+    //         return;
+    //     }
 
-        const { user } = session;
-        if (user.isVerified) {
-            toast('Login Successful', {
-                description: `Logged in as ${user.role}`
-            });
-            router.replace(`/${user.username}/${user.role}/dashboard`);
-            return;
-        }
-        else {
-            setEmailToVerify(user.email!);
-            return setDialogOpen(true);
-        }
+    //     if (!session) {
+    //         toast.error("No Session");
+    //         return;
+    //     }
 
-    }, [status, session, router]);
+    //     const { user } = session;
+    //     if (user.isVerified) {
+    //         toast.success('Login Successful', {
+    //             description: `Logged in as ${user.role}`
+    //         });
+    //         router.replace(`/${user.username}/${user.role}/dashboard`);
+    //         return;
+    //     }
+    //     else {
+    //         toast.warning('Account Not verified!', {
+    //             description: `Do you want to verify your account?`,
+    //             action: {
+    //                 label: "Yes",
+    //                 onClick: () => {
+    //                     setEmailToVerify(user.email!);
+    //                     return setDialogOpen(true);
+    //                 },
+    //             },
+    //         });
+    //         // setEmailToVerify(user.email!);
+    //         // return setDialogOpen(true);
+    //     }
+
+    // }, [status, session, router]);
 
     const sendCode = async () => {
         setSendingCode(true);

@@ -1,4 +1,4 @@
-
+// src/api/auth/send-verification-email/route.ts
 import { getUserByEmail, updateUser } from "@/model/User";
 import { sendVerificationEmail } from "@/helpers/sendVerificationEmail";
 
@@ -15,11 +15,12 @@ export async function PUT(req: Request) {
 
     // generate 6‑digit OTP & expiry
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    const expiry = new Date(Date.now() + 1000 * 60 * 60); // 1h from now
+    const expiryDate = new Date();
+    expiryDate.setMinutes(expiryDate.getMinutes() + 10);    // Add 10 mins from 'now'
 
     await updateUser(user.id, {
         verifyCode: otp,
-        verifyCodeExpiryDate: expiry,
+        verifyCodeExpiryDate: expiryDate,
         isVerified: false,
     });
 

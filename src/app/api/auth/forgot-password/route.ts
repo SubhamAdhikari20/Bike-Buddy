@@ -2,7 +2,7 @@
 import { sendResetPasswordVerificationEmail } from "@/helpers/sendResetPasswordVerificationEmail";
 import { getUserByEmail, updateUser } from "@/model/User";
 
-export const POST = async (req: Request) => {
+export const PUT = async (req: Request) => {
     try {
         const { email } = await req.json();
 
@@ -22,8 +22,8 @@ export const POST = async (req: Request) => {
 
         // send verfication email for reseting password
         const otp = Math.floor(100000 + Math.random() * 900000).toString();
-        const expiryDate = new Date()
-        expiryDate.setHours(expiryDate.getHours() + 1);
+        const expiryDate = new Date();
+        expiryDate.setMinutes(expiryDate.getMinutes() + 10);    // Add 10 mins from 'now'
 
         await updateUser(user?.id, {
             verifyEmailResetPassword: otp,

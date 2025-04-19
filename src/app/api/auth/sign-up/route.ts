@@ -51,8 +51,8 @@ export const POST = async (req: Request) => {
             else {
                 const salt = bcrypt.genSaltSync(10);
                 const hashedPassword = await bcrypt.hash(password, salt);
-                const expiryDate = new Date()
-                expiryDate.setHours(expiryDate.getHours() + 1);
+                const expiryDate = new Date();
+                expiryDate.setMinutes(expiryDate.getMinutes() + 10);    // Add 10 mins from 'now'
 
                 existingUserByEmail.password = hashedPassword;
                 existingUserByEmail.verifyCode = otp;

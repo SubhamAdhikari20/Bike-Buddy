@@ -258,7 +258,7 @@ const SignUp = () => {
                                             </SelectTrigger>
                                             <SelectContent className="mt-1">
                                                 <SelectItem value="customer">Customer</SelectItem>
-                                                <SelectItem value="owner">Owner</SelectItem>
+                                                {/* <SelectItem value="owner">Owner</SelectItem> */}
                                                 <SelectItem value="admin">Admin</SelectItem>
                                             </SelectContent>
                                         </Select>
