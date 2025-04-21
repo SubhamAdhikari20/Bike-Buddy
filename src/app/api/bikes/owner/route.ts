@@ -1,22 +1,21 @@
-// src/api/bikes/owner/route.ts
-import prisma from "@/lib/prisma";
+// src/app/api/bikes/owner/route.ts
+import { createBike, getAllBikesByOwnerId } from "@/model/Bike";
 
 export async function POST(request: Request) {
     try {
-        const { ownerId, bikeName, bikeDescription, bikeLocation, pricePerHour, available } = await request.json();
+        const { ownerId, bikeName, bikeDescription, bikeLocation, pricePerHour, bikeImageUrl, available } = await request.json();
 
-        const bike = await prisma.bike.create({
-            data: {
-                ownerId,
-                bikeName,
-                bikeDescription,
-                bikeLocation,
-                pricePerHour,
-                available: available ?? true,
-            },
+        const newBike = await createBike({
+            ownerId,
+            bikeName,
+            bikeDescription,
+            bikeLocation,
+            pricePerHour,
+            bikeImageUrl,
+            available: available ?? true,
         });
 
-        return Response.json({ success: true, bike }, { status: 201 });
+        return Response.json({ success: true, message: "New Bike added for the rental successfully", bike: newBike }, { status: 201 });
     }
     catch (error) {
         console.error("Error creating bike listing:", error);
@@ -28,21 +27,20 @@ export async function GET(request: Request) {
     try {
         // Expect ownerId as a query parameter, e.g. /api/bikes/owner?ownerId=1
         const { searchParams } = new URL(request.url);
-        const ownerId = searchParams.get("ownerId");
-        if (!ownerId) {
+        const ownerIdParam = searchParams.get("ownerId");
+
+        if (!ownerIdParam) {
             return Response.json(
                 { success: false, message: "ownerId is required" },
                 { status: 400 }
             );
         }
+        const ownerId = Number(ownerIdParam);
 
-        const bikes = await prisma.bike.findMany({
-            where: { ownerId: parseInt(ownerId) },
-            orderBy: { createdAt: "desc" },
-            include: { images: true }, // Include images if needed
-        });
-        return Response.json(bikes);
-    } catch (error) {
+        const bikes = await getAllBikesByOwnerId(ownerId);
+        return Response.json(bikes, { status: 200 });
+    }
+    catch (error) {
         console.error("Error fetching bikes:", error);
         return Response.json(
             { success: false, message: "Failed to fetch bikes" },

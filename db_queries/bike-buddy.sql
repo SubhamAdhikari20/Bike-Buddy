@@ -36,6 +36,7 @@ CREATE TABLE `Bike` (
     `bikeDescription` TEXT NOT NULL,
     `bikeLocation` VARCHAR(255) NOT NULL,
     `pricePerHour` DECIMAL(10,2) NOT NULL,
+    `bikeImageUrl` VARCHAR(500),
     `available` BOOLEAN DEFAULT TRUE,
     `ownerId` INT NOT NULL,
     `createdAt` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -96,3 +97,4 @@ VALUES (1, "Subham Adhikari", "bikebuddy_admin@gmail.com", "9876543210", "admin@
 
 ALTER TABLE `User` MODIFY `username` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin;
 DELETE FROM `User` WHERE `email`="subhamadhikari0007@gmail.com";
+DELETE FROM `Bike` WHERE `id`= 8;

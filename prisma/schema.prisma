@@ -69,24 +69,25 @@ model Bike {
     bikeDescription String   @db.Text
     bikeLocation    String   @db.VarChar(255)
     pricePerHour    Decimal  @db.Decimal(10, 2)
+    bikeImageUrl    String?  @db.VarChar(500)
     available       Boolean  @default(true)
     createdAt       DateTime @default(now())
     updatedAt       DateTime @updatedAt
     ownerId         Int
 
     // Relationships
-    owner    User        @relation(fields: [ownerId], references: [id])
+    owner    User      @relation(fields: [ownerId], references: [id])
     bookings Booking[]
     reviews  Review[]
-    images   BikeImage[]
+    // images   BikeImage[]
 }
 
-model BikeImage {
-    id     Int    @id @default(autoincrement())
-    url    String @db.VarChar(500)
-    bike   Bike   @relation(fields: [bikeId], references: [id])
-    bikeId Int
-}
+// model BikeImage {
+//     id     Int    @id @default(autoincrement())
+//     url    String @db.VarChar(500)
+//     bike   Bike   @relation(fields: [bikeId], references: [id])
+//     bikeId Int
+// }
 
 model Booking {
     id               Int           @id @default(autoincrement())

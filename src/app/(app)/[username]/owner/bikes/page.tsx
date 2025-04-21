@@ -1,6 +1,6 @@
-// src/app/(app)/owner/bikes/page.tsx
+// src/app/(app)/[username]/owner/bikes/page.tsx
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -19,7 +19,9 @@ import {
     FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import BikeCard, { BikeWithImages } from "@/components/owner/BikeCard";
+import { Textarea } from "@/components/ui/textarea";
+import BikeCard from "@/components/owner/BikeCard";
+import { Bike } from "@prisma/client";
 import { Loader2, Plus } from "lucide-react";
 import { toast } from "sonner";
 import axios, { AxiosError } from "axios";
@@ -27,82 +29,143 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { useRouter } from "next/navigation";
 import { bikeSchema } from "@/schemas/bikeSchema";
+import { useSession } from "next-auth/react";
+import { ApiResponse } from "@/types/ApiResponse";
+import Image from "next/image";
 
 const OwnerBikes = () => {
-    const [bikes, setBikes] = useState<BikeWithImages[]>([]);
+    const router = useRouter();
+    const { data: session, status } = useSession();
+    const currentUser = session?.user;
+    const ownerId = Number(currentUser?.id);
+
+    const [bikes, setBikes] = useState<Bike[]>([]);
     const [loading, setLoading] = useState(true);
     const [dialogOpen, setDialogOpen] = useState(false);
-    const [editingBike, setEditingBike] = useState<BikeWithImages | null>(null);
-    const router = useRouter();
+    const [preview, setPreview] = useState<string>("");
+    const [editingBike, setEditingBike] = useState<Bike | null>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     const form = useForm<z.infer<typeof bikeSchema>>({
         resolver: zodResolver(bikeSchema),
         defaultValues: {
+            ownerId: ownerId,
             bikeName: "",
             bikeDescription: "",
             bikeLocation: "",
             pricePerHour: 0,
+            bikeImageUrl: "",
             available: true,
-            bikeImage: "",
         },
     });
 
-    // Fetch owner's bikes (assume the owner ID is available e.g. via session or context; here we use a placeholder: ownerId=1)
-    const ownerId = 1; // Replace with actual owner id from session
+    useEffect(() => {
+        if (status === "authenticated" && currentUser?.id) {
+            fetchBikes();
+        }
+    }, [status, currentUser?.id]);
+
+    // Fetch the bikes of the owner
     const fetchBikes = async () => {
         try {
-            const res = await axios.get<BikeWithImages[]>(`/api/bikes/owner?ownerId=${ownerId}`);
-            setBikes(res.data);
+            const ownerId = Number(currentUser?.id);
+            const response = await axios.get<Bike[]>(`/api/bikes/owner?ownerId=${ownerId}`);
+            setBikes(response.data);
         }
         catch (error) {
-            toast.error("Failed to load bikes.");
+            const axiosError = error as AxiosError<ApiResponse>;
+            toast.error(axiosError.response?.data.message);
         }
         finally {
             setLoading(false);
         }
     };
 
-    useEffect(() => {
-        fetchBikes();
-    }, []);
+    const handleClear = () => {
+        form.reset({
+            ownerId,
+            bikeName: "",
+            bikeDescription: "",
+            bikeLocation: "",
+            pricePerHour: 0,
+            available: true,
+            bikeImageUrl: "",
+        });
+        setPreview("");
+        setEditingBike(null);
+        if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+
+    const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const f = e.target.files?.[0];
+        if (!f) return;
+        const url = URL.createObjectURL(f);
+        setPreview(url);
+    };
 
     // Handle form submission for create/update bike
     const onSubmit = async (data: z.infer<typeof bikeSchema>) => {
+        setLoading(true);
         try {
+            let imageUrl = data.bikeImageUrl || "";
+
+            // if the user selected a file, first upload it:
+            const file = fileInputRef.current?.files?.[0];
+            if (file) {
+                const uploadForm = new FormData();
+                uploadForm.append("bikeImage", file);
+
+                try {
+                    const uploadResp = await axios.post<{ url: string }>("/api/upload-image", uploadForm);
+                    imageUrl = uploadResp.data.url;
+                }
+                catch (error) {
+                    const axiosError = error as AxiosError<ApiResponse>;
+                    toast.error(`Image upload failed: ${axiosError.response?.data.message || "Unknown error"}`);
+                    return;
+                }
+            }
+
+            const payload = { ...data, bikeImageUrl: imageUrl };
             if (editingBike) {
-                // Update existing bike via PUT
-                const response = await axios.put(`/api/bikes/owner/${editingBike.id}`, data);
+                const response = await axios.put<ApiResponse>(`/api/bikes/owner/${editingBike.id}`, payload);
                 toast.success(response.data.message);
             }
             else {
-                // Create new bike via POST
-                const response = await axios.post("/api/bikes/owner", { data, ownerId });
+                const response = await axios.post<ApiResponse>("/api/bikes/owner", payload);
                 toast.success(response.data.message);
             }
             setDialogOpen(false);
             setEditingBike(null);
-            form.reset();
+            handleClear();
             fetchBikes();
-        } catch (error) {
-            console.error(error);
-            toast.error("Operation failed.");
+        }
+        catch (error) {
+            const axiosError = error as AxiosError<ApiResponse>;
+            toast.error(axiosError.response?.data.message);
+        }
+        finally{
+            setLoading(false);
         }
     };
 
-    // Handle edit action, prefill the form and open the dialog
-    const handleEdit = (bike: BikeWithImages) => {
+    // Handle edit, prefill the form and open the dialog
+    const handleEdit = (bike: Bike) => {
         setEditingBike(bike);
         form.reset({
+            ownerId: bike.ownerId,
             bikeName: bike.bikeName,
             bikeDescription: bike.bikeDescription,
             bikeLocation: bike.bikeLocation,
             pricePerHour: Number(bike.pricePerHour),
             available: bike.available,
+            bikeImageUrl: bike.bikeImageUrl || "",
         });
+        setPreview(bike.bikeImageUrl || "");
         setDialogOpen(true);
     };
 
-    // Handle delete action
+    // Handle delete
     const handleDelete = async (bikeId: number) => {
         try {
             const response = await axios.delete(`/api/bikes/owner/${bikeId}`);
@@ -110,9 +173,18 @@ const OwnerBikes = () => {
             fetchBikes();
         }
         catch (error) {
-            toast.error("Failed to delete bike.");
+            const axiosError = error as AxiosError<ApiResponse>;
+            toast.error(axiosError.response?.data.message);
         }
     };
+
+    if (status === "loading") {
+        return (
+            <div className="flex items-center justify-center h-64">
+                <Loader2 className="animate-spin h-8 w-8" />
+            </div>
+        );
+    }
 
     return (
         <section className="p-4 md:p-6 mx-auto">
@@ -120,14 +192,14 @@ const OwnerBikes = () => {
                 <h1 className="text-2xl font-bold text-gray-800">Manage Bikes</h1>
                 <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
                     <DialogTrigger asChild>
-                        <Button>
+                        <Button onClick={handleClear}>
                             <Plus className="mr-2 h-4 w-4" />
-                            {editingBike ? "Update Bike" : "Add Bike"}
+                            Add Bike
                         </Button>
                     </DialogTrigger>
-                    <DialogContent className="sm:max-w-md">
+                    <DialogContent className="sm:max-w-md max-h-200 overflow-y-scroll">
                         <DialogHeader>
-                            <DialogTitle>{editingBike ? "Update Bike" : "Add New Bike"}</DialogTitle>
+                            <DialogTitle>{editingBike ? "Update Bike Details" : "Add New Bike Deatils"}</DialogTitle>
                         </DialogHeader>
                         <Form {...form}>
                             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -151,7 +223,7 @@ const OwnerBikes = () => {
                                         <FormItem>
                                             <FormLabel>Description</FormLabel>
                                             <FormControl>
-                                                <Input {...field} placeholder="Enter description" />
+                                                <Textarea {...field} placeholder="Enter description" />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -177,29 +249,44 @@ const OwnerBikes = () => {
                                         <FormItem>
                                             <FormLabel>Price per Hour</FormLabel>
                                             <FormControl>
-                                                <Input {...field} placeholder="Price per hour" type="number" min="0" step="0.05" />
+                                                <Input {...field} placeholder="Price per hour" type="number" min="0" step="0.5" onChange={e => field.onChange(parseFloat(e.target.value))} />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
                                     )}
                                 />
-                                {/* <FormField
-                                    name="bikeImage"
-                                    control={form.control}
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Bike Image</FormLabel>
-                                            <FormControl>
-                                                <Input {...field} placeholder="Choose a image for the bike" type="file"/>
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                /> */}
-                                {/* You may add additional form fields (e.g., availability, images) here if needed */}
-                                <div className="flex justify-center">
-                                    <Button type="submit" className="w-full">
-                                        {editingBike ? "Update Bike" : "Add Bike"}
+                                <FormItem>
+                                    <FormLabel>Bike Image</FormLabel>
+                                    <FormControl>
+                                        <Input
+                                            ref={fileInputRef}
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={handleFile}
+                                            className="block w-full text-sm text-gray-900 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700"
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+
+                                {preview && (
+                                    <div className="relative w-full h-50 mt-2">
+                                        <Image
+                                            src={preview}
+                                            alt="Preview"
+                                            fill
+                                            className="w-full h-50 object-cover rounded-lg"
+                                        />
+                                    </div>
+                                )}
+
+                                <div className="flex justify-evenly items-center gap-2">
+                                    <Button type="submit" className="flex-1" disabled={loading}>
+                                        {editingBike ? (loading ? "Updating..." : "Update") : (loading ? "Adding..." : "Add")}
+                                        {loading && <Loader2 className="ml-2 h-4 w-4 animate-spin" />}
+                                    </Button>
+                                    <Button variant="outline" className="flex-1" onClick={handleClear}>
+                                        Clear
                                     </Button>
                                 </div>
                             </form>
@@ -217,11 +304,14 @@ const OwnerBikes = () => {
                     {bikes.length === 0 ? (
                         <p className="p-4 text-gray-600">No bikes found.</p>
                     ) : (
-                        <div className="space-y-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                             {bikes.map((bike) => (
-                                <div key={bike.id}>
-                                    <BikeCard bike={bike} onEdit={handleEdit} onDelete={handleDelete} />
-                                </div>
+                                <BikeCard
+                                    key={bike.id}
+                                    bike={bike}
+                                    onEdit={() => handleEdit(bike)}
+                                    onDelete={() => handleDelete(bike.id)}
+                                />
                             ))}
                         </div>
                     )}

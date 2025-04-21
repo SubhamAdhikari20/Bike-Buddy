@@ -107,37 +107,6 @@ const SignIn = () => {
                 }
             });
         }
-
-        // if (status !== "authenticated") {
-        //     toast.error("Session not authenticated!");
-        //     return;
-        // }
-
-        // if (!session) {
-        //     toast.error("No Session");
-        //     return;
-        // }
-
-        // const { user } = session;
-        // if (user.isVerified) {
-        //     toast.success('Login Successful', {
-        //         description: `Logged in as ${user.role}`
-        //     });
-        //     router.replace(`/${user.username}/${user.role}/dashboard`);
-        //     return;
-        // }
-        // else {
-        //     toast.warning('Account Not verified!', {
-        //         description: `Do you want to verify your account?`,
-        //         action: {
-        //             label: "Yes",
-        //             onClick: () => {
-        //                 setEmailToVerify(user.email!);
-        //                 return setDialogOpen(true);
-        //             },
-        //         },
-        //     });
-        // }
     }
 
     // useEffect(() => {

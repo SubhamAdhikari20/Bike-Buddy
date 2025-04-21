@@ -7,6 +7,7 @@ export const bikeSchema = z.object({
     bikeDescription: z.string().min(1, "Bike description is required"),
     bikeLocation: z.string().min(1, "Bike location is required"),
     pricePerHour: z.number().positive("Price must be a positive number"),
+    bikeImageUrl: z.string().optional(),
     available: z.boolean().optional(),
-    bikeImage: z.string().optional(),
+    // bikeImageRaw: z.instanceof(File, { message: "Image is required" }).optional(),
 });

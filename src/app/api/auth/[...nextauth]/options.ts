@@ -65,7 +65,7 @@ export const authOptions: NextAuthOptions = {
     callbacks: {
         async jwt({ token, user }) {
             if (user) {
-                token._id = user._id?.toString();
+                token.id = user.id?.toString();
                 token.isVerified = user.isVerified;
                 token.fullName = user.fullName;
                 token.username = user.username;
@@ -76,7 +76,7 @@ export const authOptions: NextAuthOptions = {
         },
         async session({ session, token }) {
             if (token) {
-                session.user._id = token._id;
+                session.user.id = token.id;
                 session.user.isVerified = token.isVerified;
                 session.user.fullName = token.fullName;
                 session.user.username = token.username;
