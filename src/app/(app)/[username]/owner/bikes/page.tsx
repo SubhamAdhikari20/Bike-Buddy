@@ -113,7 +113,7 @@ const OwnerBikes = () => {
             const file = fileInputRef.current?.files?.[0];
             if (file) {
                 const uploadForm = new FormData();
-                uploadForm.append("bikeImage", file);
+                uploadForm.append("image", file);
 
                 try {
                     const uploadResp = await axios.post<{ url: string }>("/api/upload-image", uploadForm);
@@ -144,7 +144,7 @@ const OwnerBikes = () => {
             const axiosError = error as AxiosError<ApiResponse>;
             toast.error(axiosError.response?.data.message);
         }
-        finally{
+        finally {
             setLoading(false);
         }
     };

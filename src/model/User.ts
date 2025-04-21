@@ -71,7 +71,7 @@ export async function updateUser(
         email: string;
         password: string;
         contact: string;
-        profilePictureUr?: string;
+        profilePictureUrl?: string;
         verifyCode?: string | null;
         verifyCodeExpiryDate?: Date | null;
         isVerified?: boolean;

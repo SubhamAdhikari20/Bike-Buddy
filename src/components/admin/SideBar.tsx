@@ -1,6 +1,6 @@
 // src/components/admin/SideBar.tsx
 "use client"
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -19,6 +19,10 @@ import {
 import { FaUserCircle, FaSignOutAlt, FaClipboardList, FaLocationArrow, FaUserPlus, FaBars, FaTimes } from 'react-icons/fa';
 import { signOut } from "next-auth/react";
 import { User } from "next-auth";
+import axios, { AxiosError } from "axios";
+import { ApiResponse } from "@/types/ApiResponse";
+import { toast } from "sonner";
+
 
 interface CurrentUser {
     id?: string,
@@ -34,11 +38,64 @@ interface SideBarProps {
 }
 
 const SideBar: React.FC<SideBarProps> = ({ currentUser }) => {
+    const [user, setUser] = useState<User | null>(null);
+    const userId = Number(currentUser?.id);
+
     const [isProfileOpen, setIsProfileOpen] = useState(false);
     const [isMobileOpen, setIsMobileOpen] = useState(false);
+    const [popupPosition, setPopupPosition] = useState<'top' | 'bottom'>('bottom');
+
+    const profileRef = useRef<HTMLDivElement>(null);
+    const popupRef = useRef<HTMLDivElement>(null);
 
     const handleToggleProfile = () => setIsProfileOpen((prev) => !prev);
     const handleMobileToggle = () => setIsMobileOpen((prev) => !prev);
+
+    const fetchUser = async () => {
+        try {
+            const { data } = await axios.get<{ success: boolean; user: User }>(`/api/auth/edit-profile/${userId}`);
+            setUser(data.user);
+        }
+        catch (error) {
+            const axiosError = error as AxiosError<ApiResponse>;
+            toast.error(axiosError.response?.data.message);
+        }
+    };
+
+    useEffect(() => {
+        if (userId) {
+            fetchUser();
+        }
+    }, [userId]);
+
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (
+                profileRef.current && !profileRef.current.contains(event.target as Node) &&
+                popupRef.current && !popupRef.current.contains(event.target as Node)
+            ) {
+                setIsProfileOpen(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
+    useEffect(() => {
+        if (profileRef.current && isProfileOpen) {
+            const rect = profileRef.current.getBoundingClientRect();
+            const sidebarHeight = window.innerHeight;
+            const spaceBelow = sidebarHeight - rect.bottom;
+            const spaceAbove = rect.top;
+
+            if (spaceBelow < 150 && spaceAbove > 150) {
+                setPopupPosition('top');
+            } else {
+                setPopupPosition('bottom');
+            }
+        }
+    }, [isProfileOpen]);
 
     return (
         <>
@@ -47,7 +104,6 @@ const SideBar: React.FC<SideBarProps> = ({ currentUser }) => {
                 <Button onClick={handleMobileToggle} className="focus:outline-none">
                     {isMobileOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
                 </Button>
-                {/* <span className="font-bold">Dashboard</span> */}
             </header>
 
             {/* Sidebar - Visible on Desktop or Mobile when toggled */}
@@ -56,76 +112,18 @@ const SideBar: React.FC<SideBarProps> = ({ currentUser }) => {
                     className={`${isMobileOpen ? "fixed inset-y-0 left-0 z-40" : "hidden"
                         } md:flex flex-col w-64 bg-gray-800 text-gray-200 p-4 shadow-md transition-transform duration-300 ease-in-out`}
                 >
-                    {/* Profile Section */}
-                    <div className="relative mb-8">
-                        <div
-                            className="flex items-center w-full focus:outline-none "
-                        >
-                            <div onClick={handleToggleProfile} className="flex items-center gap-3 cursor-pointer">
-                                <Avatar className="h-10 w-10">
-                                    <AvatarImage
-                                        src={currentUser.profilePictureUrl || undefined}
-                                        alt={currentUser.fullName || currentUser.username || "Admin"}
-                                    />
-                                    <AvatarFallback>
-                                        {(currentUser.fullName || currentUser.username || "A")
-                                            .split(" ")
-                                            .map((n) => n[0])
-                                            .join("")
-                                            .slice(0, 2)
-                                            .toUpperCase()}
-                                    </AvatarFallback>
-                                </Avatar>
-                                <span className="font-semibold text-sm sm:text-base">
-                                    {currentUser.fullName || currentUser.username || currentUser.email || "Admin"}
-                                </span>
-                            </div>
-
-                        </div>
-                        {isProfileOpen && (
-                            <div className="absolute top-14 left-0 w-full bg-gray-700 rounded shadow-lg z-50">
-                                <ul>
-                                    <li>
-                                        <Link
-                                            href={`/${currentUser.username}/admin/my-profile`}
-                                            className="flex items-center px-4 py-2 hover:bg-gray-600 w-full"
-                                            onClick={() => setIsMobileOpen(false)}
-                                        >
-                                            <FaUserCircle className="mr-2" /> My Profile
-                                        </Link>
-                                    </li>
-                                    <li>
-                                        <AlertDialog>
-                                            <AlertDialogTrigger asChild>
-                                                <div className="flex items-center px-4 py-2 hover:bg-gray-600 w-full text-left cursor-pointer">
-                                                    <FaSignOutAlt className="mr-2" /> Logout
-                                                </div>
-                                            </AlertDialogTrigger>
-                                            <AlertDialogContent className="rounded-lg">
-                                                <AlertDialogHeader>
-                                                    <AlertDialogTitle>Are you sure you want to logout?</AlertDialogTitle>
-                                                    <AlertDialogDescription>
-                                                        This will end your session and return you to the sign-in page.
-                                                    </AlertDialogDescription>
-                                                </AlertDialogHeader>
-                                                <AlertDialogFooter>
-                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                    <AlertDialogAction
-                                                        className="bg-red-600 hover:bg-red-700 text-white"
-                                                        onClick={() => {
-                                                            signOut();
-                                                            setIsMobileOpen(false);
-                                                        }}
-                                                    >
-                                                        Logout
-                                                    </AlertDialogAction>
-                                                </AlertDialogFooter>
-                                            </AlertDialogContent>
-                                        </AlertDialog>
-                                    </li>
-                                </ul>
-                            </div>
-                        )}
+                    <div
+                        className="flex items-center justify-center w-full focus:outline-none mb-5"
+                    >
+                        <Link href="/">
+                            <Image
+                                src="/bike-buddy-logo.png"
+                                alt="Bike Buddy Logo"
+                                width={75}
+                                height={75}
+                                className="rounded-full"
+                            />
+                        </Link>
                     </div>
 
                     {/* Navigation Links */}
@@ -169,6 +167,85 @@ const SideBar: React.FC<SideBarProps> = ({ currentUser }) => {
                             </li>
                         </ul>
                     </nav>
+
+                    {/* Profile Section */}
+                    <div className="relative mb-13">
+                        {isProfileOpen && (
+                            <div className="absolute bottom-13 left-0 w-full bg-gray-700 rounded-xl shadow-lg z-50">
+                                <ul>
+                                    <li>
+                                        <Link
+                                            href={`/${user?.username}/admin/my-profile`}
+                                            className="flex items-center px-4 py-2 hover:bg-gray-600 hover:rounded-t-xl w-full"
+                                            onClick={() => {
+                                                setIsMobileOpen(false);
+                                                setIsProfileOpen(false);
+                                            }}
+                                        >
+                                            <FaUserCircle className="mr-2" /> My Profile
+                                        </Link>
+                                    </li>
+                                    <li>
+                                        <AlertDialog>
+                                            <AlertDialogTrigger asChild>
+                                                <div className="flex items-center px-4 py-2 hover:bg-gray-600 hover:rounded-b-xl w-full text-left cursor-pointer">
+                                                    <FaSignOutAlt className="mr-2" /> Logout
+                                                </div>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent className="rounded-lg">
+                                                <AlertDialogHeader>
+                                                    <AlertDialogTitle>Are you sure you want to logout?</AlertDialogTitle>
+                                                    <AlertDialogDescription>
+                                                        This will end your session and return you to the sign-in page.
+                                                    </AlertDialogDescription>
+                                                </AlertDialogHeader>
+                                                <AlertDialogFooter>
+                                                    <AlertDialogCancel
+                                                        onClick={() => {
+                                                            setIsMobileOpen(false);
+                                                            setIsProfileOpen(false);
+                                                        }}
+                                                    >
+                                                        Cancel
+                                                    </AlertDialogCancel>
+                                                    <AlertDialogAction
+                                                        className="bg-red-600 hover:bg-red-700 text-white"
+                                                        onClick={() => {
+                                                            signOut();
+                                                            setIsMobileOpen(false);
+                                                            setIsProfileOpen(false);
+                                                        }}
+                                                    >
+                                                        Logout
+                                                    </AlertDialogAction>
+                                                </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
+                                    </li>
+                                </ul>
+                            </div>
+                        )}
+
+                        <div onClick={handleToggleProfile} className="flex items-center gap-3 cursor-pointer">
+                            <Avatar className="h-10 w-10">
+                                <AvatarImage
+                                    src={user?.profilePictureUrl || undefined}
+                                    alt={user?.fullName || user?.username || "Owner"}
+                                />
+                                <AvatarFallback>
+                                    {(user?.fullName || user?.username || "O")
+                                        .split(" ")
+                                        .map((n) => n[0])
+                                        .join("")
+                                        .slice(0, 2)
+                                        .toUpperCase()}
+                                </AvatarFallback>
+                            </Avatar>
+                            <span className="font-semibold text-sm sm:text-base">
+                                {user?.fullName || user?.username || user?.email || "Admin"}
+                            </span>
+                        </div>
+                    </div>
                 </aside>
 
                 {/* Mobile Sidebar Overlay */}

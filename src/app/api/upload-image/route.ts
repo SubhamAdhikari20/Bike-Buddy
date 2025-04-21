@@ -11,7 +11,7 @@ export const config = {
 export async function POST(req: Request) {
     try {
         const form = await req.formData();
-        const file = form.get("bikeImage");
+        const file = form.get("image");
 
         if (!(file instanceof File)) {
             return NextResponse.json(

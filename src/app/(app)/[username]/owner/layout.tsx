@@ -37,7 +37,7 @@ export default function OwnerLayout({
     return (
         <>
             <div className="flex gap-3 flex-col md:flex-row">
-                <SideBar currentUser={session.user} />
+                <SideBar currentUser={session?.user} />
                 <main className="min-h-screen p-2 md:p-2 w-full">{children}</main>
             </div>
         </>
