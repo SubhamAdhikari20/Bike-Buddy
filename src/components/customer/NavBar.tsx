@@ -1,4 +1,4 @@
-// src/components/NavBar.tsx
+// src/components/customer/NavBar.tsx
 "use client";
 import React, { useState } from "react";
 import Link from "next/link";
@@ -36,7 +36,7 @@ interface CurrentUser {
 }
 
 interface NavBarProps {
-    currentUser: CurrentUser;
+    currentUser: CurrentUser | null;
 }
 
 const NavBar: React.FC<NavBarProps> = ({ currentUser }) => {
@@ -44,7 +44,7 @@ const NavBar: React.FC<NavBarProps> = ({ currentUser }) => {
     const [logoutOpen, setLogoutOpen] = useState(false);
 
     return (
-        <header className="sticky top-0 z-50 bg-white shadow transition-all">
+        <header className="sticky top-0 inset-x-0 z-50 bg-white shadow transition-all">
             <nav className="container mx-auto flex items-center justify-between px-4 py-3 md:py-4">
                 {/* Branding */}
                 <Link href="/" className="flex items-center gap-2">

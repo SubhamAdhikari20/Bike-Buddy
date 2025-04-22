@@ -43,8 +43,8 @@ const SideBar: React.FC<SideBarProps> = ({ currentUser }) => {
     const [isProfileOpen, setIsProfileOpen] = useState(false);
     const [isMobileOpen, setIsMobileOpen] = useState(false);
     const [popupPosition, setPopupPosition] = useState<'top' | 'bottom'>('bottom');
+    const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
 
-    const profileRef = useRef<HTMLDivElement>(null);
     const popupRef = useRef<HTMLDivElement>(null);
 
     const handleToggleProfile = () => setIsProfileOpen((prev) => !prev);
@@ -70,8 +70,7 @@ const SideBar: React.FC<SideBarProps> = ({ currentUser }) => {
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (
-                profileRef.current && !profileRef.current.contains(event.target as Node) &&
-                popupRef.current && !popupRef.current.contains(event.target as Node)
+                !logoutDialogOpen && popupRef.current && !popupRef.current.contains(event.target as Node)
             ) {
                 setIsProfileOpen(false);
             }
@@ -79,11 +78,11 @@ const SideBar: React.FC<SideBarProps> = ({ currentUser }) => {
 
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, []);
+    }, [logoutDialogOpen]);
 
     useEffect(() => {
-        if (profileRef.current && isProfileOpen) {
-            const rect = profileRef.current.getBoundingClientRect();
+        if (popupRef.current && isProfileOpen) {
+            const rect = popupRef.current.getBoundingClientRect();
             const sidebarHeight = window.innerHeight;
             const spaceBelow = sidebarHeight - rect.bottom;
             const spaceAbove = rect.top;
@@ -95,6 +94,17 @@ const SideBar: React.FC<SideBarProps> = ({ currentUser }) => {
             }
         }
     }, [isProfileOpen]);
+
+    useEffect(() => {
+        const handleResize = () => {
+            if (window.innerWidth >= 768) {
+                setIsMobileOpen(false); // Close mobile sidebar on desktop
+            }
+        };
+
+        window.addEventListener("resize", handleResize);
+        return () => window.removeEventListener("resize", handleResize);
+    }, []);
 
     return (
         <>
@@ -108,8 +118,8 @@ const SideBar: React.FC<SideBarProps> = ({ currentUser }) => {
             {/* Sidebar - Visible on Desktop or Mobile when toggled */}
             <div className="flex">
                 <aside
-                    className={`${isMobileOpen ? "fixed inset-y-0 left-0 z-40" : "hidden"
-                        } md:flex flex-col w-64 bg-gray-800 text-gray-200 p-4 shadow-md transition-transform duration-300 ease-in-out`}
+                    className={`${isMobileOpen ? "fixed top-0 inset-y-0 left-0 z-40" : "hidden"
+                        } md:static md:flex flex-col w-64 bg-gray-800 text-gray-200 p-4 shadow-md transition-transform duration-300 ease-in-out`}
                 >
                     <div
                         className="flex items-center justify-center w-full focus:outline-none mb-5"
@@ -123,8 +133,16 @@ const SideBar: React.FC<SideBarProps> = ({ currentUser }) => {
                                 className="rounded-full"
                             />
                         </Link>
+                        {isMobileOpen && (
+                            <Button
+                                onClick={handleMobileToggle}
+                                className="md:hidden absolute top-4 right-4 p-2 rounded bg-gray-700 hover:bg-gray-600 text-white z-50"
+                            >
+                                <FaTimes size={20} />
+                            </Button>
+                        )}
                     </div>
-                    
+
                     {/* Navigation Links */}
                     <nav className="flex-grow">
                         <ul className="space-y-4">
@@ -170,24 +188,27 @@ const SideBar: React.FC<SideBarProps> = ({ currentUser }) => {
                     {/* Profile Section */}
                     <div className="relative mb-13">
                         {isProfileOpen && (
-                            <div className="absolute bottom-13 left-0 w-full bg-gray-700 rounded-xl shadow-lg z-50">
+                            <div
+                                ref={popupRef}
+                                className="absolute bottom-13 left-0 w-full bg-gray-700 rounded-xl shadow-lg z-50"
+                            >
                                 <ul>
                                     <li>
                                         <Link
                                             href={`/${user?.username}/owner/my-profile`}
                                             className="flex items-center px-4 py-2 hover:bg-gray-600 hover:rounded-t-xl w-full"
                                             onClick={() => {
-                                                setIsMobileOpen(false);
                                                 setIsProfileOpen(false);
+                                                setIsMobileOpen(false);
                                             }}
                                         >
                                             <FaUserCircle className="mr-2" /> My Profile
                                         </Link>
                                     </li>
                                     <li>
-                                        <AlertDialog>
+                                        <AlertDialog open={logoutDialogOpen} onOpenChange={setLogoutDialogOpen}>
                                             <AlertDialogTrigger asChild>
-                                                <div className="flex items-center px-4 py-2 hover:bg-gray-600 hover:rounded-b-xl w-full text-left cursor-pointer">
+                                                <div className="flex items-center px-4 py-2 hover:bg-gray-600 hover:rounded-b-xl w-full text-left cursor-pointer" onClick={() => setLogoutDialogOpen(true)}>
                                                     <FaSignOutAlt className="mr-2" /> Logout
                                                 </div>
                                             </AlertDialogTrigger>
@@ -201,8 +222,9 @@ const SideBar: React.FC<SideBarProps> = ({ currentUser }) => {
                                                 <AlertDialogFooter>
                                                     <AlertDialogCancel
                                                         onClick={() => {
-                                                            setIsMobileOpen(false);
+                                                            setLogoutDialogOpen(false);
                                                             setIsProfileOpen(false);
+                                                            setIsMobileOpen(false);
                                                         }}
                                                     >
                                                         Cancel
@@ -211,8 +233,9 @@ const SideBar: React.FC<SideBarProps> = ({ currentUser }) => {
                                                         className="bg-red-600 hover:bg-red-700 text-white"
                                                         onClick={() => {
                                                             signOut();
-                                                            setIsMobileOpen(false);
+                                                            setLogoutDialogOpen(false);
                                                             setIsProfileOpen(false);
+                                                            setIsMobileOpen(false);
                                                         }}
                                                     >
                                                         Logout
@@ -226,7 +249,7 @@ const SideBar: React.FC<SideBarProps> = ({ currentUser }) => {
                         )}
 
                         <div onClick={handleToggleProfile} className="flex items-center gap-3 cursor-pointer">
-                            <Avatar className="h-10 w-10">
+                            <Avatar className="h-10 w-10 border-1 border-amber-50">
                                 <AvatarImage
                                     src={user?.profilePictureUrl || undefined}
                                     alt={user?.fullName || user?.username || "Owner"}
@@ -251,7 +274,7 @@ const SideBar: React.FC<SideBarProps> = ({ currentUser }) => {
                 {
                     isMobileOpen && (
                         <div
-                            className="fixed inset-0 bg-black opacity-50 z-30"
+                            className="md:hidden fixed inset-0 bg-black opacity-50 z-30"
                             onClick={handleMobileToggle}
                         />
                     )

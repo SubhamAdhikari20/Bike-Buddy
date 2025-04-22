@@ -94,8 +94,14 @@ const SignIn = () => {
             toast.success('Login Successful', {
                 description: `Logged in as ${user.role}`
             });
-            router.replace(`/${user.username}/${user.role}/dashboard`);
-        } else {
+            if (user.role === "customer") {
+                router.replace(`/`);
+            }
+            else {
+                router.replace(`/${user.username}/${user.role}/dashboard`);
+            }
+        }
+        else {
             toast.warning('Account Not Verified', {
                 description: `Do you want to verify your account?`,
                 action: {

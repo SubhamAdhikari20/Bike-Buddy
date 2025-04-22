@@ -17,11 +17,10 @@ export default function AdminLayout({
     const router = useRouter();
 
     useEffect(() => {
-        if (status === "loading") return;
         // Check if session exists and user is admin
-        if (!session || session.user.role !== "admin") {
+        if (status === "unauthenticated" || !session || session.user.role !== "admin") {
             toast.error("Access denied. Admins only.");
-            router.replace("/sign-in");
+            router.replace("/");
         }
     }, [session, status, router]);
 

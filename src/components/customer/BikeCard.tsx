@@ -1,3 +1,4 @@
+// src/components/customer/BikeCard.tsx
 "use client";
 import React, { useState } from 'react';
 import {
@@ -12,16 +13,10 @@ import {
 import { Button } from "../ui/button";
 import { X } from "lucide-react";
 import { Bike } from "@prisma/client";
-import { BikeImage } from "@prisma/client";
 import Image from "next/image";
 
-
-type BikeWithImages = Bike & {
-    images?: BikeImage[];
-};
-
 type BikeCardProps = {
-    bike: BikeWithImages;
+    bike: Bike;
 }
 
 const BikeCard = ({ bike }: BikeCardProps) => {
@@ -33,10 +28,10 @@ const BikeCard = ({ bike }: BikeCardProps) => {
                 <CardDescription>{bike.bikeDescription}</CardDescription>
             </CardHeader>
             <CardContent className="p-4">
-                {bike.images?.length ? (
+                {bike.bikeImageUrl?.length ? (
                     <div className="relative w-full h-48 sm:h-64 md:h-72">
                         <Image
-                            src={bike.images[0].url}
+                            src={bike.bikeImageUrl[0]}
                             alt={bike.bikeName}
                             fill
                             className="object-cover rounded"

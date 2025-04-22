@@ -1,4 +1,4 @@
-// src/app/(app)/dashboard/owner/layout.tsx
+// src/app/(app)/[username]/owner/layout.tsx
 "use client"
 
 import React, { useEffect } from "react";
@@ -17,11 +17,10 @@ export default function OwnerLayout({
     const router = useRouter();
 
     useEffect(() => {
-        if (status === "loading") return;
         // Check if session exists and user is owner
-        if (session?.user.role !== "owner") {
+        if (status === "unauthenticated" || !session || session?.user.role !== "owner") {
             toast.error("Access denied. Owner only.");
-            router.replace("/sign-in");
+            router.replace("/");
         }
         
     }, [session, status, router]);

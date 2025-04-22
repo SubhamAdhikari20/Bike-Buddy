@@ -1,3 +1,4 @@
+// src/app/(app)/[username]/customer/dashboard/layout.tsx
 "use client";
 import React, { useEffect } from "react";
 import Link from "next/link";
@@ -5,7 +6,7 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 import { Loader2 } from "lucide-react";
 
 export default function CustomerDashboard() {
@@ -30,7 +31,7 @@ export default function CustomerDashboard() {
         <>
             {/* Hero Section */}
             <section className="bg-gray-100 py-12 px-4 md:px-0">
-                <div className="container mx-auto flex flex-col items-center justify-center text-center gap-6">
+                <div className="container mx-auto flex items-center justify-center text-center gap-6">
                     <h1 className="text-4xl md:text-6xl font-extrabold text-gray-800">
                         Welcome back, {session?.user?.fullName ?? session?.user?.username}!
                     </h1>

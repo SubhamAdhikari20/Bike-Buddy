@@ -1,4 +1,4 @@
-// src/app/(app)/[username]/owner/my-profile/page.tsx
+// src/app/(app)/(customer/my-profile/page.tsx
 "use client";
 import React, { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -37,7 +37,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useDebounceValue, useDebounceCallback } from 'usehooks-ts';
 
 
-const AdminProfile = () => {
+const CustomerProfile = () => {
     const { data: session, status } = useSession();
     const [currentUser, setCurrentUser] = useState<User | null>(null);
     const router = useRouter();
@@ -214,17 +214,17 @@ const AdminProfile = () => {
     }
 
     return (
-        <section className="p-3 md:p-5 mx-auto">
+        <section className="p-3 md:p-5 mx-auto md:max-w-7xl">
             <h1 className="text-2xl font-bold text-gray-800 mb-5">My Profile</h1>
-            <div className="bg-[#d3ecdc] flex flex-col xl:flex-row xl:justify-evenly gap-4 justify-center items-center rounded-xl shadow-lg py-7 px-4">
+            <div className="bg-[#d3ecdc] flex flex-col md:flex-row md:justify-evenly gap-4 justify-center items-center rounded-xl shadow-lg py-7 px-4">
                 <div className="flex flex-col justify-center items-center gap-4">
                     <Avatar className="h-30 w-30 md:h-50 md:w-50 border-2 border-gray-900">
                         <AvatarImage
                             src={preview ? preview : (currentUser?.profilePictureUrl || undefined)}
-                            alt={currentUser?.fullName || currentUser?.username || "Admin"}
+                            alt={currentUser?.fullName || currentUser?.username || "Owner"}
                         />
                         <AvatarFallback className="text-6xl font-semibold text-gray-700">
-                            {(currentUser?.fullName || currentUser?.username || "A")
+                            {(currentUser?.fullName || currentUser?.username || "O")
                                 .split(" ")
                                 .map((n) => n[0])
                                 .join("")
@@ -379,7 +379,7 @@ const AdminProfile = () => {
                     </Form>
                 </div>
 
-                <div className="flex mt-auto xl:self-end">
+                <div className="flex mt-auto md:self-end">
                     <AlertDialog>
                         <AlertDialogTrigger asChild>
                             <Button type="button" variant="destructive">
@@ -408,4 +408,4 @@ const AdminProfile = () => {
     );
 };
 
-export default AdminProfile;
+export default CustomerProfile;

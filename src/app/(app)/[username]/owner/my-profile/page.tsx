@@ -216,9 +216,9 @@ const OwnerProfile = () => {
     return (
         <section className="p-3 md:p-5 mx-auto">
             <h1 className="text-2xl font-bold text-gray-800 mb-5">My Profile</h1>
-            <div className="bg-[#d3ecdc] flex justify-evenly rounded-xl shadow-lg py-7 px-4">
+            <div className="bg-[#d3ecdc] flex flex-col xl:flex-row xl:justify-evenly gap-4 justify-center items-center rounded-xl shadow-lg py-7 px-4">
                 <div className="flex flex-col justify-center items-center gap-4">
-                    <Avatar className="h-50 w-50 border-2 border-emerald-500">
+                    <Avatar className="h-30 w-30 md:h-50 md:w-50 border-2 border-gray-900">
                         <AvatarImage
                             src={preview ? preview : (currentUser?.profilePictureUrl || undefined)}
                             alt={currentUser?.fullName || currentUser?.username || "Owner"}
@@ -379,7 +379,7 @@ const OwnerProfile = () => {
                     </Form>
                 </div>
 
-                <div className="flex items-end">
+                <div className="flex mt-auto xl:self-end">
                     <AlertDialog>
                         <AlertDialogTrigger asChild>
                             <Button type="button" variant="destructive">

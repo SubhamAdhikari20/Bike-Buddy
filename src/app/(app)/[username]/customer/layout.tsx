@@ -14,17 +14,8 @@ export default function CustomerLayout({
     children: React.ReactNode;
 }>) {
     const { data: session, status } = useSession();
-    const router = useRouter();
 
-    useEffect(() => {
-        if (status === "loading") return;
-        // Check if session exists and user is customer
-        if (!session || session.user.role !== "customer") {
-            router.replace("/sign-in");
-        }
-    }, [session, status, router]);
-
-    if (status === "loading" || !session) {
+    if (status === "loading") {
         return (
             <div className="flex justify-center items-center h-screen">
                 <Loader2 className="animate-spin h-8 w-8" />
@@ -34,8 +25,8 @@ export default function CustomerLayout({
 
     return (
         <>
-            <div className="flex gap-3 flex-col md:flex-row">
-                <NavBar currentUser={session.user} />
+            <div className="flex gap-3 flex-row md:flex-row">
+                <NavBar currentUser={session?.user || null} />
                 <main className="min-h-screen p-2 md:p-2 w-full">{children}</main>
             </div>
         </>
