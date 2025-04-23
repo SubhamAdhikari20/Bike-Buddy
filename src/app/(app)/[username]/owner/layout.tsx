@@ -17,7 +17,6 @@ export default function OwnerLayout({
     const router = useRouter();
 
     useEffect(() => {
-        // Check if session exists and user is owner
         if (status === "unauthenticated" || !session || session?.user.role !== "owner") {
             toast.error("Access denied. Owner only.");
             router.replace("/");

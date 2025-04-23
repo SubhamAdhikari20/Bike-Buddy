@@ -88,7 +88,7 @@ const SignUp = () => {
         try {
             const response = await axios.post<ApiResponse>("/api/auth/sign-up", data);
 
-            toast('Success', {
+            toast.success('Success', {
                 description: response.data.message
             });
 
@@ -99,7 +99,7 @@ const SignUp = () => {
             const axiosError = error as AxiosError<ApiResponse>;
 
             let errorMessage = axiosError.response?.data.message;
-            toast('Sign Up failed', {
+            toast.error('Sign Up failed', {
                 description: errorMessage
             });
         }

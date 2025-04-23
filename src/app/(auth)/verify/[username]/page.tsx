@@ -33,7 +33,7 @@ const VerifyAccount = () => {
             });
 
             
-            toast('Success', {
+            toast.success('Success', {
                 description: response.data.message
             });
             
@@ -41,10 +41,10 @@ const VerifyAccount = () => {
             router.replace("/sign-in");
         }
         catch (error) {
-            console.error("Error in sign up of user", error);
+            console.error("Error in verifying user", error);
             const axiosError = error as AxiosError<ApiResponse>;
 
-            toast('Sign Up failed', {
+            toast.error('Verify user failed', {
                 description: axiosError.response?.data.message
             });
         }

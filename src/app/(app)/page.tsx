@@ -43,15 +43,20 @@ export default function Home() {
             {/* ───────────────────────── Hero Section ───────────────────────── */}
             <section className="relative overflow-hidden px-4 md:px-0 min-h-screen flex items-center">
                 {/* Background image */}
-                <div className="absolute inset-0 -z-10 hover:animate-out">
+                <div className="absolute inset-0 -z-10 hover:animate-out overflow-hidden">
                     <Image
                         src="/bike-bg-1.jpg"
                         alt="Bike Logo"
                         fill
-                        className="object-cover opacity-40"
-                        style={{ opacity: 0.4 }}
+                        className="object-cover opacity-60"
+                        style={{ opacity: 0.60 }}
                         priority
                     />
+
+                    <div className="absolute inset-0 bg-gradient-to-r from-blue-900/30 to-purple-900/30 dark:from-blue-900/60 dark:to-gray-900/60 mix-blend-multiply"></div>
+
+                    <div className="absolute inset-0 bg-gradient-to-b from-transparent to-background/90 dark:to-background/90"></div>
+
                 </div>
 
                 <div className="container mx-auto flex flex-col items-center justify-center text-center gap-6">

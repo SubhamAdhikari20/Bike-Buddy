@@ -273,7 +273,10 @@ const NavBar: React.FC<NavBarProps> = ({ currentUser }) => {
                             </Link>
                         </li>
                         <li>
-                            <Link href="/about" className="hover:text-gray-900 text-sm">
+                            <Link
+                                href="/about"
+                                onClick={() => setMobileMenuOpen(false)}
+                                className="hover:text-gray-900 text-sm">
                                 About
                             </Link>
                         </li>
@@ -291,7 +294,19 @@ const NavBar: React.FC<NavBarProps> = ({ currentUser }) => {
                     {currentUser ? (
                         <>
                             <Link href="/my-profile" onClick={toggleMenu} className="flex items-center gap-2">
-                                <FaUser /> My profile
+                                <Avatar className="h-8 w-8 cursor-pointer border-1 border-gray-900">
+                                    {(user?.profilePictureUrl) ? (
+                                        <AvatarImage src={user?.profilePictureUrl} alt={user?.fullName} />
+                                    ) : (
+                                        <AvatarFallback>
+                                            {((user?.fullName ?? user?.username ?? "U")
+                                                .split(" ")
+                                                .map((n) => n[0])
+                                                .join("")
+                                                .toUpperCase())}
+                                        </AvatarFallback>
+                                    )}
+                                </Avatar> My profile
                             </Link>
                             <AlertDialog>
                                 <AlertDialogTrigger asChild>

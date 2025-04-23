@@ -13,6 +13,12 @@ enum Role {
     admin
 }
 
+enum BikeType {
+    city
+    mountain
+    electric
+}
+
 enum BookingStatus {
     pending
     active
@@ -66,6 +72,7 @@ model Message {
 model Bike {
     id              Int      @id @default(autoincrement())
     bikeName        String   @db.VarChar(255)
+    bikeType        BikeType @default(city)
     bikeDescription String   @db.Text
     bikeLocation    String   @db.VarChar(255)
     pricePerHour    Decimal  @db.Decimal(10, 2)

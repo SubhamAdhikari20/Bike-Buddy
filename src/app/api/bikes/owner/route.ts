@@ -3,11 +3,12 @@ import { createBike, getAllBikesByOwnerId } from "@/model/Bike";
 
 export async function POST(request: Request) {
     try {
-        const { ownerId, bikeName, bikeDescription, bikeLocation, pricePerHour, bikeImageUrl, available } = await request.json();
+        const { ownerId, bikeName, bikeType, bikeDescription, bikeLocation, pricePerHour, bikeImageUrl, available } = await request.json();
 
         const newBike = await createBike({
             ownerId,
             bikeName,
+            bikeType,
             bikeDescription,
             bikeLocation,
             pricePerHour,

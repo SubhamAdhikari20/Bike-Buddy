@@ -118,8 +118,15 @@ const SideBar: React.FC<SideBarProps> = ({ currentUser }) => {
             {/* Sidebar - Visible on Desktop or Mobile when toggled */}
             <div className="flex">
                 <aside
-                    className={`${isMobileOpen ? "fixed top-0 inset-y-0 left-0 z-40" : "hidden"
-                        } md:static md:flex flex-col w-64 bg-gray-800 text-gray-200 p-4 shadow-md transition-transform duration-300 ease-in-out`}
+                    // className={`${isMobileOpen ? "fixed top-0 inset-y-0 left-0 z-40" : "hidden"
+                    //     } md:static md:flex flex-col w-64 bg-gray-800 text-gray-200 p-4 shadow-md transition-transform duration-300 ease-in-out`}
+
+                    className={`
+                        ${isMobileOpen ? "fixed top-0 inset-y-0 left-0 z-40" : "hidden"}
+                        md:sticky md:top-0 md:h-screen md:overflow-y-auto md:flex
+                        flex-col w-64 bg-gray-800 text-gray-200 p-4 shadow-md
+                        transition-transform duration-300 ease-in-out
+                        `}
                 >
                     <div
                         className="flex items-center justify-center w-full focus:outline-none mb-5"
@@ -264,7 +271,7 @@ const SideBar: React.FC<SideBarProps> = ({ currentUser }) => {
                                 </AvatarFallback>
                             </Avatar>
                             <span className="font-semibold text-sm sm:text-base">
-                                {user?.fullName || user?.username || user?.email || "Admin"}
+                                {user?.fullName || user?.username || user?.email || "Owner"}
                             </span>
                         </div>
                     </div>

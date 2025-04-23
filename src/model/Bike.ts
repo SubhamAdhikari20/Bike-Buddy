@@ -1,19 +1,21 @@
 import prisma from "@/lib/prisma";
-import { Bike, User } from "@prisma/client";
+import { Bike, BikeType } from "@prisma/client";
 
 export async function createBike(data: {
     ownerId: number;
     bikeName: string;
+    bikeType: BikeType;
     bikeDescription: string;
     bikeLocation: string;
     pricePerHour: number | string; // Accept number or string convertible to Decimal
-    bikeImageUrl?: string; 
+    bikeImageUrl?: string;
     available?: boolean;
 }): Promise<Bike> {
     return await prisma.bike.create({
         data: {
             ownerId: data.ownerId,
             bikeName: data.bikeName,
+            bikeType: data.bikeType,
             bikeDescription: data.bikeDescription,
             bikeLocation: data.bikeLocation,
             pricePerHour: data.pricePerHour,
@@ -42,10 +44,11 @@ export async function updateBike(
     id: number,
     data: Partial<{
         bikeName: string;
+        bikeType: BikeType;
         bikeDescription: string;
         bikeLocation: string;
         pricePerHour: number | string;
-        bikeImageUrl: string; 
+        bikeImageUrl: string;
         available: boolean;
     }>
 ): Promise<Bike> {

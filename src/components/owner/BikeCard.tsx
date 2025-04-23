@@ -27,7 +27,7 @@ interface BikeCardProps {
 const BikeCard = ({ bike, onEdit, onDelete }: BikeCardProps) => {
 
     return (
-        <Card className="w-full overflow-hidden shadow-lg hover:shadow-xl transition-shadow py-0 gap-4">
+        <Card className="w-full overflow-hidden shadow-lg hover:shadow-xl transition-shadow py-0 gap-3">
             <CardHeader className="p-0">
                 <div className="relative h-55 w-full overflow-hidden">
                     {bike.bikeImageUrl ? (
@@ -44,15 +44,23 @@ const BikeCard = ({ bike, onEdit, onDelete }: BikeCardProps) => {
                         </div>
                     )}
                 </div>
+                <CardTitle className="px-4 pt-2 text-xl font-semibold">{bike.bikeName}</CardTitle>
             </CardHeader>
-            <CardContent className="px-4">
-                <h3 className="font-semibold text-lg">{bike.bikeName}</h3>
-                <p className="text-sm text-muted-foreground line-clamp-2">
-                    {bike.bikeDescription}
-                </p>
-                <div className="flex justify-between items-center text-sm">
-                    <span className="font-medium">₹ {bike.pricePerHour.toString()}/hr</span>
-                    <span className="text-muted-foreground">{bike.bikeLocation}</span>
+            <CardContent className="px-4 text-sm">
+                {/* <h3 className="font-semibold text-lg">{bike.bikeName}</h3> */}
+                <CardDescription className="text-sm text-muted-foreground line-clamp-2">{bike.bikeDescription}</CardDescription>
+                <div className="flex justify-between mt-3 items-center">
+                    <span className="font-bold text-2xl">₹ {bike.pricePerHour.toString()}/hr</span>
+                    <div className="flex flex-col gap-1">
+                        <div>
+                            <span className="font-semibold">Bike Type:</span>
+                            <span className="text-muted-foreground"> {bike.bikeType}</span>
+                        </div>
+                        <div>
+                            <span className="font-semibold">Location:</span>
+                            <span className="text-muted-foreground"> {bike.bikeLocation}</span>
+                        </div>
+                    </div>
                 </div>
             </CardContent>
 

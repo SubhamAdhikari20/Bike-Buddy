@@ -10,7 +10,7 @@ export default function CustomerLayout({ children }: { children: React.ReactNode
     const router = useRouter();
 
     useEffect(() => {
-        if (status === "unauthenticated" || !session || session.user.role !== "admin") {
+        if (status === "unauthenticated" || !session || session.user.role !== "customer") {
             router.replace("/");
         }
     }, [status, router]);

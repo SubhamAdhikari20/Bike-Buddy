@@ -18,6 +18,15 @@ import {
     FormLabel,
     FormMessage,
 } from "@/components/ui/form";
+import {
+    Select,
+    SelectContent,
+    SelectGroup,
+    SelectItem,
+    SelectLabel,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import BikeCard from "@/components/owner/BikeCard";
@@ -85,6 +94,7 @@ const OwnerBikes = () => {
         form.reset({
             ownerId,
             bikeName: "",
+            bikeType: "city",
             bikeDescription: "",
             bikeLocation: "",
             pricePerHour: 0,
@@ -155,6 +165,7 @@ const OwnerBikes = () => {
         form.reset({
             ownerId: bike.ownerId,
             bikeName: bike.bikeName,
+            bikeType: bike.bikeType,
             bikeDescription: bike.bikeDescription,
             bikeLocation: bike.bikeLocation,
             pricePerHour: Number(bike.pricePerHour),
@@ -217,6 +228,31 @@ const OwnerBikes = () => {
                                     )}
                                 />
                                 <FormField
+                                    name="bikeType"
+                                    control={form.control}
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Bike Type</FormLabel>
+                                            <FormControl>
+                                                <Select
+                                                    value={field.value}
+                                                    onValueChange={(value) => field.onChange(value)}
+                                                >
+                                                    <SelectTrigger className="w-full">
+                                                        <SelectValue placeholder="Select a bike type" />
+                                                    </SelectTrigger>
+                                                    <SelectContent className="mt-1">
+                                                        <SelectItem value="city">City</SelectItem>
+                                                        <SelectItem value="mountain">Mountain</SelectItem>
+                                                        <SelectItem value="electric">Electric</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
                                     name="bikeDescription"
                                     control={form.control}
                                     render={({ field }) => (
@@ -247,9 +283,9 @@ const OwnerBikes = () => {
                                     control={form.control}
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Price per Hour</FormLabel>
+                                            <FormLabel>Price per Hour (₹/hr)</FormLabel>
                                             <FormControl>
-                                                <Input {...field} placeholder="Price per hour" type="number" min="0" step="0.5" onChange={e => field.onChange(parseFloat(e.target.value))} />
+                                                <Input {...field} placeholder="Price per hour" type="number" min="0" step="5" onChange={e => field.onChange(parseFloat(e.target.value))} />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -300,7 +336,7 @@ const OwnerBikes = () => {
                     <Loader2 className="h-8 w-8 animate-spin" />
                 </div>
             ) : (
-                <div className="overflow-x-auto border rounded-md">
+                <div className="overflow-x-auto py-4 rounded-md">
                     {bikes.length === 0 ? (
                         <p className="p-4 text-gray-600">No bikes found.</p>
                     ) : (
