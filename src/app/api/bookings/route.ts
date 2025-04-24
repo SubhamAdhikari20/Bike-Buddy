@@ -1,20 +1,18 @@
 // src/api/bookings/route.ts
-import prisma from "@/lib/prisma";
+import { createBooking } from "@/model/Booking"
 
 export async function POST(request: Request) {
     try {
         const { customerId, bikeId, startTime, endTime, totalPrice } = await request.json();
 
         // Create the booking
-        const booking = await prisma.booking.create({
-            data: {
-                customerId,
-                bikeId,
-                startTime: new Date(startTime),
-                endTime: new Date(endTime),
-                totalPrice,
-                status: "pending",
-            },
+        const booking = await createBooking({
+            customerId,
+            bikeId,
+            startTime: new Date(startTime),
+            endTime: new Date(endTime),
+            totalPrice,
+            status: "pending",
         });
 
         return Response.json(

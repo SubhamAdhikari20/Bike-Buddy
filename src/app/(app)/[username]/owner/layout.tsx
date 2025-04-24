@@ -21,7 +21,7 @@ export default function OwnerLayout({
             toast.error("Access denied. Owner only.");
             router.replace("/");
         }
-        
+
     }, [session, status, router]);
 
     if (status === "loading" || !session) {

@@ -90,6 +90,7 @@ SELECT * FROM `Bike`;
 SELECT * FROM `BikeImage`;
 SELECT * FROM `Booking`;
 SELECT * FROM `Review`;
+SELECT * FROM `Payment`;
 SELECT * FROM `Notification`;
 
 INSERT INTO `User` (`id`, `fullName`, `email`, `contact`, `password`, `role`)
@@ -98,3 +99,5 @@ VALUES (1, "Subham Adhikari", "bikebuddy_admin@gmail.com", "9876543210", "admin@
 ALTER TABLE `User` MODIFY `username` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin;
 DELETE FROM `User` WHERE `email`="subhamadhikari0007@gmail.com";
 DELETE FROM `Bike` WHERE `id`= 8;
+DELETE FROM `Booking` WHERE `id`= 12;
+DELETE FROM `Payment` WHERE `id`= 3;

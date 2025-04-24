@@ -1,3 +1,4 @@
+// src/model/Booking.ts
 import prisma from "@/lib/prisma";
 import { Booking, BookingStatus } from "@prisma/client";
 

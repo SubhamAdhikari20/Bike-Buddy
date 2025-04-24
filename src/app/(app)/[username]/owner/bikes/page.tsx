@@ -62,7 +62,7 @@ const OwnerBikes = () => {
             bikeName: "",
             bikeDescription: "",
             bikeLocation: "",
-            pricePerHour: 0,
+            pricePerDay: 0,
             bikeImageUrl: "",
             available: true,
         },
@@ -97,7 +97,7 @@ const OwnerBikes = () => {
             bikeType: "city",
             bikeDescription: "",
             bikeLocation: "",
-            pricePerHour: 0,
+            pricePerDay: 0,
             available: true,
             bikeImageUrl: "",
         });
@@ -168,7 +168,7 @@ const OwnerBikes = () => {
             bikeType: bike.bikeType,
             bikeDescription: bike.bikeDescription,
             bikeLocation: bike.bikeLocation,
-            pricePerHour: Number(bike.pricePerHour),
+            pricePerDay: Number(bike.pricePerDay),
             available: bike.available,
             bikeImageUrl: bike.bikeImageUrl || "",
         });
@@ -279,13 +279,13 @@ const OwnerBikes = () => {
                                     )}
                                 />
                                 <FormField
-                                    name="pricePerHour"
+                                    name="pricePerDay"
                                     control={form.control}
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Price per Hour (₹/hr)</FormLabel>
+                                            <FormLabel>Price per Day (₹/day)</FormLabel>
                                             <FormControl>
-                                                <Input {...field} placeholder="Price per hour" type="number" min="0" step="5" onChange={e => field.onChange(parseFloat(e.target.value))} />
+                                                <Input {...field} placeholder="Price per day" type="number" min="0" step="5" onChange={e => field.onChange(parseFloat(e.target.value))} />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>

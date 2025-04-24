@@ -50,7 +50,7 @@ const BikeCard = ({ bike, onEdit, onDelete }: BikeCardProps) => {
                 {/* <h3 className="font-semibold text-lg">{bike.bikeName}</h3> */}
                 <CardDescription className="text-sm text-muted-foreground line-clamp-2">{bike.bikeDescription}</CardDescription>
                 <div className="flex justify-between mt-3 items-center">
-                    <span className="font-bold text-2xl">₹ {bike.pricePerHour.toString()}/hr</span>
+                    <span className="font-bold text-2xl">₹ {bike.pricePerDay.toString()}/day</span>
                     <div className="flex flex-col gap-1">
                         <div>
                             <span className="font-semibold">Bike Type:</span>

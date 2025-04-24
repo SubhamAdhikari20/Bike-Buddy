@@ -1,3 +1,4 @@
+// src/app/(app)/bikes/page.tsx
 "use client";
 import React, { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
@@ -5,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import {
     Dialog,
     DialogContent,
+    DialogFooter,
     DialogHeader,
     DialogTitle,
     DialogTrigger,
@@ -29,17 +31,31 @@ import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
 import BikeCard from "@/components/customer/BikeCard";
 import { Loader2 } from "lucide-react";
+import { signIn, useSession } from "next-auth/react";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
+import { bikeSchema } from "@/schemas/bikeSchema";
+import { bookingSchema } from "@/schemas/bookingSchema";
+import { Bike } from "@prisma/client";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
 
-type Bike = {
-    id: number;
-    bikeName: string;
-    bikeDescription: string;
-    bikeLocation: string;
-    pricePerHour: number;
-    bikeImageUrl?: string[];
-};
+// type Bike = {
+//     id: number;
+//     bikeName: string;
+//     bikeDescription: string;
+//     bikeLocation: string;
+//     pricePerDay: number;
+//     bikeImageUrl?: string[];
+// };
 
-export default function RentBike() {
+const RentBike = () => {
+    const { data: session, status } = useSession();
+    const router = useRouter();
+    const [bookingLoading, setBookingLoading] = useState(false);
+
     const [location, setLocation] = useState("");
     const [type, setType] = useState("");
     const [priceRange, setPriceRange] = useState<[number, number]>([0, 10000]);
@@ -52,6 +68,9 @@ export default function RentBike() {
     const [bikes, setBikes] = useState<Bike[]>([]);
     const [total, setTotal] = useState(0);
     const [loading, setLoading] = useState(false);
+
+    // Booking modal state
+    const [selectedBike, setSelectedBike] = useState<Bike | null>(null);
 
     // whenever any filter/sort/page changes, re-fetch
     useEffect(() => {
@@ -85,6 +104,106 @@ export default function RentBike() {
         setSortBy("newest");
         setPage(1);
     };
+
+    // form for booking
+    const form = useForm<z.infer<typeof bookingSchema>>({
+        resolver: zodResolver(bookingSchema),
+        defaultValues: {
+            customerId: session?.user?.id ? Number(session.user.id) : undefined,
+            bikeId: selectedBike?.id,
+            startTime: "",
+            endTime: "",
+            totalPrice: 0,
+        },
+    });
+
+    // update totalPrice when start/end change
+    const { watch, setValue } = form;
+    const [st, et] = [watch("startTime"), watch("endTime")];
+    useEffect(() => {
+        if (st && et) {
+            const s = new Date(st).getTime(),
+                e = new Date(et).getTime();
+            if (e > s && selectedBike) {
+                const msPerDay = 1000 * 60 * 60 * 24;
+                const rawDays = (e - s) / msPerDay;
+                const days = Math.max(1, Math.ceil(rawDays));
+                const dailyRate = Number(selectedBike.pricePerDay);
+                setValue("totalPrice", Number((days * dailyRate).toFixed(2)));
+
+                // const hrs = (e - s) / (1000 * 60 * 60);
+                // const hourlyRate = Number(selectedBike.pricePerDay);
+                // setValue("totalPrice", Number((hrs * hourlyRate).toFixed(2)));
+            }
+        }
+    }, [st, et, setValue, selectedBike]);
+
+    // when user clicks “Rent Now”
+    const handleRentClick = (bike: Bike) => {
+        if (status === "unauthenticated" || !session || session?.user.role !== "customer") {
+            // kick to sign-in
+            toast.error("Booking Failed!", { description: "You need to sign in for renting a bike" });
+            signIn("credentials", { redirect: false });
+            router.replace("/sign-in");
+            return;
+        }
+        // prefill bikeId & customer
+        const hourlyRate = Number(bike.pricePerDay);
+        form.reset({
+            customerId: Number(session.user.id),
+            bikeId: bike.id,
+            startTime: "",
+            endTime: "",
+            totalPrice: Number(hourlyRate.toFixed(2)),
+        });
+        setSelectedBike(bike);
+    }
+
+    // on booking submit
+    const onSubmit = async (data: z.infer<typeof bookingSchema>) => {
+        // client-side date checks
+        if (!data.startTime || !data.endTime) {
+            return toast.error("Please select both start and end dates");
+        }
+        if (new Date(data.endTime) <= new Date(data.startTime)) {
+            return toast.error("End date must be after start date");
+        }
+
+        setBookingLoading(true);
+
+        try {
+            const res = await fetch("/api/bookings", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data),
+            });
+
+            const payload = await res.json() as {
+                success: boolean;
+                message?: string;
+                booking?: { id: number; totalPrice: number };
+            };
+
+            if (!res.ok || !payload.success || !payload.booking) {
+                toast.error(
+                    payload.message || "Unable to create booking. Please try again."
+                );
+                // throw new Error(payload.message || "Unable to create booking. Please try again.");
+            }
+
+            if (payload.booking) {
+                router.push(`/payment/checkout?bookingId=${payload.booking.id}&totalPrice=${payload.booking.totalPrice}`);
+            }
+            setSelectedBike(null);
+        }
+        catch (err: any) {
+            toast.error(err.message || "Booking failed");
+        }
+        finally {
+            setBookingLoading(false);
+        }
+    }
+
 
     return (
         <section className="container mx-auto px-4 py-8">
@@ -130,7 +249,7 @@ export default function RentBike() {
                 {/* Price */}
                 <div className="sm:col-span-2">
                     <Label className="block text-sm font-semibold mb-1">
-                        Price / Hour (₹)
+                        Price / Day (₹)
                     </Label>
                     <Slider
                         min={0}
@@ -184,8 +303,8 @@ export default function RentBike() {
                 </div>
             ) : bikes.length ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {bikes.map((b) => (
-                        <BikeCard key={b.id} bike={b as any} />
+                    {bikes.map((bike) => (
+                        <BikeCard key={bike.id} bike={bike as any} onRent={() => handleRentClick(bike)} />
                     ))}
                 </div>
             ) : (
@@ -208,6 +327,99 @@ export default function RentBike() {
                     ))}
                 </div>
             )}
+
+            {/* ───── Inline Booking Dialog ───── */}
+            <Dialog
+                open={!!selectedBike}
+                onOpenChange={(o) => {
+                    if (!o) setSelectedBike(null);
+                }}
+            >
+                <DialogContent className="max-w-2xl w-full max-h-[80vh] overflow-y-auto p-6">
+                    <DialogHeader className="pb-4">
+                        <DialogTitle className="text-lg font-semibold">
+                            Book “{selectedBike?.bikeName}”
+                        </DialogTitle>
+                    </DialogHeader>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {/* Left: Bike Image */}
+                        <div className="w-full h-48 md:h-64 relative rounded-lg overflow-hidden bg-gray-100">
+                            <Image
+                                src={selectedBike?.bikeImageUrl || "/placeholder.jpg"}
+                                alt={selectedBike?.bikeName || "Bike Image"}
+                                fill
+                                className="object-cover"
+                            />
+                        </div>
+
+                        {/* Right: Booking Form */}
+                        <Form {...form}>
+                            <form
+                                onSubmit={form.handleSubmit(onSubmit)}
+                                className="space-y-4"
+                            >
+                                <FormField
+                                    name="startTime"
+                                    control={form.control}
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Start Date &amp; Time</FormLabel>
+                                            <FormControl>
+                                                <Input type="date" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    name="endTime"
+                                    control={form.control}
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>End Date &amp; Time</FormLabel>
+                                            <FormControl>
+                                                <Input type="date" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    name="totalPrice"
+                                    control={form.control}
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <div className="flex justify-between">
+                                                <FormLabel>Total Price (₹)</FormLabel>
+                                                <div className="text-sm">
+                                                    ₹{selectedBike?.pricePerDay.toString()}/day
+                                                </div>
+                                            </div>
+                                            <FormControl>
+                                                <Input {...field} disabled className="bg-gray-50" />
+                                            </FormControl>
+                                        </FormItem>
+                                    )}
+                                />
+                                <DialogFooter className="pt-4">
+                                    <Button type="submit" className="w-full">
+                                        {bookingLoading ? (
+                                            <>
+                                                Booking… <Loader2 className="animate-spin ml-2 h-4 w-4" />
+                                            </>
+                                        ) : (
+                                            "Book"
+                                        )}
+                                    </Button>
+                                </DialogFooter>
+                            </form>
+                        </Form>
+                    </div>
+                </DialogContent>
+            </Dialog>
         </section>
     );
 }
+
+export default RentBike;

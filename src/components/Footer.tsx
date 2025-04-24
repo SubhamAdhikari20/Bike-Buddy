@@ -27,14 +27,17 @@ const Footer = () => {
                 </div>
                 {/* Navigation Links */}
                 <div className="flex flex-wrap justify-center space-x-6">
-                    <Link href="/privacy" className="hover:text-white text-sm">
-                        Privacy Policy
+                    <Link href="/" className="hover:text-white text-sm">
+                        Home
                     </Link>
-                    <Link href="/terms" className="hover:text-white text-sm">
-                        Terms of Service
+                    <Link href="/bikes" className="hover:text-white text-sm">
+                        Rent a bike
+                    </Link>
+                    <Link href="/about" className="hover:text-white text-sm">
+                        About
                     </Link>
                     <Link href="/contact" className="hover:text-white text-sm">
-                        Contact Us
+                        Contact
                     </Link>
                 </div>
                 {/* Social Media Icons */}

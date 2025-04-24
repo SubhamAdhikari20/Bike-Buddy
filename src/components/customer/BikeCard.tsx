@@ -17,9 +17,10 @@ import Image from "next/image";
 
 type BikeCardProps = {
     bike: Bike;
+    onRent: () => void;
 }
 
-const BikeCard = ({ bike }: BikeCardProps) => {
+const BikeCard = ({ bike, onRent }: BikeCardProps) => {
 
     return (
         <Card className="w-full max-w-md mx-auto shadow-lg overflow-hidden transition-shadow hover:shadow-xl py-0 gap-4">
@@ -46,7 +47,7 @@ const BikeCard = ({ bike }: BikeCardProps) => {
             <CardContent className="text-gray-800 text-sm px-4">
                 <CardDescription>{bike.bikeDescription}</CardDescription>
                 <div className="mt-4 space-y-1 flex justify-between items-center">
-                    <span className="font-bold text-2xl"> ₹ {bike.pricePerHour.toString()}/hr</span>
+                    <span className="font-bold text-2xl"> ₹ {bike.pricePerDay.toString()}/day</span>
                     <div className="flex flex-col gap-1">
                         <div>
                             <span className="font-semibold">Bike Type:</span>
@@ -62,7 +63,7 @@ const BikeCard = ({ bike }: BikeCardProps) => {
                 </div>
             </CardContent>
             <CardFooter className="p-4! flex gap-2 justify-end border-t">
-                <Button variant="outline" className="text-sm">
+                <Button variant="outline" className="text-sm" onClick={onRent}>
                     Rent Now
                 </Button>
             </CardFooter>

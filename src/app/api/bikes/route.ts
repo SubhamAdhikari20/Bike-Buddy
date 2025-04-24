@@ -1,3 +1,4 @@
+// src/app/api/bikes/route.ts
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import prisma, { Prisma } from "@/lib/prisma";
@@ -27,7 +28,7 @@ export async function GET(req: Request) {
             where.bikeType = params.type;    // your schema must have `bikeType`
         }
         if (params.minPrice !== undefined || params.maxPrice !== undefined) {
-            where.pricePerHour = {
+            where.pricePerDay = {
                 ...(params.minPrice !== undefined ? { gte: params.minPrice } : {}),
                 ...(params.maxPrice !== undefined ? { lte: params.maxPrice } : {}),
             };
@@ -36,9 +37,9 @@ export async function GET(req: Request) {
         // sorting
         const orderBy: Prisma.BikeOrderByWithRelationInput =
             params.sortBy === "priceAsc"
-                ? { pricePerHour: "asc" }
+                ? { pricePerDay: "asc" }
                 : params.sortBy === "priceDesc"
-                    ? { pricePerHour: "desc" }
+                    ? { pricePerDay: "desc" }
                     : { createdAt: "desc" };
 
         const total = await prisma.bike.count({ where });
@@ -70,7 +71,7 @@ export async function GET(req: Request) {
 //             ...(location && { bikeLocation: { contains: location } }),
 //             // ...(type && { bikeType: type }),     // remove if you don’t have bikeType
 //             ...(minPrice !== undefined || maxPrice !== undefined) && {
-//                 pricePerHour: {
+//                 pricePerDay: {
 //                     ...(minPrice !== undefined ? { gte: minPrice } : {}),
 //                     ...(maxPrice !== undefined ? { lte: maxPrice } : {}),
 //                 },

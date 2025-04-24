@@ -7,7 +7,7 @@ export async function createBike(data: {
     bikeType: BikeType;
     bikeDescription: string;
     bikeLocation: string;
-    pricePerHour: number | string; // Accept number or string convertible to Decimal
+    pricePerDay: number | string; // Accept number or string convertible to Decimal
     bikeImageUrl?: string;
     available?: boolean;
 }): Promise<Bike> {
@@ -18,7 +18,7 @@ export async function createBike(data: {
             bikeType: data.bikeType,
             bikeDescription: data.bikeDescription,
             bikeLocation: data.bikeLocation,
-            pricePerHour: data.pricePerHour,
+            pricePerDay: data.pricePerDay,
             bikeImageUrl: data.bikeImageUrl,
             available: data.available ?? true,
         },
@@ -47,7 +47,7 @@ export async function updateBike(
         bikeType: BikeType;
         bikeDescription: string;
         bikeLocation: string;
-        pricePerHour: number | string;
+        pricePerDay: number | string;
         bikeImageUrl: string;
         available: boolean;
     }>

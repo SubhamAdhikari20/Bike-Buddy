@@ -1,7 +1,7 @@
 // src/app/(auth)/verify/[username]/page.tsx
 "use client"
 import React from 'react';
-import { useParams, useRouter } from "next/navigation";
+import { redirect, useParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -32,12 +32,11 @@ const VerifyAccount = () => {
                 code: data.code
             });
 
-            
             toast.success('Success', {
                 description: response.data.message
             });
-            
-            signOut({ callbackUrl: "/sign-in" });
+
+            signOut({ callbackUrl: "/sign-in", redirect: false });
             router.replace("/sign-in");
         }
         catch (error) {

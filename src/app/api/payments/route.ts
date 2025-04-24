@@ -1,4 +1,4 @@
-// src/api/payment/route.ts
+// src/api/payments/route.ts
 import prisma from "@/lib/prisma";
 
 // This example assumes you receive a payment token from Khalti and process the payment externally.
