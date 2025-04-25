@@ -28,30 +28,42 @@ export async function finalizePayment(data: {
     gatewayRef: string;
     status: PaymentStatus;
 }): Promise<Payment> {
-    // 1) find the payment
-    const payment = await prisma.payment.findUniqueOrThrow({
-        where: { transactionId: data.transactionUuid },
+    return await prisma.$transaction(async (tx) => {
+        const payment = await tx.payment.findUniqueOrThrow({
+            where: { transactionId: data.transactionUuid },
+        });
+
+        const updated = await tx.payment.update({
+            where: { id: payment.id },
+            data: {
+                transactionId: data.gatewayRef,
+                status: data.status,
+            },
+            include: {
+                booking: true,
+            },
+        });
+
+        await tx.booking.update({
+            where: { id: updated.bookingId! },
+            data: {
+                status: data.status === "success" ? "completed" : "failed",
+                paymentReference: data.gatewayRef,
+            },
+        });
+
+        if (data.status === "success") {
+            await tx.bike.update({
+                where: { id: updated.booking?.bikeId! },
+                data: {
+                    available: false,
+                },
+            });
+        }
+
+        return updated;
     });
 
-    // 2) update payment record
-    const updated = await prisma.payment.update({
-        where: { id: payment.id },
-        data: {
-            transactionId: data.gatewayRef,        // overwrite with gateway’s refId
-            status: data.status,
-        },
-    });
-
-    // 3) update booking
-    await prisma.booking.update({
-        where: { id: payment.bookingId },
-        data: {
-            status: data.status === "success" ? "completed" : "failed",
-            paymentReference: data.gatewayRef,
-        },
-    });
-
-    return updated;
 }
 
 export async function recordPayment(data: {

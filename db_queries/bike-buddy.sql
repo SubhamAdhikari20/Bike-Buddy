@@ -33,6 +33,7 @@ CREATE TABLE `Message` (
 CREATE TABLE `Bike` (
     `id` INT AUTO_INCREMENT PRIMARY KEY,
     `bikeName` VARCHAR(255) NOT NULL,
+    `bikeType` ENUM('city', 'mountain', 'electric') DEFAULT 'city',
     `bikeDescription` TEXT NOT NULL,
     `bikeLocation` VARCHAR(255) NOT NULL,
     `pricePerHour` DECIMAL(10,2) NOT NULL,
@@ -87,17 +88,18 @@ ADD COLUMN `role` VARCHAR(255);
 use bike_buddy;
 SELECT * FROM `User`;
 SELECT * FROM `Bike`;
-SELECT * FROM `BikeImage`;
 SELECT * FROM `Booking`;
-SELECT * FROM `Review`;
 SELECT * FROM `Payment`;
+SELECT * FROM `Review`;
 SELECT * FROM `Notification`;
+SELECT * FROM `Invoice`;
 
 INSERT INTO `User` (`id`, `fullName`, `email`, `contact`, `password`, `role`)
 VALUES (1, "Subham Adhikari", "bikebuddy_admin@gmail.com", "9876543210", "admin@123", "admin");
 
 ALTER TABLE `User` MODIFY `username` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin;
 DELETE FROM `User` WHERE `email`="subhamadhikari0007@gmail.com";
+DELETE FROM `User` WHERE `id`= 2;
 DELETE FROM `Bike` WHERE `id`= 8;
-DELETE FROM `Booking` WHERE `id`= 12;
-DELETE FROM `Payment` WHERE `id`= 3;
+DELETE FROM `Booking` WHERE `id`= 1;
+DELETE FROM `Payment` WHERE `id`= 1;

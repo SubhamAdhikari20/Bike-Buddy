@@ -14,6 +14,7 @@ import { Button } from "../ui/button";
 import { X } from "lucide-react";
 import { Bike } from "@prisma/client";
 import Image from "next/image";
+import Link from "next/link";
 
 type BikeCardProps = {
     bike: Bike;
@@ -45,7 +46,7 @@ const BikeCard = ({ bike, onRent }: BikeCardProps) => {
             </CardHeader>
 
             <CardContent className="text-gray-800 text-sm px-4">
-                <CardDescription>{bike.bikeDescription}</CardDescription>
+                <CardDescription className="line-clamp-2">{bike.bikeDescription}</CardDescription>
                 <div className="mt-4 space-y-1 flex justify-between items-center">
                     <span className="font-bold text-2xl"> ₹ {bike.pricePerDay.toString()}/day</span>
                     <div className="flex flex-col gap-1">
@@ -66,6 +67,9 @@ const BikeCard = ({ bike, onRent }: BikeCardProps) => {
                 <Button variant="outline" className="text-sm" onClick={onRent}>
                     Rent Now
                 </Button>
+                <Link href={`/bikes/${bike.id}`}>
+                    <Button size="sm">View Details</Button>
+                </Link>
             </CardFooter>
         </Card>
     );

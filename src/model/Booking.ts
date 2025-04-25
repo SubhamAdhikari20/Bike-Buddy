@@ -20,6 +20,9 @@ export async function createBooking(data: {
             status: data.status || "pending",
         },
     });
+
+    // booking table insert after payment (userdetails ), bike id [pass], booking create
+    /// after that update bike table set availability to 0 where bike id == passed bike id 
 }
 
 export async function getBookingById(id: number): Promise<Booking | null> {

@@ -26,7 +26,8 @@ import {
     SelectLabel,
     SelectTrigger,
     SelectValue,
-} from "@/components/ui/select"
+} from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import BikeCard from "@/components/owner/BikeCard";
@@ -45,11 +46,14 @@ import Image from "next/image";
 const OwnerBikes = () => {
     const router = useRouter();
     const { data: session, status } = useSession();
-    const currentUser = session?.user;
+    let currentUser: any;
+    if (session?.user) {
+        currentUser = session.user;
+    }
     const ownerId = Number(currentUser?.id);
 
     const [bikes, setBikes] = useState<Bike[]>([]);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const [dialogOpen, setDialogOpen] = useState(false);
     const [preview, setPreview] = useState<string>("");
     const [editingBike, setEditingBike] = useState<Bike | null>(null);
@@ -103,7 +107,9 @@ const OwnerBikes = () => {
         });
         setPreview("");
         setEditingBike(null);
-        if (fileInputRef.current) fileInputRef.current.value = "";
+        if (fileInputRef.current) {
+            fileInputRef.current.value = "";
+        }
     }
 
     const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -291,6 +297,25 @@ const OwnerBikes = () => {
                                         </FormItem>
                                     )}
                                 />
+
+                                {/* ─── AVAILABILITY SWITCH ─── */}
+                                <FormField
+                                    name="available"
+                                    control={form.control}
+                                    render={({ field }) => (
+                                        <FormItem className="flex items-center justify-between flex-row rounded-lg border p-3 shadow-sm">
+                                            <FormLabel>Bike Available</FormLabel>
+                                            <FormControl>
+                                                <Switch
+                                                    checked={field.value}
+                                                    onCheckedChange={field.onChange}
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+
                                 <FormItem>
                                     <FormLabel>Bike Image</FormLabel>
                                     <FormControl>
@@ -345,6 +370,7 @@ const OwnerBikes = () => {
                                 <BikeCard
                                     key={bike.id}
                                     bike={bike}
+                                    currentUser={currentUser!}
                                     onEdit={() => handleEdit(bike)}
                                     onDelete={() => handleDelete(bike.id)}
                                 />

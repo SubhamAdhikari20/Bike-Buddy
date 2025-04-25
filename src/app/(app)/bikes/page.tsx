@@ -140,6 +140,27 @@ const RentBike = () => {
 
     // when user clicks “Rent Now”
     const handleRentClick = (bike: Bike) => {
+        // if (status === "unauthenticated" || !session || session?.user.role !== "customer") {
+        //     // kick to sign-in
+        //     toast.error("Booking Failed!", { description: "You need to sign in for renting a bike" });
+        //     signIn("credentials", { redirect: false });
+        //     router.replace("/sign-in");
+        //     return;
+        // }
+
+        // prefill bikeId & customer
+        const hourlyRate = Number(bike.pricePerDay);
+        form.reset({
+            customerId: Number(session?.user.id),
+            bikeId: bike.id,
+            startTime: "",
+            endTime: "",
+            totalPrice: Number(hourlyRate.toFixed(2)),
+        });
+        setSelectedBike(bike);
+    }
+
+    const checkSignedIn = () => {
         if (status === "unauthenticated" || !session || session?.user.role !== "customer") {
             // kick to sign-in
             toast.error("Booking Failed!", { description: "You need to sign in for renting a bike" });
@@ -147,16 +168,6 @@ const RentBike = () => {
             router.replace("/sign-in");
             return;
         }
-        // prefill bikeId & customer
-        const hourlyRate = Number(bike.pricePerDay);
-        form.reset({
-            customerId: Number(session.user.id),
-            bikeId: bike.id,
-            startTime: "",
-            endTime: "",
-            totalPrice: Number(hourlyRate.toFixed(2)),
-        });
-        setSelectedBike(bike);
     }
 
     // on booking submit
@@ -168,6 +179,7 @@ const RentBike = () => {
         if (new Date(data.endTime) <= new Date(data.startTime)) {
             return toast.error("End date must be after start date");
         }
+
 
         setBookingLoading(true);
 
@@ -403,7 +415,7 @@ const RentBike = () => {
                                     )}
                                 />
                                 <DialogFooter className="pt-4">
-                                    <Button type="submit" className="w-full">
+                                    <Button type="submit" className="w-full" onClick={() => checkSignedIn()}>
                                         {bookingLoading ? (
                                             <>
                                                 Booking… <Loader2 className="animate-spin ml-2 h-4 w-4" />

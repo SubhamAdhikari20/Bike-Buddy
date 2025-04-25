@@ -4,7 +4,7 @@
 import { usePathname } from "next/navigation";
 import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
-import { useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { Loader2 } from "lucide-react";

@@ -47,6 +47,12 @@ const NavBar: React.FC<NavBarProps> = ({ currentUser }) => {
     const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
 
+    useEffect(() => {
+        if (currentUser && currentUser?.role !== "customer") {
+            signOut();
+        }
+    }, []);
+
     const fetchUser = async () => {
         try {
             const { data } = await axios.get<{ success: boolean; user: User }>(`/api/auth/edit-profile/${userId}`);

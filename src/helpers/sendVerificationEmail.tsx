@@ -33,15 +33,15 @@ export const sendVerificationEmail = async (
 
         // 3) Send the email
         await transporter.sendMail({
-            from: process.env.GMAIL_USER,
+            from: `"Bike Buddy" <${process.env.GMAIL_USER}>`,
             to: email,
-            subject: "Bike Buddy | Verification Code",
+            subject: "Bike Buddy | Your Verification Code",
             html
         });
 
         return {
             success: true,
-            message: "Verification email sent  successfully"
+            message: "Verification email sent  successfully."
         };
     }
     catch (error) {
@@ -49,7 +49,7 @@ export const sendVerificationEmail = async (
 
         return {
             success: false,
-            message: "Failed to send verification email"
+            message: "Failed to send verification email."
         };
     }
 };
