@@ -4,6 +4,7 @@ import { z } from "zod";
 import prisma, { Prisma } from "@/lib/prisma";
 
 const QuerySchema = z.object({
+    bikeName: z.string().optional(),
     location: z.string().optional(),
     type: z.enum(["city", "mountain", "electric"]).optional(),
     search: z.string().optional(),
@@ -21,6 +22,9 @@ export async function GET(req: Request) {
 
         // build where clause
         const where: any = { available: true };
+        if (params.bikeName) {
+            where.bikeName = { contains: params.bikeName };
+        }
         if (params.location) {
             where.bikeLocation = { contains: params.location };
         }

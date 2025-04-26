@@ -56,6 +56,7 @@ const RentBike = () => {
     const router = useRouter();
     const [bookingLoading, setBookingLoading] = useState(false);
 
+    const [bikeName, setBikeName] = useState("");
     const [location, setLocation] = useState("");
     const [type, setType] = useState("");
     const [priceRange, setPriceRange] = useState<[number, number]>([0, 10000]);
@@ -73,36 +74,39 @@ const RentBike = () => {
     const [selectedBike, setSelectedBike] = useState<Bike | null>(null);
 
     // whenever any filter/sort/page changes, re-fetch
+    const fetchBikes = async () => {
+        setLoading(true);
+        const qp = new URLSearchParams();
+        if (bikeName) qp.set("bikeName", bikeName);
+        if (location) qp.set("location", location);
+        if (type) qp.set("type", type);
+        qp.set("minPrice", priceRange[0].toString());
+        qp.set("maxPrice", priceRange[1].toString());
+        qp.set("sortBy", sortBy);
+        qp.set("page", page.toString());
+        qp.set("pageSize", pageSize.toString());
+
+        const res = await fetch(`/api/bikes?${qp.toString()}`);
+        const json = await res.json();
+        setBikes(json.bikes || []);
+        setTotal(json.total || 0);
+        setLoading(false);
+    };
+
     useEffect(() => {
-        const fetchBikes = async () => {
-            setLoading(true);
-            const qp = new URLSearchParams();
-            if (location) qp.set("location", location);
-            if (type) qp.set("type", type);
-            qp.set("minPrice", priceRange[0].toString());
-            qp.set("maxPrice", priceRange[1].toString());
-            qp.set("sortBy", sortBy);
-            qp.set("page", page.toString());
-            qp.set("pageSize", pageSize.toString());
-
-            const res = await fetch(`/api/bikes?${qp.toString()}`);
-            const json = await res.json();
-            setBikes(json.bikes || []);
-            setTotal(json.total || 0);
-            setLoading(false);
-        };
-
         fetchBikes();
-    }, [location, type, priceRange, sortBy, page]);
+    }, [bikeName, location, type, priceRange, sortBy, page]);
 
     const totalPages = Math.ceil(total / pageSize);
 
     const resetFilters = () => {
+        setBikeName("");
         setLocation("");
         setType("");
         setPriceRange([0, 10000]);
         setSortBy("newest");
         setPage(1);
+        fetchBikes();
     };
 
     // form for booking
@@ -224,16 +228,52 @@ const RentBike = () => {
                 {/* Location */}
                 <div>
                     <Label className="block text-sm font-semibold mb-1">
+                        Bike Name
+                    </Label>
+                    <Input
+                        placeholder="e.g. Harley Davidson"
+                        value={bikeName}
+                        onChange={(e) => {
+                            setBikeName(e.target.value);
+                            setPage(1);
+                        }}
+                    />
+                </div>
+
+                {/* Location */}
+                <div>
+                    <Label className="block text-sm font-semibold mb-1">
                         Pick-up Location
                     </Label>
                     <Input
-                        placeholder="e.g. Kathmandu"
+                        placeholder="e.g. New Baneshwor"
                         value={location}
                         onChange={(e) => {
                             setLocation(e.target.value);
                             setPage(1);
                         }}
                     />
+                </div>
+
+                {/* Price */}
+                <div className="sm:col-span-2">
+                    <Label className="block text-sm font-semibold mb-1">
+                        Price / Day (₹)
+                    </Label>
+                    <Slider
+                        min={0}
+                        max={10000}
+                        step={1}
+                        value={priceRange}
+                        onValueChange={(v) => {
+                            setPriceRange(v as [number, number]);
+                            setPage(1);
+                        }}
+                    />
+                    <div className="flex justify-between text-xs text-gray-600 mt-1">
+                        <span>₹ {priceRange[0]}</span>
+                        <span>₹ {priceRange[1]}</span>
+                    </div>
                 </div>
 
                 {/* Type */}
@@ -258,27 +298,6 @@ const RentBike = () => {
                     </Select>
                 </div>
 
-                {/* Price */}
-                <div className="sm:col-span-2">
-                    <Label className="block text-sm font-semibold mb-1">
-                        Price / Day (₹)
-                    </Label>
-                    <Slider
-                        min={0}
-                        max={10000}
-                        step={1}
-                        value={priceRange}
-                        onValueChange={(v) => {
-                            setPriceRange(v as [number, number]);
-                            setPage(1);
-                        }}
-                    />
-                    <div className="flex justify-between text-xs text-gray-600 mt-1">
-                        <span>₹ {priceRange[0]}</span>
-                        <span>₹ {priceRange[1]}</span>
-                    </div>
-                </div>
-
                 {/* Sort */}
                 <div>
                     <Label className="block text-sm font-semibold mb-1">Sort By</Label>
@@ -301,7 +320,7 @@ const RentBike = () => {
                 </div>
 
                 {/* Reset */}
-                <div className="lg:col-span-2 flex justify-end items-center">
+                <div className="lg:col-span-2 flex items-center">
                     <Button variant="outline" onClick={resetFilters}>
                         Reset Filters
                     </Button>

@@ -181,7 +181,7 @@ const BikeDetails = () => {
                 <div className="grid gap-2 md:grid-cols-2">
                     <Card className="p-6 shadow-lg">
                         <CardHeader>
-                            <CardTitle className="text-2xl">{bike?.bikeName}</CardTitle>
+                            <CardTitle className="text-xl xl:text-2xl">{bike?.bikeName}</CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div className="flex items-center space-x-2 text-gray-600">
@@ -200,7 +200,7 @@ const BikeDetails = () => {
                                 <Button
                                     className="mt-4 w-full"
                                 >
-                                    Back to Browse
+                                    ← Back to Browse
                                 </Button>
                             </Link>
                         </CardContent>
@@ -307,7 +307,7 @@ const BikeDetails = () => {
                 </TabsList>
 
                 <TabsContent value="overview" className="mt-4">
-                    <p className="prose max-w-none text-gray-800">
+                    <p className="prose max-w-none text-gray-600 font-semibold">
                         {bike?.bikeDescription}
                     </p>
                 </TabsContent>

@@ -6,7 +6,8 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { signOut, useSession } from "next-auth/react";
-import { Loader2 } from "lucide-react";
+import { Loader2, Quote } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export default function Home() {
     const { data: session, status } = useSession();
@@ -169,6 +170,84 @@ export default function Home() {
                             </CardContent>
                         </Card>
                     </div>
+                </div>
+            </section>
+
+            {/* ───────────────────── Testimonials ───────────────────── */}
+            <section className="py-12 bg-background dark:bg-background-dark">
+                <div className="container mx-auto px-4 text-center">
+                    <h2 className="text-3xl font-bold mb-8">Testimonials</h2>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {[
+                            {
+                                name: "Subham Sharma",
+                                role: "Adventure Enthusiast",
+                                avatar: "/pp-2.jpg",
+                                quote: `“Bike Buddy’s real-time GPS tracking turned my solo weekend ride into pure joy—no more “lost in the city” stress. Booking was instant, the bike was waiting, and payments were a breeze. Truly seamless from start to finish.”`
+                            },
+                            {
+                                name: "Aayush Parazuli",
+                                role: "Daily Commuter",
+                                avatar: "/pp-3.jpg",
+                                quote: `“I hopped on a Bike Buddy for my morning commute and was blown away by the smooth app experience. Unlocking the bike took seconds, the route guidance was spot-on, and I never looked back. Top-notch service!”`
+                            },
+                            {
+                                name: "Susmita Malla",
+                                role: "Weekend Explorer",
+                                avatar: "/pp-1.jpg",
+                                quote: `“Whether I'm zipping through downtown or tackling scenic country roads, Bike Buddy delivers perfect reliability. Their 24/7 support, transparent pricing, and live-map GPS mean I can ride with total confidence.”`
+                            },
+                        ].map((t, i) => (
+                            <Card key={i} className="bg-muted p-6">
+                                <CardContent className="flex flex-col h-full justify-between">
+                                    <div className="space-y-4">
+                                        <Quote className="w-6 h-6 text-muted-foreground" />
+                                        <p className="text-sm text-foreground leading-relaxed md:text-[16px]">
+                                            {t.quote}
+                                        </p>
+                                    </div>
+                                    <div className="flex items-center mt-6">
+                                        <Avatar className="border-1 border-black w-15 h-15">
+                                            <AvatarImage src={t.avatar} alt={t.name} />
+                                            <AvatarFallback>{t.name.split(" ").map(n => n[0]).join("")}</AvatarFallback>
+                                        </Avatar>
+                                        <div className="ml-4 text-left">
+                                            <p className="font-medium text-foreground">{t.name}</p>
+                                            <p className="text-xs text-muted-foreground">{t.role}</p>
+                                        </div>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        ))}
+                    </div>
+                </div>
+            </section>
+
+            {/* ───────────────────── Call To Action ───────────────────── */}
+            <section className="relative h-[400px] sm:h-[500px] flex items-center overflow-hidden">
+                {/* Background image */}
+                <Image
+                    src="/bike-bg-5.jpg"
+                    alt="Ride Adventure"
+                    fill
+                    className="object-cover opacity-60"
+                    priority
+                />
+                {/* Dark overlay */}
+                <div className="absolute inset-0 bg-black/60" />
+
+                <div className="container mx-auto px-4 relative z-10 text-center text-white space-y-4">
+                    <h2 className="text-4xl sm:text-5xl font-extrabold">
+                        Start Your Bike Adventure
+                    </h2>
+                    <p className="max-w-xl mx-auto text-lg sm:text-xl">
+                        Rent the perfect bike in seconds and explore your city on two wheels.
+                    </p>
+                    <Link href="/bikes">
+                        <Button size="lg" className="mt-4 bg-gray-50 text-gray-800 font-bold text-[17px] hover:bg-gray-200">
+                            Start Now
+                        </Button>
+                    </Link>
                 </div>
             </section>
 

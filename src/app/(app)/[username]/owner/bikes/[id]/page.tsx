@@ -223,8 +223,8 @@ const BikeDetails = () => {
         <section className="container mx-auto p-6">
             <h1 className="text-2xl font-bold text-gray-800 mb-4">Bikes Details</h1>
             {/* Hero */}
-            <div className="grid gap-6 lg:grid-cols-2">
-                <div className="grid gap-4 lg:grid-row-2">
+            <div className="grid gap-6 lg:grid-cols-2 grid-cols-1">
+                <div className="space-y-4">
                     <div className="relative w-full h-64 md:h-[400px] rounded-lg overflow-hidden">
                         {preview ? (
                             <Image
@@ -239,162 +239,163 @@ const BikeDetails = () => {
                             </div>
                         )}
                     </div>
-                    <Card className="p-5 shadow-lg">
+                    <Card className="p-4 shadow-lg gap-2">
                         <CardHeader>
-                            <CardTitle className="text-2xl">{bike?.bikeName}</CardTitle>
+                            <CardTitle className="text-xl md:text-2xl">{bike?.bikeName}</CardTitle>
                         </CardHeader>
-                        <CardContent className="flex flex-col md:flex-row justify-between gap-2">
+                        <CardContent className="flex flex-col xl:flex-row justify-between gap-2">
                             <div className="flex items-center space-x-2 text-gray-600">
                                 <MapPin className="h-5 w-5" />
-                                <span>{bike?.bikeLocation}</span>
+                                <span className="text-sm md:text-[17px]">{bike?.bikeLocation}</span>
                             </div>
                             <div className="flex items-center space-x-2 text-gray-600">
                                 <IndianRupeeIcon className="h-5 w-5" />
-                                <span className="font-bold text-xl">{bike?.pricePerDay.toString()} / day</span>
+                                <span className="font-bold text-[17px] md:text-xl">{bike?.pricePerDay.toString()} / day</span>
                             </div>
                             <div className="flex items-center space-x-2 text-gray-600">
                                 <CalendarDays className="h-5 w-5" />
-                                <span>Type: {bike?.bikeType.toUpperCase()}</span>
+                                <span className="text-sm md:text-[17px]">Type: {bike?.bikeType.toUpperCase()}</span>
                             </div>
-                            <Link href={`/${session?.user.username}/owner/bikes/${bike.id}`}>
+                            <Link href={`/${session?.user.username}/owner/bikes`}>
                                 <Button
                                     className="w-full"
                                     size="sm"
                                 >
-                                    Back to Browse
+                                   ← Back to Browse
                                 </Button>
                             </Link>
                         </CardContent>
                     </Card>
 
                 </div>
-                <div className="w-full space-y-8 bg-white p-8 rounded-lg shadow-lg">
+                <div className="w-full space-y-8 bg-white p-8 rounded-lg shadow-lg flex justify-center">
                     <Form {...form}>
                         <form
                             onSubmit={form.handleSubmit(onSubmit)}
-                            className="space-y-4"
+                            className="flex flex-col justify-between gap-10"
                         >
-                            <div className="grid gap-4 md:grid-cols-2">
-                                <FormField
-                                    name="bikeName"
-                                    control={form.control}
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Bike Name</FormLabel>
-                                            <FormControl>
-                                                <Input {...field} placeholder="Enter bike name" />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                                <FormField
-                                    name="bikeType"
-                                    control={form.control}
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Bike Type</FormLabel>
-                                            <FormControl>
-                                                <Select
-                                                    value={field.value}
-                                                    onValueChange={(value) => field.onChange(value)}
-                                                >
-                                                    <SelectTrigger className="w-full">
-                                                        <SelectValue placeholder="Select a bike type" />
-                                                    </SelectTrigger>
-                                                    <SelectContent className="mt-1">
-                                                        <SelectItem value="city">City</SelectItem>
-                                                        <SelectItem value="mountain">Mountain</SelectItem>
-                                                        <SelectItem value="electric">Electric</SelectItem>
-                                                    </SelectContent>
-                                                </Select>
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                            </div>
+                            <div className="space-y-4">
+                                <div className="grid gap-4 md:grid-cols-2">
+                                    <FormField
+                                        name="bikeName"
+                                        control={form.control}
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Bike Name</FormLabel>
+                                                <FormControl>
+                                                    <Input {...field} placeholder="Enter bike name" />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <FormField
+                                        name="bikeType"
+                                        control={form.control}
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Bike Type</FormLabel>
+                                                <FormControl>
+                                                    <Select
+                                                        value={field.value}
+                                                        onValueChange={(value) => field.onChange(value)}
+                                                    >
+                                                        <SelectTrigger className="w-full">
+                                                            <SelectValue placeholder="Select a bike type" />
+                                                        </SelectTrigger>
+                                                        <SelectContent className="mt-1">
+                                                            <SelectItem value="city">City</SelectItem>
+                                                            <SelectItem value="mountain">Mountain</SelectItem>
+                                                            <SelectItem value="electric">Electric</SelectItem>
+                                                        </SelectContent>
+                                                    </Select>
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                </div>
 
-                            <div className="grid gap-4 md:grid-cols-2">
                                 <FormField
                                     name="bikeDescription"
                                     control={form.control}
                                     render={({ field }) => (
-                                        <FormItem>
+                                        <FormItem >
                                             <FormLabel>Description</FormLabel>
                                             <FormControl>
-                                                <Textarea {...field} placeholder="Enter description" />
+                                                <Textarea {...field} placeholder="Enter description" className="min-h-25 max-h-30"/>
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
                                     )}
                                 />
-                                <FormField
-                                    name="bikeLocation"
-                                    control={form.control}
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Location</FormLabel>
-                                            <FormControl>
-                                                <Input {...field} placeholder="City or Area" />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                            </div>
-
-                            <div className="grid gap-4 md:grid-cols-2">
-                                <FormField
-                                    name="pricePerDay"
-                                    control={form.control}
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Price per Day (₹/day)</FormLabel>
-                                            <FormControl>
-                                                <Input {...field} placeholder="Price per day" type="number" min="0" step="5" onChange={e => field.onChange(parseFloat(e.target.value))} />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-
-                                {/* ─── AVAILABILITY SWITCH ─── */}
-                                <FormField
-                                    name="available"
-                                    control={form.control}
-                                    render={({ field }) => (
-                                        <FormItem className="flex items-center justify-between flex-row rounded-lg border p-3 shadow-sm">
-                                            <FormLabel>Bike Available</FormLabel>
-                                            <FormControl>
-                                                <Switch
-                                                    checked={field.value}
-                                                    onCheckedChange={field.onChange}
-                                                />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                            </div>
-
-                            <FormItem>
-                                <FormLabel>Bike Image</FormLabel>
-                                <FormControl>
-                                    <Input
-                                        ref={fileInputRef}
-                                        type="file"
-                                        accept="image/*"
-                                        onChange={handleFile}
-                                        className="block w-full text-sm text-gray-900 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700"
+                                <div className="grid gap-4 md:grid-cols-2">
+                                    <FormField
+                                        name="pricePerDay"
+                                        control={form.control}
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Price per Day (₹/day)</FormLabel>
+                                                <FormControl>
+                                                    <Input {...field} placeholder="Price per day" type="number" min="0" step="5" onChange={e => field.onChange(parseFloat(e.target.value))} />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
                                     />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
+                                    <FormField
+                                        name="bikeLocation"
+                                        control={form.control}
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Location</FormLabel>
+                                                <FormControl>
+                                                    <Input {...field} placeholder="City or Area" />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                </div>
 
-                            <div className="flex justify-evenly items-center gap-5">
+                                <div className="grid gap-4 md:grid-cols-2">
+                                    <FormItem>
+                                        <FormLabel>Bike Image</FormLabel>
+                                        <FormControl>
+                                            <Input
+                                                ref={fileInputRef}
+                                                type="file"
+                                                accept="image/*"
+                                                onChange={handleFile}
+                                                className="block w-full text-sm text-gray-900 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700"
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+
+                                    {/* ─── AVAILABILITY SWITCH ─── */}
+                                    <FormField
+                                        name="available"
+                                        control={form.control}
+                                        render={({ field }) => (
+                                            <FormItem className="flex items-center justify-between flex-row rounded-lg border p-3 shadow-sm">
+                                                <FormLabel>Bike Available</FormLabel>
+                                                <FormControl>
+                                                    <Switch
+                                                        checked={field.value}
+                                                        onCheckedChange={field.onChange}
+                                                    />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="flex justify-evenly items-center gap-5 ">
                                 <Button type="submit" className="flex-1" disabled={loading}>
-                                    {loading ? "Updating..." : "Update"}
+                                    {loading ? "Updating..." : "Save Changes"}
                                     {loading && <Loader2 className="ml-2 h-4 w-4 animate-spin" />}
                                 </Button>
                                 <Button variant="outline" className="flex-1" onClick={handleClear}>
@@ -411,7 +412,7 @@ const BikeDetails = () => {
                                             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                                             <AlertDialogDescription>
                                                 This action cannot be undone. This will permanently delete the bike
-                                                <strong> "{bike.bikeName}"</strong> and remove their data from the system.
+                                                <strong> "{bike.bikeName}"</strong> and remove its data from the system.
                                             </AlertDialogDescription>
                                         </AlertDialogHeader>
                                         <AlertDialogFooter>
@@ -426,34 +427,6 @@ const BikeDetails = () => {
                         </form>
                     </Form>
                 </div>
-
-
-                {/* <Card className="p-6 shadow-lg">
-                    <CardHeader>
-                        <CardTitle className="text-2xl">{bike?.bikeName}</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        <div className="flex items-center space-x-2 text-gray-600">
-                            <MapPin className="h-5 w-5" />
-                            <span>{bike?.bikeLocation}</span>
-                        </div>
-                        <div className="flex items-center space-x-2 text-gray-600">
-                            <DollarSign className="h-5 w-5" />
-                            <span>₹ {bike?.pricePerDay.toString()} / day</span>
-                        </div>
-                        <div className="flex items-center space-x-2 text-gray-600">
-                            <CalendarDays className="h-5 w-5" />
-                            <span>Type: {bike?.bikeType.toUpperCase()}</span>
-                        </div>
-                        <Link href="/bikes">
-                            <Button
-                                className="mt-4 w-full"
-                            >
-                                Back to Browse
-                            </Button>
-                        </Link>
-                    </CardContent>
-                </Card> */}
             </div>
 
             {/* Tabs: Overview & Reviews */}
@@ -464,7 +437,7 @@ const BikeDetails = () => {
                 </TabsList>
 
                 <TabsContent value="overview" className="mt-4">
-                    <p className="prose max-w-none text-gray-800">
+                    <p className="prose max-w-none text-gray-600 font-semibold">
                         {bike?.bikeDescription}
                     </p>
                 </TabsContent>

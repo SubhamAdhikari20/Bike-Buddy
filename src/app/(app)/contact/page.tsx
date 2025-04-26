@@ -118,7 +118,7 @@ const Contact = () => {
                                         <Textarea
                                             placeholder="Type your message here"
                                             {...field}
-                                            className="bg-white text-[#1A202C] placeholder:text-[#A0AEC0]"
+                                            className="bg-white text-[#1A202C] placeholder:text-[#A0AEC0] min-h-25 max-h-50"
                                         />
                                     </FormControl>
                                     <FormMessage />
