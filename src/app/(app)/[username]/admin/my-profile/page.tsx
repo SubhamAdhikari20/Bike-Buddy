@@ -48,6 +48,7 @@ const AdminProfile = () => {
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isUploadingImage, setIsUploadingImage] = useState(false);
     const [username, setUsername] = useState("");
     const [usernameMessgae, setUsernameMessage] = useState("");
     const [isCheckingUsername, setIsCheckingUsername] = useState(false);
@@ -180,6 +181,7 @@ const AdminProfile = () => {
     };
 
     const handleUploadImage = async () => {
+        setIsUploadingImage(true);
         try {
             let imageUrl = "";
             const file = fileInputRef.current?.files?.[0];
@@ -204,12 +206,15 @@ const AdminProfile = () => {
 
             toast.success(response.data.message);
             await fetchUser();
-            // setCurrentUser((u) => u ? { ...u, profilePictureUrl: profilePictureUrl } : u);
+            setPreview("");
         }
         catch (error) {
             console.error("Image upload failed", error);
             const axiosError = error as AxiosError<ApiResponse>;
             toast.error(`Image upload failed: ${axiosError.response?.data.message || "Unknown error"}`);
+        }
+        finally {
+            setIsUploadingImage(false);
         }
     }
 
@@ -239,6 +244,7 @@ const AdminProfile = () => {
                                 type="button"
                                 className="bg-gray-400 hover:bg-gray-500"
                                 onClick={() => fileInputRef.current?.click()}
+                                disabled={isUploadingImage}
                             >
                                 Change Profile Picture
                             </Button>
@@ -249,9 +255,10 @@ const AdminProfile = () => {
                                 accept="image/*"
                                 onChange={onImageChange}
                                 className="hidden"
+                                disabled={isUploadingImage}
                             />
 
-                            {((preview || currentUser?.profilePictureUrl) && selectedFile) && (
+                            {(preview && selectedFile) && (
                                 <Button
                                     type="button"
                                     variant="destructive"
@@ -260,6 +267,7 @@ const AdminProfile = () => {
                                         setSelectedFile(null);
                                         setPreview(currentUser?.profilePictureUrl || "");
                                     }}
+                                    disabled={isUploadingImage}
                                 >
                                     Remove
                                 </Button>
@@ -270,9 +278,19 @@ const AdminProfile = () => {
                             variant="outline"
                             className="text-sm text-gray-500"
                             onClick={handleUploadImage}
-                            disabled={!selectedFile}
+                            disabled={!selectedFile || isUploadingImage}
                         >
-                            {selectedFile ? 'Upload Image' : <>Select Image to Upload</>}
+                            {selectedFile ? (isUploadingImage ? (
+                                <>
+                                    Please wait...
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                </>
+                            ) : (
+                                <>
+                                    Upload Image
+                                </>
+                            )
+                            ) : <>Select Image to Upload</>}
                         </Button>
 
                     </div>

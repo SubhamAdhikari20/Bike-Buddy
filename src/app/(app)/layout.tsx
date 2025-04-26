@@ -8,6 +8,9 @@ import { signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { Loader2 } from "lucide-react";
+import { fetcher } from "@/lib/fetcher";
+import useSWR from "swr"
+import { User } from "next-auth";
 
 export default function AppLayout({
     children,
@@ -21,8 +24,18 @@ export default function AppLayout({
     );
 
     const { data: session, status } = useSession();
+    const userId = session?.user?.id;
 
-    if (status === "loading") {
+    const { data: dbUser, error, isLoading: userLoading } = useSWR<User | null>(
+        userId ? `/api/auth/edit-profile/${userId}` : null,
+        fetcher,
+        {
+            refreshInterval: 3_000,
+            revalidateOnFocus: true,
+        }
+    );
+
+    if (status === "loading" || (session && userLoading)) {
         return (
             <div className="flex justify-center items-center h-screen">
                 <Loader2 className="animate-spin h-8 w-8" />
@@ -30,9 +43,14 @@ export default function AppLayout({
         );
     }
 
+    if (session && error) {
+        signOut();
+        return null;
+    }
+
     return (
         <>
-            {!isDashboardRoute && <NavBar currentUser={session?.user ?? null} />}
+            {!isDashboardRoute && <NavBar session={session} currentUser={dbUser} />}
 
             <main className="min-h-screen bg-[size:20px_20px]">
                 {children}

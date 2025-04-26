@@ -29,11 +29,13 @@ export async function finalizePayment(data: {
     status: PaymentStatus;
 }): Promise<Payment> {
     return await prisma.$transaction(async (tx) => {
+        // 1) find the pending payment
         const payment = await tx.payment.findUniqueOrThrow({
             where: { transactionId: data.transactionUuid },
         });
 
-        const updated = await tx.payment.update({
+        // 2) update payment row
+        const updatedPayment = await tx.payment.update({
             where: { id: payment.id },
             data: {
                 transactionId: data.gatewayRef,
@@ -44,24 +46,49 @@ export async function finalizePayment(data: {
             },
         });
 
-        await tx.booking.update({
-            where: { id: updated.bookingId! },
+        // 3) update booking status & paymentRef
+        const updatedBooking = await tx.booking.update({
+            where: { id: updatedPayment.bookingId! },
             data: {
                 status: data.status === "success" ? "completed" : "failed",
                 paymentReference: data.gatewayRef,
             },
+            include: {
+                customer: true,
+                bike: {
+                    include: { owner: true },
+                },
+            },
         });
 
+        // 4) if success: mark bike unavailable
         if (data.status === "success") {
             await tx.bike.update({
-                where: { id: updated.booking?.bikeId! },
+                where: { id: updatedBooking.bikeId! },
                 data: {
                     available: false,
                 },
             });
+            // 5) create invoice
+            await tx.invoice.create({
+                data: {
+                    customerName: updatedBooking.customer!.fullName,
+                    customerContact: updatedBooking.customer!.contact,
+                    ownerName: updatedBooking.bike?.owner.fullName!,
+                    ownerContact: updatedBooking.bike?.owner.contact!,
+                    bikeName: updatedBooking.bike?.bikeName!,
+                    bikeType: updatedBooking.bike?.bikeType!,
+                    startTime: updatedBooking.startTime,
+                    endTime: updatedBooking.endTime,
+                    pricePerDay: updatedBooking.bike?.pricePerDay!,
+                    totalPrice: updatedBooking.totalPrice,
+                    paymentMethod: updatedPayment.method,
+                    customerId: updatedBooking.customerId!,
+                    bikeId: updatedBooking.bikeId!,
+                },
+            });
         }
-
-        return updated;
+        return updatedPayment;
     });
 
 }

@@ -28,7 +28,7 @@ interface BikeCardProps {
 
 const BikeCard = ({ bike, currentUser, onEdit, onDelete }: BikeCardProps) => {
     return (
-        <Card className="w-full overflow-hidden shadow-lg hover:shadow-xl transition-shadow py-0 gap-3">
+        <Card className="w-full max-w-md mx-auto overflow-hidden shadow-lg hover:shadow-xl transition-shadow py-0 gap-3">
             <CardHeader className="p-0">
                 <div className="relative h-55 w-full overflow-hidden">
                     {bike.bikeImageUrl ? (

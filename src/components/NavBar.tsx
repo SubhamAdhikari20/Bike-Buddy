@@ -18,57 +18,52 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { FaSignOutAlt, FaBars, FaTimes, FaUserCircle, FaCog, FaUser } from 'react-icons/fa';
 import { signOut } from "next-auth/react";
-import { User } from "next-auth";
+import { Session, User } from "next-auth";
 import axios, { AxiosError } from "axios";
 import { ApiResponse } from "@/types/ApiResponse";
 import { toast } from "sonner";
 
 
-interface CurrentUser {
-    id?: string,
-    fullName?: string;
-    username?: string;
-    email?: string;
-    role?: string;
-    profilePictureUrl?: string;
-}
-
 interface NavBarProps {
-    currentUser: CurrentUser | null;
+    session: Session | null;
+    currentUser?: User | null;
 }
 
-
-const NavBar: React.FC<NavBarProps> = ({ currentUser }) => {
-    const [user, setUser] = useState<User | null>(null);
-    const userId = Number(currentUser?.id);
+const NavBar: React.FC<NavBarProps> = ({ session, currentUser }) => {
+    // const [user, setUser] = useState<User | null>(null);
+    // const userId = Number(currentUser?.id);
 
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [desktopMenuOpen, setDesktopMenuOpen] = useState(false);
     const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
 
-    useEffect(() => {
-        if (currentUser && currentUser?.role !== "customer") {
-            signOut();
-        }
-    }, []);
+    if (session && !currentUser) {
+        signOut();
+        return null;
+    }
 
-    const fetchUser = async () => {
-        try {
-            const { data } = await axios.get<{ success: boolean; user: User }>(`/api/auth/edit-profile/${userId}`);
-            setUser(data.user);
-        }
-        catch (error) {
-            const axiosError = error as AxiosError<ApiResponse>;
-            toast.error(axiosError.response?.data.message);
-        }
-    };
+    // const fetchUser = async () => {
+    //     try {
+    //         const { data } = await axios.get<{ success: boolean; user: User }>(`/api/auth/edit-profile/${userId}`);
+    //         setUser(data.user);
+    //     }
+    //     catch (error) {
+    //         const axiosError = error as AxiosError<ApiResponse>;
+    //         toast.error(axiosError.response?.data.message);
+    //     }
+    // };
 
-    useEffect(() => {
-        if (userId) {
-            fetchUser();
-        }
-    }, [userId]);
+    // useEffect(() => {
+    //     if (userId) {
+    //         fetchUser();
+    //     }
+
+    //     if (currentUser && (currentUser?.role !== "customer")) {
+    //         signOut();
+    //     }
+
+    // }, []);
 
     // Close desktop popover on outside click
     useEffect(() => {
@@ -133,11 +128,11 @@ const NavBar: React.FC<NavBarProps> = ({ currentUser }) => {
                     {currentUser ? (
                         <div className="relative" ref={menuRef}>
                             <Avatar className="h-10 w-10 cursor-pointer border-1 border-gray-900" onClick={() => setDesktopMenuOpen((v) => !v)}>
-                                {(user?.profilePictureUrl) ? (
-                                    <AvatarImage src={user?.profilePictureUrl} alt={user?.fullName} />
+                                {(currentUser?.profilePictureUrl) ? (
+                                    <AvatarImage src={currentUser?.profilePictureUrl} alt={currentUser?.fullName} />
                                 ) : (
                                     <AvatarFallback>
-                                        {((user?.fullName ?? user?.username ?? "U")
+                                        {((currentUser?.fullName ?? currentUser?.username ?? "U")
                                             .split(" ")
                                             .map((n) => n[0])
                                             .join("")
@@ -301,11 +296,11 @@ const NavBar: React.FC<NavBarProps> = ({ currentUser }) => {
                         <>
                             <Link href="/my-profile" onClick={toggleMenu} className="flex items-center gap-2">
                                 <Avatar className="h-8 w-8 cursor-pointer border-1 border-gray-900">
-                                    {(user?.profilePictureUrl) ? (
-                                        <AvatarImage src={user?.profilePictureUrl} alt={user?.fullName} />
+                                    {(currentUser?.profilePictureUrl) ? (
+                                        <AvatarImage src={currentUser?.profilePictureUrl} alt={currentUser?.fullName} />
                                     ) : (
                                         <AvatarFallback>
-                                            {((user?.fullName ?? user?.username ?? "U")
+                                            {((currentUser?.fullName ?? currentUser?.username ?? "U")
                                                 .split(" ")
                                                 .map((n) => n[0])
                                                 .join("")

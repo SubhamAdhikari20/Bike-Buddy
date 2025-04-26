@@ -24,18 +24,16 @@ type BikeCardProps = {
 const BikeCard = ({ bike, onRent }: BikeCardProps) => {
 
     return (
-        <Card className="w-full max-w-md mx-auto shadow-lg overflow-hidden transition-shadow hover:shadow-xl py-0 gap-4">
+        <Card className="w-full max-w-md mx-auto shadow-lg overflow-hidden transition-shadow hover:shadow-xl py-0 gap-3">
             <CardHeader className="p-0">
                 <div className="relative h-55 w-full overflow-hidden">
                     {bike.bikeImageUrl ? (
-                        <div className="relative w-full h-48 sm:h-64 md:h-72">
-                            <Image
-                                src={bike.bikeImageUrl}
-                                alt={bike.bikeName}
-                                fill
-                                className="object-cover rounded"
-                            />
-                        </div>
+                        <Image
+                            src={bike.bikeImageUrl}
+                            alt={bike.bikeName}
+                            fill
+                            className="object-cover rounded"
+                        />
                     ) : (
                         <div className="w-full h-48 sm:h-64 md:h-72 bg-gray-200 flex items-center justify-center rounded">
                             <span className="text-gray-500 text-sm">No Image Available</span>

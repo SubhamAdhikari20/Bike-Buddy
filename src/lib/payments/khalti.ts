@@ -1,49 +1,73 @@
-// src/lib/payments/esewa.ts
-import CryptoJS from "crypto-js";
+// src/lib/payments/khalti.ts
+import axios from "axios";
 
-export interface KhaltiPayload {
+export interface KhaltiInitRequest {
     return_url: string;
     website_url: string;
-    amount: string;
+    amount: number;
     purchase_order_id: string;
     purchase_order_name: string;
-
 }
 
-export function buildESewaPayload(amount: number): KhaltiPayload {
-    const return_url = `${process.env.FRONTEND_URL}/api/payments/esewa/success`;
-    const website_url = `${process.env.FRONTEND_URL}`;
-    const purchase_order_id = process.env.ESEWA_PRODUCT_CODE!;
-    const purchase_order_name = process.env.ESEWA_PRODUCT_CODE!;
+export interface KhaltiInitResponse {
+    pidx: number;
+    payment_url: string;
+}
 
 
-    // const hashString =
-    //     `total_amount=${total_amount},transaction_uuid=${transaction_uuid},product_code=${product_code}`;
-    // const secret = process.env.ESEWA_SECRET_KEY!;
-    // const signature = CryptoJS.HmacSHA256(hashString, secret)
-    //     .toString(CryptoJS.enc.Base64);
+export interface KhaltiVerifyResponse {
+    idx: number;
+    status: string;
+}
 
-    return {
-        amount: amount.toString(),
-        return_url,
-        website_url,
-        purchase_order_id,
-        purchase_order_name
+
+// Function to initiate Khalti Payment
+export const initiateKhaltiPayment = async (req: KhaltiInitRequest): Promise<KhaltiInitResponse> => {
+    const url = `${process.env.KHALTI_GATEWAY_URL}/api/v2/epayment/initiate/`;
+
+    const payload = {
+        return_url: req.return_url,
+        website_url: req.website_url,
+        amount: req.amount * 100,
+        purchase_order_id: req.purchase_order_id,
+        purchase_order_name: req.purchase_order_name,
+    }
+
+    const headersList = {
+        headers:
+        {
+            "Authorization": `Key ${process.env.KHALTI_SECRET_KEY}`,
+            "Content-Type": "application/json",
+        }
     };
+
+    try {
+        const response = await axios.post<KhaltiInitResponse>(url, payload, headersList);
+        return response.data;
+    }
+    catch (error: any) {
+        console.error("Error initializing Khalti payment:", error.response?.data || error.message);
+        throw new Error("Failed to initiate Khalti payment");
+    }
 }
 
 
-export async function initiateKhaltiPayment(
-    bookingId: number,
-    amount: number
-): Promise<{ paymentUrl: string }> {
-    // e.g. call Khalti’s server‐side endpoint:
-    const res = await fetch(`${process.env.BACKEND_URL}/api/payments/khalti/initiate`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ bookingId, amount }),
-    });
-    const json = await res.json();
-    if (!json.success) throw new Error(json.message);
-    return { paymentUrl: json.paymentUrl };
+export const verifyKhaltiPayment = async (pidx: number): Promise<KhaltiVerifyResponse> => {
+    const url = `${process.env.KHALTI_GATEWAY_URL}/api/v2/epayment/lookup/`
+    const headersList = {
+        headers:
+        {
+            "Authorization": `Key ${process.env.KHALTI_SECRET_KEY}`,
+            "Content-Type": "application/json",
+        }
+    };
+
+    try {
+        const response = await axios.post<KhaltiVerifyResponse>(url, { pidx }, headersList);
+        return response.data;
+    }
+    catch (error: any) {
+        console.error("Error verifying Khalti payment:", error.response?.data || error.message);
+        throw new Error("Failed to verify Khalti payment");
+    }
 }

@@ -48,6 +48,7 @@ const CustomerProfile = () => {
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isUploadingImage, setIsUploadingImage] = useState(false);
     const [username, setUsername] = useState("");
     const [usernameMessgae, setUsernameMessage] = useState("");
     const [isCheckingUsername, setIsCheckingUsername] = useState(false);
@@ -180,6 +181,7 @@ const CustomerProfile = () => {
     };
 
     const handleUploadImage = async () => {
+        setIsUploadingImage(true);
         try {
             let imageUrl = "";
             const file = fileInputRef.current?.files?.[0];
@@ -204,12 +206,15 @@ const CustomerProfile = () => {
 
             toast.success(response.data.message);
             await fetchUser();
-            // setCurrentUser((u) => u ? { ...u, profilePictureUrl: profilePictureUrl } : u);
+            setPreview("");
         }
         catch (error) {
             console.error("Image upload failed", error);
             const axiosError = error as AxiosError<ApiResponse>;
             toast.error(`Image upload failed: ${axiosError.response?.data.message || "Unknown error"}`);
+        }
+        finally {
+            setIsUploadingImage(false);
         }
     }
 
@@ -238,6 +243,7 @@ const CustomerProfile = () => {
                             <Button
                                 type="button"
                                 className="bg-gray-400 hover:bg-gray-500"
+                                disabled={isUploadingImage}
                                 onClick={() => fileInputRef.current?.click()}
                             >
                                 Change Profile Picture
@@ -249,13 +255,15 @@ const CustomerProfile = () => {
                                 accept="image/*"
                                 onChange={onImageChange}
                                 className="hidden"
+                                disabled={isUploadingImage}
                             />
 
-                            {((preview || currentUser?.profilePictureUrl) && selectedFile) && (
+                            {(preview && selectedFile) && (
                                 <Button
                                     type="button"
                                     variant="destructive"
                                     size="sm"
+                                    disabled={isUploadingImage}
                                     onClick={() => {
                                         setSelectedFile(null);
                                         setPreview(currentUser?.profilePictureUrl || "");
@@ -270,13 +278,21 @@ const CustomerProfile = () => {
                             variant="outline"
                             className="text-sm text-gray-500"
                             onClick={handleUploadImage}
-                            disabled={!selectedFile}
+                            disabled={!selectedFile || isUploadingImage}
                         >
-                            {selectedFile ? 'Upload Image' : <>Select Image to Upload</>}
+                            {selectedFile ? (isUploadingImage ? (
+                                <>
+                                    Please wait...
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                </>
+                            ) : (
+                                <>
+                                    Upload Image
+                                </>
+                            )
+                            ) : <>Select Image to Upload</>}
                         </Button>
-
                     </div>
-
                 </div>
 
                 <div className="w-full flex-1 max-w-md space-y-8 bg-white p-8 rounded-lg shadow-lg">

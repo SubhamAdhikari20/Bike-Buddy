@@ -32,7 +32,7 @@ export const sendResetPasswordVerificationEmail = async (
 
         // 3) Send the email
         await transporter.sendMail({
-            from: process.env.GMAIL_USER,
+            from: `"Bike Buddy" <${process.env.GMAIL_USER}>`,
             to: email,
             subject: "Bike Buddy | Verification Code for reseting password",
             html

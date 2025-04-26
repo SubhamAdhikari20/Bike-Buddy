@@ -99,7 +99,7 @@ VALUES (1, "Subham Adhikari", "bikebuddy_admin@gmail.com", "9876543210", "admin@
 
 ALTER TABLE `User` MODIFY `username` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin;
 DELETE FROM `User` WHERE `email`="subhamadhikari0007@gmail.com";
-DELETE FROM `User` WHERE `id`= 2;
+DELETE FROM `User` WHERE `id`= 7;
 DELETE FROM `Bike` WHERE `id`= 8;
-DELETE FROM `Booking` WHERE `id`= 1;
-DELETE FROM `Payment` WHERE `id`= 1;
+DELETE FROM `Booking` WHERE `id`= 7;
+DELETE FROM `Payment` WHERE `id`= 10;

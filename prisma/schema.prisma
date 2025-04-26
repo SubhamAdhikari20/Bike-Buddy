@@ -57,6 +57,7 @@ model User {
     bookings      Booking[]
     reviews       Review[]
     notifications Notification[]
+    // invoices      Invoice[]
 }
 
 model Message {
@@ -84,8 +85,9 @@ model Bike {
 
     // Relationships
     owner    User      @relation(fields: [ownerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-    bookings Booking[]
-    reviews  Review[]
+    bookings Booking[] @relation(name: "BookingToBike")
+    reviews  Review[]  @relation(name: "ReviewToBike")
+    // invoices Invoice[] @relation(name: "InvoiceToBike")
 
     @@index([bikeType])
     @@index([available])
@@ -104,9 +106,9 @@ model Booking {
     bikeId           Int?
 
     // Relationships
-    customer User?    @relation(fields: [customerId], references: [id], onDelete: SetNull, onUpdate: Cascade)
-    bike     Bike?    @relation(fields: [bikeId], references: [id], onDelete: SetNull, onUpdate: Cascade)
-    payment  Payment? // Optional one-to-one relation with Payment
+    customer User?     @relation(fields: [customerId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+    bike     Bike?     @relation(fields: [bikeId], references: [id], onDelete: SetNull, onUpdate: Cascade, name: "BookingToBike")
+    payment  Payment[]
 
     @@index([status])
     @@index([startTime, endTime])
@@ -125,7 +127,7 @@ model Review {
 
     // Relationships
     customer User? @relation(fields: [customerId], references: [id], onDelete: SetNull, onUpdate: Cascade)
-    bike     Bike  @relation(fields: [bikeId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+    bike     Bike  @relation(fields: [bikeId], references: [id], onDelete: Cascade, onUpdate: Cascade, name: "ReviewToBike")
 
     @@index([rating])
 }
@@ -152,10 +154,9 @@ model Payment {
     status        PaymentStatus @default(pending) // e.g., "Success", "Pending", "Failed"
     createdAt     DateTime      @default(now())
     updatedAt     DateTime      @updatedAt
-    bookingId     Int?          @unique // One-to-one: each booking has one payment
+    bookingId     Int
 
-    // Relationship: Each Payment is linked to one Booking
-    booking Booking? @relation(fields: [bookingId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+    booking Booking @relation(fields: [bookingId], references: [id])
 }
 
 enum PaymentStatus {
@@ -181,6 +182,9 @@ model Invoice {
     updatedAt       DateTime @updatedAt
     customerId      Int
     bikeId          Int
+
+    // customer User? @relation(fields: [customerId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+    // bike     Bike? @relation(fields: [bikeId], references: [id], onDelete: SetNull, onUpdate: Cascade, name: "InvoiceToBike")
 
     @@index([startTime, endTime])
 }
