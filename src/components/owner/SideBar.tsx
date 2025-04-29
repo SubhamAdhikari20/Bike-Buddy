@@ -108,7 +108,7 @@ const SideBar: React.FC<SideBarProps> = ({ session, currentUser }) => {
     return (
         <>
             {/* Mobile Header */}
-            <header className="md:hidden flex items-center justify-between bg-gray-800 text-gray-200 p-4 shadow-md">
+            <header className="sticky top-0 inset-x-0 z-50 md:hidden flex items-center justify-between bg-gray-800 text-gray-200 p-4 shadow-md">
                 <Button onClick={handleMobileToggle} className="focus:outline-none">
                     {isMobileOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
                 </Button>

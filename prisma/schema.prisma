@@ -21,6 +21,7 @@ enum BikeType {
 
 enum BookingStatus {
     pending
+    active
     completed
     cancelled
     failed
@@ -106,9 +107,12 @@ model Booking {
     bikeId           Int?
 
     // Relationships
-    customer User?     @relation(fields: [customerId], references: [id], onDelete: SetNull, onUpdate: Cascade)
-    bike     Bike?     @relation(fields: [bikeId], references: [id], onDelete: SetNull, onUpdate: Cascade, name: "BookingToBike")
-    payment  Payment[]
+    customer       User?            @relation(fields: [customerId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+    bike           Bike?            @relation(fields: [bikeId], references: [id], onDelete: SetNull, onUpdate: Cascade, name: "BookingToBike")
+    payment        Payment[]
+    // Invoice  Invoice[]
+    TrackingPaths  TrackingPaths[]
+    TrackingPoints TrackingPoints[]
 
     @@index([status])
     @@index([startTime, endTime])
@@ -182,9 +186,31 @@ model Invoice {
     updatedAt       DateTime @updatedAt
     customerId      Int
     bikeId          Int
+    transactionId   String   @unique
 
     // customer User? @relation(fields: [customerId], references: [id], onDelete: SetNull, onUpdate: Cascade)
     // bike     Bike? @relation(fields: [bikeId], references: [id], onDelete: SetNull, onUpdate: Cascade, name: "InvoiceToBike")
+    // Booking   Booking? @relation(fields: [bookingId], references: [id])
+    // bookingId Int?
 
     @@index([startTime, endTime])
+}
+
+model TrackingPaths {
+    id         Int      @id @default(autoincrement())
+    bookingId  Int
+    pathJson   Json
+    recordedAt DateTime @default(now())
+
+    booking Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+}
+
+model TrackingPoints {
+    id        BigInt @id @default(autoincrement())
+    bookingId Int
+    lat       Float
+    lng       Float
+    timestamp BigInt
+
+    booking Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }

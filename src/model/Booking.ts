@@ -29,6 +29,20 @@ export async function getBookingById(id: number): Promise<Booking | null> {
     return await prisma.booking.findUnique({ where: { id } });
 }
 
+export async function getBookingByCustomerId(customerId: number): Promise<Booking[] | null> {
+    return await prisma.booking.findMany({
+        where: { customerId: customerId, status: "active" },
+        include: {
+            bike: {
+                include: {
+                    owner: true
+                }
+            },
+            customer: true
+        },
+    });
+}
+
 export async function getAllBookings(): Promise<Booking[]> {
     return await prisma.booking.findMany();
 }

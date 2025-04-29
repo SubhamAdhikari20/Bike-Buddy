@@ -206,70 +206,70 @@ const BikeDetails = () => {
                         </CardContent>
                     </Card>
 
-
-                    <div className="w-full space-y-8 bg-white p-8 rounded-lg shadow-lg">
-                        <Form {...form}>
-                            <form
-                                onSubmit={form.handleSubmit(onSubmit)}
-                                className="space-y-4"
-                            >
-                                <FormField
-                                    name="startTime"
-                                    control={form.control}
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Start Date &amp; Time</FormLabel>
-                                            <FormControl>
-                                                <Input type="date" {...field} />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                                <FormField
-                                    name="endTime"
-                                    control={form.control}
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>End Date &amp; Time</FormLabel>
-                                            <FormControl>
-                                                <Input type="date" {...field} />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                                <FormField
-                                    name="totalPrice"
-                                    control={form.control}
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <div className="flex justify-between">
-                                                <FormLabel>Total Price (₹)</FormLabel>
-                                                <div className="text-sm">
-                                                    ₹{bike?.pricePerDay.toString()}/day
+                    {bike.available &&
+                        <div className="w-full space-y-8 bg-white p-8 rounded-lg shadow-lg">
+                            <Form {...form}>
+                                <form
+                                    onSubmit={form.handleSubmit(onSubmit)}
+                                    className="space-y-4"
+                                >
+                                    <FormField
+                                        name="startTime"
+                                        control={form.control}
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Start Date &amp; Time</FormLabel>
+                                                <FormControl>
+                                                    <Input type="date" {...field} />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <FormField
+                                        name="endTime"
+                                        control={form.control}
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>End Date &amp; Time</FormLabel>
+                                                <FormControl>
+                                                    <Input type="date" {...field} />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <FormField
+                                        name="totalPrice"
+                                        control={form.control}
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <div className="flex justify-between">
+                                                    <FormLabel>Total Price (₹)</FormLabel>
+                                                    <div className="text-sm">
+                                                        ₹{bike?.pricePerDay.toString()}/day
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <FormControl>
-                                                <Input {...field} disabled className="bg-gray-50" />
-                                            </FormControl>
-                                        </FormItem>
-                                    )}
-                                />
-                                <Button type="submit" className="w-full" onClick={() => checkSignedIn()}>
-                                    {bookingLoading ? (
-                                        <>
-                                            Booking… <Loader2 className="animate-spin ml-2 h-4 w-4" />
-                                        </>
-                                    ) : (
-                                        "Book"
-                                    )}
-                                </Button>
-                            </form>
-                        </Form>
-                    </div>
+                                                <FormControl>
+                                                    <Input {...field} disabled className="bg-gray-50" />
+                                                </FormControl>
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <Button type="submit" className="w-full" onClick={() => checkSignedIn()}>
+                                        {bookingLoading ? (
+                                            <>
+                                                Booking… <Loader2 className="animate-spin ml-2 h-4 w-4" />
+                                            </>
+                                        ) : (
+                                            "Book"
+                                        )}
+                                    </Button>
+                                </form>
+                            </Form>
+                        </div>
+                    }
                 </div>
-
 
                 {/* <Card className="p-6 shadow-lg">
                     <CardHeader>

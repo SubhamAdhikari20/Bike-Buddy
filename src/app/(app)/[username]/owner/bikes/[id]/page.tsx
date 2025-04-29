@@ -121,7 +121,7 @@ const BikeDetails = () => {
             bikeName: bike.bikeName,
             bikeType: bike.bikeType,
             bikeDescription: bike.bikeDescription,
-            bikeLocation: bike.bikeType,
+            bikeLocation: bike.bikeLocation,
             pricePerDay: Number(bike.pricePerDay),
             available: bike.available,
             bikeImageUrl: bike.bikeImageUrl || "",

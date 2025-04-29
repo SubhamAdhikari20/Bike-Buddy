@@ -204,8 +204,8 @@ const OwnerBikes = () => {
     }
 
     return (
-        <section className="p-4 md:p-6 mx-auto">
-            <div className="flex flex-col sm:flex-row items-center justify-between mb-6">
+        <section className="px-4 py-2 md:px-6 md:py-2 mx-auto">
+            <div className="sticky md:top-0 top-16 inset-x-0 z-25 py-4 md:py-4 bg-white dark:bg-gray-800 flex flex-col gap-3 sm:flex-row items-center justify-between border-b border-gray-200">
                 <h1 className="text-2xl font-bold text-gray-800">Manage Bikes</h1>
                 <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
                     <DialogTrigger asChild>
@@ -265,7 +265,7 @@ const OwnerBikes = () => {
                                         <FormItem>
                                             <FormLabel>Description</FormLabel>
                                             <FormControl>
-                                                <Textarea {...field} placeholder="Enter description" />
+                                                <Textarea {...field} placeholder="Enter description" className="min-h-20 max-h-30" />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -365,7 +365,7 @@ const OwnerBikes = () => {
                     {bikes.length === 0 ? (
                         <p className="p-4 text-gray-600">No bikes found.</p>
                     ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
                             {bikes.map((bike) => (
                                 <BikeCard
                                     key={bike.id}

@@ -1,6 +1,6 @@
 // src/api/payments/khalti/callback/route.ts
 import { NextResponse } from "next/server";
-import { finalizePayment } from "@/model/Payment";
+import { finalizePaymentWithKhalti } from "@/model/Payment";
 import { verifyKhaltiPayment } from "@/lib/payments/khalti";
 
 export async function GET(req: Request) {
@@ -33,7 +33,7 @@ export async function GET(req: Request) {
 
     // 4) finalize
     try {
-        await finalizePayment({
+        await finalizePaymentWithKhalti({
             transactionUuid: purchase_order_id,  // the UUID you generated earlier
             gatewayRef,
             status,
@@ -46,6 +46,6 @@ export async function GET(req: Request) {
 
     // 5) send user back to receipt page
     return NextResponse.redirect(
-        `${process.env.FRONTEND_URL}/payment/receipt?status=${status}`,
+        `${process.env.FRONTEND_URL}/payment/receipt?status=${status}&transaction_id=${gatewayRef}`,
     );
 }

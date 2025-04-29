@@ -116,7 +116,17 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* Force solid, parsable colors inside .invoice-print */
+.invoice-print,
+.invoice-print * {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+  border-color: #dddddd !important;
+  --tw-border-opacity: 1 !important;
 }

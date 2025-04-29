@@ -23,7 +23,7 @@ export async function createPaymentRecord(data: {
  * On gateway callback, update that same Payment (matched by transactionUuid)
  * then set Booking.status and paymentReference.
  */
-export async function finalizePayment(data: {
+export async function finalizePaymentWithKhalti(data: {
     transactionUuid: string;
     gatewayRef: string;
     status: PaymentStatus;
@@ -50,7 +50,7 @@ export async function finalizePayment(data: {
         const updatedBooking = await tx.booking.update({
             where: { id: updatedPayment.bookingId! },
             data: {
-                status: data.status === "success" ? "completed" : "failed",
+                status: data.status === "success" ? "active" : "failed",
                 paymentReference: data.gatewayRef,
             },
             include: {
@@ -85,6 +85,7 @@ export async function finalizePayment(data: {
                     paymentMethod: updatedPayment.method,
                     customerId: updatedBooking.customerId!,
                     bikeId: updatedBooking.bikeId!,
+                    transactionId: updatedPayment.transactionId
                 },
             });
         }
@@ -93,21 +94,75 @@ export async function finalizePayment(data: {
 
 }
 
-export async function recordPayment(data: {
-    bookingId: number;
-    transactionId: string;
-    amount: number;
-    method: string;
+export async function finalizePaymentWithEsewa(data: {
+    transactionUuid: string;
+    gatewayRef: string;
     status: PaymentStatus;
 }): Promise<Payment> {
-    await prisma.booking.update({
-        where: { id: data.bookingId },
-        data: {
-            status: data.status === "success" ? "completed" : "pending",
-            paymentReference: data.transactionId
-        },
+    return await prisma.$transaction(async (tx) => {
+        // 1) find the pending payment
+        const payment = await tx.payment.findUniqueOrThrow({
+            where: { transactionId: data.transactionUuid },
+        });
+
+        // 2) update payment row
+        const updatedPayment = await tx.payment.update({
+            where: { id: payment.id },
+            data: {
+                transactionId: data.transactionUuid,
+                status: data.status,
+            },
+            include: {
+                booking: true,
+            },
+        });
+
+        // 3) update booking status & paymentRef
+        const updatedBooking = await tx.booking.update({
+            where: { id: updatedPayment.bookingId! },
+            data: {
+                status: data.status === "success" ? "active" : "failed",
+                paymentReference: data.gatewayRef,
+            },
+            include: {
+                customer: true,
+                bike: {
+                    include: { owner: true },
+                },
+            },
+        });
+
+        // 4) if success: mark bike unavailable
+        if (data.status === "success") {
+            await tx.bike.update({
+                where: { id: updatedBooking.bikeId! },
+                data: {
+                    available: false,
+                },
+            });
+            // 5) create invoice
+            await tx.invoice.create({
+                data: {
+                    customerName: updatedBooking.customer!.fullName,
+                    customerContact: updatedBooking.customer!.contact,
+                    ownerName: updatedBooking.bike?.owner.fullName!,
+                    ownerContact: updatedBooking.bike?.owner.contact!,
+                    bikeName: updatedBooking.bike?.bikeName!,
+                    bikeType: updatedBooking.bike?.bikeType!,
+                    startTime: updatedBooking.startTime,
+                    endTime: updatedBooking.endTime,
+                    pricePerDay: updatedBooking.bike?.pricePerDay!,
+                    totalPrice: updatedBooking.totalPrice,
+                    paymentMethod: updatedPayment.method,
+                    customerId: updatedBooking.customerId!,
+                    bikeId: updatedBooking.bikeId!,
+                    transactionId: updatedPayment.transactionId
+                },
+            });
+        }
+        return updatedPayment;
     });
-    return prisma.payment.create({ data });
+
 }
 
 export async function getPaymentById(id: number): Promise<Payment | null> {
