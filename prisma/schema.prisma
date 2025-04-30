@@ -27,6 +27,11 @@ enum BookingStatus {
     failed
 }
 
+enum RideJourneyStatus {
+    active
+    completed
+}
+
 enum Rating {
     one   @map("1")
     two   @map("2")
@@ -59,6 +64,8 @@ model User {
     reviews       Review[]
     notifications Notification[]
     // invoices      Invoice[]
+
+    rideJourney RideJourney[]
 }
 
 model Message {
@@ -85,10 +92,11 @@ model Bike {
     ownerId         Int
 
     // Relationships
-    owner    User      @relation(fields: [ownerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-    bookings Booking[] @relation(name: "BookingToBike")
-    reviews  Review[]  @relation(name: "ReviewToBike")
+    owner       User          @relation(fields: [ownerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+    bookings    Booking[]     @relation(name: "BookingToBike")
+    reviews     Review[]      @relation(name: "ReviewToBike")
     // invoices Invoice[] @relation(name: "InvoiceToBike")
+    rideJourney RideJourney[]
 
     @@index([bikeType])
     @@index([available])
@@ -107,15 +115,59 @@ model Booking {
     bikeId           Int?
 
     // Relationships
-    customer       User?            @relation(fields: [customerId], references: [id], onDelete: SetNull, onUpdate: Cascade)
-    bike           Bike?            @relation(fields: [bikeId], references: [id], onDelete: SetNull, onUpdate: Cascade, name: "BookingToBike")
-    payment        Payment[]
+    customer    User?         @relation(fields: [customerId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+    bike        Bike?         @relation(fields: [bikeId], references: [id], onDelete: SetNull, onUpdate: Cascade, name: "BookingToBike")
+    payment     Payment[]
     // Invoice  Invoice[]
-    TrackingPaths  TrackingPaths[]
-    TrackingPoints TrackingPoints[]
+    rideJourney RideJourney[]
 
     @@index([status])
     @@index([startTime, endTime])
+}
+
+model RideJourney {
+    id         Int               @id @default(autoincrement())
+    startTime  DateTime?
+    endTime    DateTime?
+    status     RideJourneyStatus @default(active)
+    createdAt  DateTime          @default(now())
+    updatedAt  DateTime          @updatedAt
+    bookingId  Int
+    customerId Int
+    bikeId     Int
+
+    booking  Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+    customer User    @relation(fields: [customerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+    bike     Bike    @relation(fields: [bikeId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+    trackingPaths  TrackingPaths[]  @relation("JourneyPaths")
+    trackingPoints TrackingPoints[] @relation("JourneyPoints")
+
+    @@index([status])
+    @@index([startTime, endTime])
+}
+
+model TrackingPaths {
+    id            Int      @id @default(autoincrement())
+    rideJourneyId Int
+    pathJson      Json
+    recordedAt    DateTime @default(now())
+
+    rideJourney RideJourney @relation("JourneyPaths", fields: [rideJourneyId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+    @@index([rideJourneyId])
+}
+
+model TrackingPoints {
+    id            BigInt @id @default(autoincrement())
+    rideJourneyId Int
+    lat           Float
+    lng           Float
+    timestamp     BigInt
+
+    rideJourney RideJourney @relation("JourneyPoints", fields: [rideJourneyId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+    @@index([rideJourneyId])
 }
 
 model Review {
@@ -194,23 +246,4 @@ model Invoice {
     // bookingId Int?
 
     @@index([startTime, endTime])
-}
-
-model TrackingPaths {
-    id         Int      @id @default(autoincrement())
-    bookingId  Int
-    pathJson   Json
-    recordedAt DateTime @default(now())
-
-    booking Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-}
-
-model TrackingPoints {
-    id        BigInt @id @default(autoincrement())
-    bookingId Int
-    lat       Float
-    lng       Float
-    timestamp BigInt
-
-    booking Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }

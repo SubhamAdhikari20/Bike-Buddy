@@ -91,10 +91,12 @@ SELECT * FROM `Bike`;
 SELECT * FROM `Booking`;
 SELECT * FROM `Payment`;
 SELECT * FROM `Invoice`;
-SELECT * FROM `Review`;
-SELECT * FROM `Notification`;
+SELECT * FROM `RideJourney`;
 SELECT * FROM `TrackingPaths`;
 SELECT * FROM `TrackingPoints`;
+SELECT * FROM `Review`;
+SELECT * FROM `Notification`;
+
 
 INSERT INTO `User` (`id`, `fullName`, `email`, `contact`, `password`, `role`)
 VALUES (1, "Subham Adhikari", "bikebuddy_admin@gmail.com", "9876543210", "admin@123", "admin");

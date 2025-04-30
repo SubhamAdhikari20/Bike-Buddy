@@ -9,10 +9,11 @@ import { useState } from "react";
 
 interface RideInProgressPageParams {
     bookingId: string;
+    rideJourneyId: string;
 }
 
 export default function RideInProgressPage({ params }: { params: RideInProgressPageParams }) {
-    const { bookingId } = params;
+    const { bookingId, rideJourneyId } = params;
     const { data: session } = useSession(); // NextAuth
     const [isActive, setIsActive] = useState(true);
 
@@ -22,16 +23,16 @@ export default function RideInProgressPage({ params }: { params: RideInProgressP
 
             {/* This kicks off geolocation → Firebase and then disappears */}
             <CustomerTracker
-                bookingId={bookingId}
+                rideJourneyId={rideJourneyId}
                 customerId={session?.user.id}
                 isActive={isActive}
             />
 
             {/* Live map view */}
-            <RideMap bookingId={bookingId} />
+            <RideMap rideJourneyId={rideJourneyId} />
 
             {/* Pause/Resume & End ride controls */}
-            <RideControls bookingId={bookingId} />
+            <RideControls bookingId={bookingId} rideJourneyId={rideJourneyId} />
         </section>
     );
 }

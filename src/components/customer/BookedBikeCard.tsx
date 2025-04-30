@@ -15,6 +15,10 @@ import { X } from "lucide-react";
 import { Bike, Booking, User } from "@prisma/client";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import axios, { AxiosError } from "axios";
+import { ApiResponse } from "@/types/ApiResponse";
 
 type BookedBikeCardProps = {
     booking: Booking & {
@@ -24,6 +28,19 @@ type BookedBikeCardProps = {
 };
 
 const BookedBikeCard = ({ booking }: BookedBikeCardProps) => {
+    const router = useRouter();
+
+    const startJourney = async () => {
+        try {
+            const res = await fetch(`/api/bookings/my-rentals/${booking.id}/start`, { method: "POST" });
+            const data = await res.json();
+            if (!data.success) throw new Error(data.message || "Failed to start ride");
+            router.push(`/rentals/${booking.id}/in-progress`);
+        } catch (e: any) {
+            toast.error(e.message);
+        }
+    };
+
 
     return (
         <Card className="w-full max-w-md mx-auto shadow-lg overflow-hidden transition-shadow hover:shadow-xl py-0 gap-3">
@@ -81,11 +98,11 @@ const BookedBikeCard = ({ booking }: BookedBikeCardProps) => {
                 </div>
             </CardContent>
             <CardFooter className="p-4! flex gap-2 justify-end border-t">
-                <Link href={`/rentals/${booking.id}/in-progress`} key={booking.id}>
-                    <Button className="text-sm bg-amber-500 hover:bg-amber-600">
-                        Start Journey
-                    </Button>
-                </Link>
+                {/* <Link href={`/rentals/${booking.id}/in-progress`} key={booking.id}> */}
+                <Button className="text-sm bg-amber-500 hover:bg-amber-600" onClick={startJourney}>
+                    Start Journey
+                </Button>
+                {/* </Link> */}
                 <Link href={`/bikes/${booking.bike.id}`}>
                     <Button >View Details</Button>
                 </Link>

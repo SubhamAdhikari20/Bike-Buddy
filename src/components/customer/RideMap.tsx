@@ -1,7 +1,7 @@
 // src/components/customer/RideMap.tsx
 "use client";
 import { useState, useEffect } from "react";
-import { MapContainer, TileLayer, Marker } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, CircleMarker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 
@@ -14,10 +14,10 @@ L.Icon.Default.mergeOptions({
 });
 
 interface RideMapProps {
-    bookingId: string;
+    rideJourneyId: string;
 }
 
-export default function RideMap({ bookingId }: RideMapProps) {
+export default function RideMap({ rideJourneyId }: RideMapProps) {
     const [position, setPosition] = useState<{ lat: number; lng: number } | null>(null);
 
     useEffect(() => {

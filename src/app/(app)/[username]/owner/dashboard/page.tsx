@@ -25,9 +25,10 @@ function FlyTo({ pos }: { pos: Position | null }) {
     return null;
 }
 
-export default function OwnerDashboard({ params }: { params: { username: string } }) {
+export default function OwnerDashboard({ params }: { params: { bookingId: string } }) {
     // TODO: derive the active bookingId (e.g. from your API or dashboard state)
-    const bookingId = "<current-booking-id>";
+    // const bookingId = "<current-booking-id>";
+    const bookingId = params.bookingId;
 
     const [position, setPosition] = useState<Position | null>(null);
 
