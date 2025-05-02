@@ -3,7 +3,7 @@ import { updateBike, deleteBike } from "@/model/Bike";
 
 export async function PUT(request: Request, { params }: { params: { id: string } }) {
     try {
-        const bikeId = Number(params.id);
+        const bikeId = await Number(params.id);
         const data = await request.json();
 
         const updatedBike = await updateBike(bikeId, data);
@@ -20,7 +20,7 @@ export async function PUT(request: Request, { params }: { params: { id: string }
 
 export async function DELETE(request: Request, { params }: { params: { id: string } }) {
     try {
-        const bikeId = Number(params.id);
+        const bikeId = await Number(params.id);
         await deleteBike(bikeId);
         return Response.json({ success: true, message: "Bike deleted successfully" }, { status: 200 });
     }

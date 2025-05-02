@@ -4,7 +4,7 @@ import { createRideJourney, updateRideJourney } from "@/model/RideJourney";
 import { getBookingById } from "@/model/Booking";
 
 export async function POST(req: Request, { params }: { params: { bookingId: string } }) {
-    const { bookingId } = params;
+    const { bookingId } = await params;
     const id = Number(bookingId);
     if (!id) return NextResponse.json({ success: false, message: "Invalid bookingId" }, { status: 400 });
 
@@ -15,7 +15,8 @@ export async function POST(req: Request, { params }: { params: { bookingId: stri
 
     // 1) Mark booking active and set startTime
     const now = new Date();
-    await createRideJourney({
+
+    const rideData = await createRideJourney({
         startTime: now,
         endTime: null,
         status: "active",
@@ -24,5 +25,5 @@ export async function POST(req: Request, { params }: { params: { bookingId: stri
         bookingId: booking.id
     });
 
-    return NextResponse.json({ success: true, startTime: now }, { status: 200 });
+    return NextResponse.json({ success: true, rideData: rideData }, { status: 200 });
 }

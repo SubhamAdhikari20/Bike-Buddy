@@ -354,20 +354,20 @@ const ManageOwners = () => {
                 <div className="overflow-x-auto rounded-md border shadow-sm">
                     <Table>
                         <TableHeader>
-                            <TableRow>
-                                <TableHead>Id</TableHead>
-                                <TableHead>Profile</TableHead>
-                                <TableHead>Name</TableHead>
-                                <TableHead>Username</TableHead>
-                                <TableHead>Email</TableHead>
-                                <TableHead>Contact</TableHead>
-                                <TableHead className="text-right">Actions</TableHead>
+                            <TableRow className="bg-blue-500 hover:bg-blue-600">
+                                <TableHead className="text-white font-semibold text-[16px]">Id</TableHead>
+                                <TableHead className="text-white font-semibold text-[16px]">Profile</TableHead>
+                                <TableHead className="text-white font-semibold text-[16px]">Name</TableHead>
+                                <TableHead className="text-white font-semibold text-[16px]">Username</TableHead>
+                                <TableHead className="text-white font-semibold text-[16px]">Email</TableHead>
+                                <TableHead className="text-white font-semibold text-[16px]">Contact</TableHead>
+                                <TableHead className="text-center text-white font-semibold text-[16px]">Actions</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
                             {owners.map((owner) => (
                                 <TableRow key={owner.id}>
-                                    <TableCell className="font-medium">{owner.id}</TableCell>
+                                    <TableCell>{owner.id}</TableCell>
                                     <TableCell>
                                         <Avatar className="h-10 w-10">
                                             <AvatarImage
@@ -384,11 +384,11 @@ const ManageOwners = () => {
                                             </AvatarFallback>
                                         </Avatar>
                                     </TableCell>
-                                    <TableCell className="font-medium">{owner.fullName}</TableCell>
+                                    <TableCell>{owner.fullName}</TableCell>
                                     <TableCell>{owner.username}</TableCell>
                                     <TableCell>{owner.email}</TableCell>
                                     <TableCell>{owner.contact}</TableCell>
-                                    <TableCell className="text-right">
+                                    <TableCell className="text-center">
                                         <AlertDialog>
                                             <AlertDialogTrigger asChild>
                                                 <Button variant="destructive" size="sm">

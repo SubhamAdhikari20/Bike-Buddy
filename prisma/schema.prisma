@@ -142,6 +142,7 @@ model RideJourney {
 
     trackingPaths  TrackingPaths[]  @relation("JourneyPaths")
     trackingPoints TrackingPoints[] @relation("JourneyPoints")
+    Review         Review[]
 
     @@index([status])
     @@index([startTime, endTime])
@@ -180,10 +181,12 @@ model Review {
     bikeId                    Int
     createdAt                 DateTime @default(now())
     updatedAt                 DateTime @updatedAt
+    rideJourneyId             Int?
 
     // Relationships
-    customer User? @relation(fields: [customerId], references: [id], onDelete: SetNull, onUpdate: Cascade)
-    bike     Bike  @relation(fields: [bikeId], references: [id], onDelete: Cascade, onUpdate: Cascade, name: "ReviewToBike")
+    customer    User?        @relation(fields: [customerId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+    bike        Bike         @relation(fields: [bikeId], references: [id], onDelete: Cascade, onUpdate: Cascade, name: "ReviewToBike")
+    rideJourney RideJourney? @relation(fields: [rideJourneyId], references: [id], onDelete: SetNull, onUpdate: Cascade)
 
     @@index([rating])
 }

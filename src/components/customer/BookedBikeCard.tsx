@@ -32,12 +32,15 @@ const BookedBikeCard = ({ booking }: BookedBikeCardProps) => {
 
     const startJourney = async () => {
         try {
-            const res = await fetch(`/api/bookings/my-rentals/${booking.id}/start`, { method: "POST" });
-            const data = await res.json();
-            if (!data.success) throw new Error(data.message || "Failed to start ride");
-            router.push(`/rentals/${booking.id}/in-progress`);
-        } catch (e: any) {
-            toast.error(e.message);
+            const response = await axios.post(`/api/bookings/my-rentals/${booking.id}/start`);
+            if (!response.data.success) {
+                toast.error(response.data.message || "Failed to start ride");
+            }
+            router.replace(`/rentals/${booking.id}/${response.data.rideData.id}/in-progress`);
+        }
+        catch (error) {
+            const axiosError = error as AxiosError<ApiResponse>;
+            toast.error(axiosError.response?.data.message);
         }
     };
 

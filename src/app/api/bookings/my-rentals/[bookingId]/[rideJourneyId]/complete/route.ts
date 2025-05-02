@@ -1,13 +1,14 @@
 // src/app/api/bookings/my-rentals/[bookingId]/[rideJourneyId]/complete/route.ts
 import { NextResponse } from "next/server";
 import { createRideJourney, updateRideJourney } from "@/model/RideJourney";
-import { updateBooking } from "@/model/Booking";
+import { updateBooking, getBookingById } from "@/model/Booking";
+import { updateBike } from "@/model/Bike";
 import prisma from "@/lib/prisma";
 import { db } from "@/lib/firebase";
 import { ref, get, remove } from "firebase/database";
 
 export async function POST(req: Request, { params }: { params: { bookingId: string, rideJourneyId: string } }) {
-    const { rideJourneyId } = params;
+    const { rideJourneyId } = await params;
     const id = Number(rideJourneyId);
     if (!id) return NextResponse.json({ success: false, message: "Invalid rideJourneyId" }, { status: 400 });
 
@@ -30,7 +31,39 @@ export async function POST(req: Request, { params }: { params: { bookingId: stri
     const now = new Date();
     await updateRideJourney(id, { status: "completed", endTime: now });
 
-    await updateBooking(Number(params.bookingId), { status: "completed" });
+    const updatedBooking = await updateBooking(Number(params.bookingId), { status: "completed" });
+
+    await updateBike(Number(updatedBooking.bikeId), { available: true });
 
     return NextResponse.json({ success: true, endTime: now }, { status: 200 });
+}
+
+
+export async function GET(request: Request, { params }: { params: { bookingId: string, rideJourneyId: string } }) {
+    const { bookingId } = await params;
+    const id = Number(bookingId);
+    if (!id) {
+        return NextResponse.json({ success: false, message: "Invalid Booking Id" }, { status: 400 });
+    }
+
+    try {
+        const booking = await getBookingById(id);
+
+        return Response.json(
+            {
+                success: true,
+                booking
+            },
+            { status: 200 }
+        );
+    } catch (error) {
+        console.error("Error retrieving booking history:", error);
+        return Response.json(
+            {
+                success: false,
+                message: "Error retrieving booking history"
+            },
+            { status: 500 }
+        );
+    }
 }

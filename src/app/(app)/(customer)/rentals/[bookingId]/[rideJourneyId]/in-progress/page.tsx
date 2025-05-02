@@ -1,4 +1,4 @@
-// src/app/(customer)/rentals/[bookingId]/in-progress/page.tsx
+// src/app/(customer)/rentals/[bookingId]/[rideJourneyId]/in-progress/page.tsx
 "use client";
 
 import CustomerTracker from "@/components/CustomerTracker";
@@ -6,16 +6,22 @@ import RideControls from "@/components/customer/RideControls";
 import RideMap from "@/components/customer/RideMap";
 import { useSession } from "next-auth/react";
 import { useState } from "react";
+import { useParams } from "next/navigation";
 
 interface RideInProgressPageParams {
     bookingId: string;
     rideJourneyId: string;
 }
 
-export default function RideInProgressPage({ params }: { params: RideInProgressPageParams }) {
-    const { bookingId, rideJourneyId } = params;
-    const { data: session } = useSession(); // NextAuth
+export default function RideInProgressPage() {
+    const { bookingId, rideJourneyId } = useParams() as {
+        bookingId: string;
+        rideJourneyId: string;
+    };
+
+    const { data: session } = useSession();
     const [isActive, setIsActive] = useState(true);
+
 
     return (
         <section className="p-4 space-y-6">
