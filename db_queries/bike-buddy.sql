@@ -109,4 +109,3 @@ DELETE FROM `Booking` WHERE `id`= 17;
 DELETE FROM `Payment` WHERE `id`= 20;
 DELETE FROM `Invoice` WHERE `id`= 3;
 
-

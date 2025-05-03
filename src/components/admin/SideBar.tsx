@@ -181,7 +181,7 @@ const SideBar: React.FC<SideBarProps> = ({ session, currentUser }) => {
                             </li>
                             <li>
                                 <Link
-                                    href={`/${currentUser?.username}/admin/transactions`}
+                                    href={`/${currentUser?.username}/admin/transaction-report`}
                                     className="flex items-center px-4 py-2 hover:bg-gray-700 rounded"
                                     onClick={() => setIsMobileOpen(false)}
                                 >

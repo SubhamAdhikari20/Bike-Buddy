@@ -168,6 +168,18 @@ const ManageOwners = () => {
             const axiosError = error as AxiosError<ApiResponse>;
             toast.error(axiosError.response?.data.message || "Failed to delete owner");
         }
+    };
+
+    const handleClear = () => {
+        form.reset({
+            fullName: "",
+            username: "",
+            email: "",
+            contact: "",
+            password: "",
+            confirmPassword: ""
+        });
+        setUsernameMessage("");
     }
 
     return (
@@ -176,12 +188,12 @@ const ManageOwners = () => {
                 <h1 className="text-2xl font-bold">Manage Owners</h1>
                 <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
                     <DialogTrigger asChild>
-                        <Button>
+                        <Button onClick={handleClear}>
                             <Plus className="mr-2 h-4 w-4" />
                             Add Owner
                         </Button>
                     </DialogTrigger>
-                    <DialogContent className="sm:max-w-md">
+                    <DialogContent className="sm:max-w-md max-h-200 overflow-y-scroll">
                         <DialogHeader>
                             <DialogTitle>Create New Owner</DialogTitle>
                         </DialogHeader>
@@ -324,11 +336,11 @@ const ManageOwners = () => {
                                     )}
                                 />
 
-                                <div className="flex items-center justify-center">
+                                <div className="flex justify-evenly items-center gap-4">
                                     <Button
                                         type="submit"
                                         disabled={isSubmitting}
-                                        className="w-full"
+                                        className="flex-1"
                                     >
                                         {isSubmitting ? (
                                             <>
@@ -338,6 +350,10 @@ const ManageOwners = () => {
                                         ) : (
                                             "Add Owner"
                                         )}
+                                    </Button>
+
+                                    <Button variant="outline" className="flex-1" onClick={handleClear}>
+                                        Clear
                                     </Button>
                                 </div>
                             </form>

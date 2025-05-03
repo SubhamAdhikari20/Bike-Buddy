@@ -1,4 +1,4 @@
-// src/api/(auth)/[...nextauth]/options.ts
+// src/api/auth/[...nextauth]/options.ts
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";

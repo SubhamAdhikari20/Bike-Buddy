@@ -124,7 +124,7 @@ export async function DELETE(request: Request, context: { params: { id: string }
         return Response.json({ success: true, message: "User Account deleted successfully" }, { status: 200 });
     }
     catch (error) {
-        console.error("Error deleting bike:", error);
+        console.error("Error deleting user account:", error);
         return Response.json(
             { success: false, message: "Failed to delete user account" },
             { status: 500 }

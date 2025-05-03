@@ -1,8 +1,8 @@
 // src/app/(app)/admin/rental-report/page.tsx
 "use client";
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { ApiResponse } from "@/types/ApiResponse";
-import { Invoice } from "@prisma/client";
+import { Invoice as InvoiceModel } from "@prisma/client";
 import axios, { AxiosError } from "axios";
 import { toast } from "sonner";
 import { Loader2, Trash2 } from "lucide-react";
@@ -25,13 +25,26 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { FaFileInvoice } from "react-icons/fa";
+import Invoice, { InvoiceProps } from "@/components/Invoice";
+import { useReactToPrint } from "react-to-print";
 
 const RentalReport = () => {
     const [loading, setLoading] = useState(false);
-    const [rentals, setRentals] = useState<Invoice[]>([]);
+    const [rentals, setRentals] = useState<InvoiceModel[]>([]);
+    const [openId, setOpenId] = useState<number | null>(null);
+    const invoiceRef = useRef<HTMLDivElement>(null);
+
+    // const [dialogOpen, setDialogOpen] = useState(false);
+    // const [invoiceData, setInvoiceData] = useState<InvoiceProps["invoice"] | null>(null);
 
     const fetchRentalReport = async () => {
         setLoading(true);
@@ -52,13 +65,34 @@ const RentalReport = () => {
         fetchRentalReport();
     }, []);
 
-    // 3) format numbers & dates
     const fmtDate = (d: Date) => d.toLocaleDateString(undefined, {
         year: "numeric",
         month: "short",
         day: "numeric",
     });
 
+    const handleDelete = async (inovice: InvoiceModel) => {
+        try {
+            const response = await axios.delete(`/api/admin/rental-report/${inovice.id}`);
+            toast.success(response.data.message);
+            fetchRentalReport();
+        }
+        catch (error) {
+            const axiosError = error as AxiosError<ApiResponse>;
+            toast.error(axiosError.response?.data.message || "Failed to delete owner");
+        }
+    }
+
+    const handlePrint = useReactToPrint({
+        contentRef: invoiceRef,
+        documentTitle: `Invoice_${openId}`,
+        pageStyle: `
+              @media print {
+                body { -webkit-print-color-adjust: exact; }
+                .no-print { display: none !important; }
+              }
+            `,
+    });
 
     return (
         <section className="p-4 md:p-6">
@@ -84,15 +118,15 @@ const RentalReport = () => {
                                 <TableHead className="text-white font-semibold text-[16px]">Bike Name</TableHead>
                                 <TableHead className="text-white font-semibold text-[16px]">Start Date</TableHead>
                                 <TableHead className="text-white font-semibold text-[16px]">End Date</TableHead>
-                                <TableHead className="text-white font-semibold text-[16px]">Price/Day ()</TableHead>
-                                <TableHead className="text-white font-semibold text-[16px]">Total Price ()</TableHead>
+                                <TableHead className="text-white font-semibold text-[16px]">Price/Day (₹)</TableHead>
+                                <TableHead className="text-white font-semibold text-[16px]">Total Price (₹)</TableHead>
                                 <TableHead className="text-center text-white font-semibold text-[16px]">Actions</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
                             {rentals.map((rental) => (
                                 <TableRow key={rental.id}>
-                                    <TableCell className="text-cemter">{rental.id}</TableCell>
+                                    <TableCell className="text-center">{rental.id}</TableCell>
                                     <TableCell>{rental.customerName}</TableCell>
                                     <TableCell>{rental.customerContact}</TableCell>
                                     <TableCell>{rental.ownerName}</TableCell>
@@ -103,10 +137,28 @@ const RentalReport = () => {
                                     <TableCell className="text-center">{rental.pricePerDay.toString()}</TableCell>
                                     <TableCell className="text-center">{rental.totalPrice.toString()}</TableCell>
                                     <TableCell className="text-center flex gap-2">
-                                        <Button size="sm" className="bg-green-500 hover:bg-green-600">
-                                            <FaFileInvoice className="h-4 w-4" />
-                                            <span className="sr-only md:not-sr-only md:ml-2">View Bill</span>
-                                        </Button>
+                                        <Dialog open={openId === rental.id} onOpenChange={open => setOpenId(open ? rental.id : null)}>
+                                            <DialogTrigger asChild>
+                                                <Button size="sm" className="bg-green-500 hover:bg-green-600">
+                                                    <FaFileInvoice className="h-4 w-4" />
+                                                    <span className="sr-only md:not-sr-only md:ml-2">View Bill</span>
+                                                </Button>
+                                            </DialogTrigger>
+                                            <DialogContent className="max-w-full min-w-3xl sm:max-w-md max-h-200 overflow-y-scroll">
+                                                <DialogHeader>
+                                                    <DialogTitle>View Bill</DialogTitle>
+                                                </DialogHeader>
+                                                <div className="px-4 flex flex-col gap-4">
+                                                    <div ref={invoiceRef} className="invoice-print bg-white w-full p-6 shadow-lg rounde">
+                                                        {rental && <Invoice invoice={rental} />}
+                                                    </div>
+
+                                                    <div className="flex items-center justify-center">
+                                                        <Button onClick={() => handlePrint()}>Print Bill</Button>
+                                                    </div>
+                                                </div>
+                                            </DialogContent>
+                                        </Dialog>
                                         <AlertDialog>
                                             <AlertDialogTrigger asChild>
                                                 <Button size="sm" variant="destructive">
@@ -124,13 +176,12 @@ const RentalReport = () => {
                                                 </AlertDialogHeader>
                                                 <AlertDialogFooter>
                                                     <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                    <AlertDialogAction>
+                                                    <AlertDialogAction onClick={() => handleDelete(rental)}>
                                                         Confirm Delete
                                                     </AlertDialogAction>
                                                 </AlertDialogFooter>
                                             </AlertDialogContent>
                                         </AlertDialog>
-
                                     </TableCell>
                                 </TableRow>
                             ))}

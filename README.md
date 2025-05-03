@@ -29,7 +29,7 @@ Bike Buddy brings luxury and convenience to urban mobility. Whether you're a tou
 - **Instant Booking & Reservation**  
   Reserve your bike with just a few clicks through our fast, user-friendly booking system.
 - **Secure Payment Integration**  
-  Enjoy peace of mind with our integrated, secure payment gateway via **Khalti**.
+  Enjoy peace of mind with our integrated, secure payment gateway via **Khalti** and **Esewa**.
 - **Interactive Map Integration**  
   Easily locate rental stations and check bike availability via an intuitive, interactive map.
 - **User Profiles & Dashboards**  
@@ -42,8 +42,6 @@ Bike Buddy brings luxury and convenience to urban mobility. Whether you're a tou
   Read reviews from other riders and share your own experiences to help build our community.
 - **Administrative Dashboard**  
   A powerful admin panel lets you manage inventory, oversee bookings, process payments, and handle customer inquiries effortlessly.
-- **Multi-Language Support**  
-  Cater to a global audience with support for multiple languages, making navigation easy for users worldwide.
 
 ---
 
@@ -56,11 +54,11 @@ Bike Buddy brings luxury and convenience to urban mobility. Whether you're a tou
 - **Authentication:**  
   Secure authentication powered by **NextAuth**.
 - **Payment Integration:**  
-  Integrated with **Khalti** for secure and seamless transactions.
+  Integrated via **Khalti** and **Esewa** for secure and seamless transactions.
 - **Mapping & Geolocation:**  
-  Interactive mapping features using popular mapping APIs like **Google Maps API** or **Mapbox** for precise, interactive mapping features.
+  Interactive mapping features using popular mapping APIs like **Google Maps API** or **Leaflet** for precise, interactive mapping features.
 - **Real-Time Communication:**  
-  Implemented using modern web technologies like **WebSockets** for live bike tracking and notifications.
+  Implemented using modern web technologies like **WebSockets** (socket.io) or use of RTDB (Real Time Database) like **Firebase** for live bike tracking and notifications.
 
 ---
 
@@ -69,7 +67,7 @@ Bike Buddy brings luxury and convenience to urban mobility. Whether you're a tou
 Experience Bike Buddy in action!  
 Check out our [live demo](#) or watch a quick walkthrough video to see the platform’s features in motion.
 
-![Bike Buddy Demo Screenshot](./assets/demo-screenshot.png)
+![Bike Buddy Demo Screenshot](./assets/bike-bg-1.jpg)
 
 ---
 

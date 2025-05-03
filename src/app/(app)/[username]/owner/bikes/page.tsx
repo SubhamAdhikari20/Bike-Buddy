@@ -341,7 +341,7 @@ const OwnerBikes = () => {
                                     </div>
                                 )}
 
-                                <div className="flex justify-evenly items-center gap-2">
+                                <div className="flex justify-evenly items-center gap-4">
                                     <Button type="submit" className="flex-1" disabled={loading}>
                                         {editingBike ? (loading ? "Updating..." : "Update") : (loading ? "Adding..." : "Add")}
                                         {loading && <Loader2 className="ml-2 h-4 w-4 animate-spin" />}

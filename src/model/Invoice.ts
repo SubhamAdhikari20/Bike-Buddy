@@ -13,3 +13,7 @@ export async function getInvoiceByTransactionId(id: string): Promise<Invoice | n
 export async function getAllInvoices(): Promise<Invoice[]> {
     return await prisma.invoice.findMany();
 }
+
+export async function deleteInvoiceById(id: number): Promise<Invoice | null> {
+    return await prisma.invoice.delete({ where: { id } });
+} 
