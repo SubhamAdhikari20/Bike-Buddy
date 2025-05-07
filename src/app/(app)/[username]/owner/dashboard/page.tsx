@@ -1,66 +1,83 @@
 // src/app/(app)/[username]/owner/dashboard/page.tsx
 "use client";
 import { useState, useEffect } from "react";
-import { MapContainer, TileLayer, Marker, useMap } from "react-leaflet";
-import { ref, onValue, off } from "firebase/database";
-import { db } from "@/lib/firebase";
 import "leaflet/dist/leaflet.css";
-import L from "leaflet";
+import axios, { AxiosError } from "axios";
+import { Bike, Booking, User } from "@prisma/client"
+import { ApiResponse } from "@/types/ApiResponse";
+import { toast } from "sonner";
+import { useSession } from "next-auth/react";
+import Link from "next/link";
+import { Loader2 } from "lucide-react";
+import BookedBikeCard from "@/components/owner/BookedBikeCard";
 
-// Fix default icon paths (adjust if needed)
-delete (L.Icon.Default as any).prototype._getIconUrl;
-L.Icon.Default.mergeOptions({
-    iconRetinaUrl: "/leaflet/images/marker-icon-2x.png",
-    iconUrl: "/leaflet/images/marker-icon.png",
-    shadowUrl: "/leaflet/images/marker-shadow.png",
-});
 
-type Position = { lat: number; lng: number; timestamp: number };
+type RentalWithBikeAndCustomerAndOwner = Booking & {
+    bike: Bike & { owner: User };
+    customer: User;
+};
 
-function FlyTo({ pos }: { pos: Position | null }) {
-    const map = useMap();
-    useEffect(() => {
-        if (pos) map.flyTo([pos.lat, pos.lng], 15, { animate: true });
-    }, [pos, map]);
-    return null;
-}
+export default function OwnerDashboard() {
+    const { data: session, status } = useSession();
+    const [rentals, setRentals] = useState<RentalWithBikeAndCustomerAndOwner[]>([]);
+    const [loading, setLoading] = useState(false);
 
-export default function OwnerDashboard({ params }: { params: { bookingId: string } }) {
-    // TODO: derive the active bookingId (e.g. from your API or dashboard state)
-    // const bookingId = "<current-booking-id>";
-    const bookingId = params.bookingId;
-
-    const [position, setPosition] = useState<Position | null>(null);
-
-    useEffect(() => {
-        const trackRef = ref(db, `tracking/${bookingId}`);
-        onValue(trackRef, snap => {
-            const data = snap.val();
-            if (data?.lat && data?.lng) {
-                setPosition({ lat: data.lat, lng: data.lng, timestamp: data.timestamp });
+    let currentUser: any;
+    if (session?.user) {
+        currentUser = session.user;
+    }
+    const userId = session?.user.id;
+    const fetchRentals = async () => {
+        setLoading(true);
+        try {
+            const response = await axios.get<{ success: boolean, rentals: RentalWithBikeAndCustomerAndOwner[] }>(`/api/bookings/owner/customer-rentals?ownerId=${userId}`);
+            if (response.data.success) {
+                setRentals(response.data.rentals);
             }
-        });
-        return () => off(trackRef);
-    }, [bookingId]);
+        }
+        catch (error) {
+            const axiosError = error as AxiosError<ApiResponse>;
+            toast.error(axiosError.response?.data.message);
+        }
+        finally {
+            setLoading(false);
+        }
+    }
+
+    useEffect(() => {
+        if (userId) {
+            fetchRentals();
+        }
+    }, [userId]);
+
+    if (status === 'loading' || loading) {
+        return (
+            <div className="flex items-center justify-center h-64">
+                <Loader2 className="animate-spin h-8 w-8 text-gray-600" />
+            </div>
+        );
+    }
+
+    if (!session) {
+        return (
+            <p className="p-4 text-center">
+                Please <Link href="/sign-in" className="text-blue-600 underline">sign in</Link> to view your customer who have rented your bikes.
+            </p>
+        );
+    }
 
     return (
-        <section className="p-4">
-            <h2 className="text-xl font-semibold mb-2">Live GPS Tracking</h2>
-            <div className="w-full h-80 md:h-[600px] rounded-lg overflow-hidden shadow">
-                <MapContainer
-                    center={position ? [position.lat, position.lng] : [0, 0]}
-                    zoom={13}
-                    style={{ height: "400px", width: "100%" }}
-                >
-                    <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-                    {position && (
-                        <>
-                            <Marker position={[position.lat, position.lng]} />
-                            <FlyTo pos={position} />
-                        </>
-                    )}
-                </MapContainer>
-            </div>
+        <section className="container mx-auto p-4">
+            <h1 className="text-2xl font-semibold mb-3">Dashboard</h1>
+            {rentals.length === 0 ? (
+                <p>You have no active customer rentals.</p>
+            ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {rentals.map(rental => (
+                        <BookedBikeCard key={rental.id} booking={rental} currentUser={currentUser} />
+                    ))}
+                </div>
+            )}
         </section>
     );
 }

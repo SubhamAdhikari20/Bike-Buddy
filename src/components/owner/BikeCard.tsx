@@ -18,15 +18,21 @@ import {
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import Link from "next/link";
+import StarRatings from "react-star-ratings";
 
 interface BikeCardProps {
-    bike: Bike;
+    bike: Bike & {
+        avgRating?: number | null;
+        reviewCount?: number | null;
+    };
     currentUser: User;
     onEdit: () => void;
     onDelete: () => void;
 }
 
 const BikeCard = ({ bike, currentUser, onEdit, onDelete }: BikeCardProps) => {
+    const ratingValue = bike.avgRating ?? 0;
+
     return (
         <Card className="w-full max-w-md mx-auto overflow-hidden shadow-lg hover:shadow-xl transition-shadow py-0 gap-3">
             <CardHeader className="p-0">
@@ -66,17 +72,35 @@ const BikeCard = ({ bike, currentUser, onEdit, onDelete }: BikeCardProps) => {
             </CardContent>
 
             <CardFooter className="p-4! flex justify-between border-t">
-                <Link href={`/${currentUser?.username}/owner/bikes/${bike.id}`}>
-                    <Button size="sm">View Details</Button>
-                </Link>
-                <div className="flex gap-4">
+                <div title={`${ratingValue.toFixed(1)} / 5`} className="text-center flex flex-col gap-1 items-center">
+                    <div className="cursor-pointer">
+                        <StarRatings
+                            rating={ratingValue}
+                            starRatedColor="#FBBF24"
+                            numberOfStars={5}
+                            starDimension="23px"
+                            starSpacing="2px"
+                            starEmptyColor="#E5E7EB"
+                            starHoverColor="#FBBF24"
+                            name="bike-rating"
+                        />
+                    </div>
+                    <p className="text-sm text-gray-600">
+                        {ratingValue.toFixed(1)} ({bike.reviewCount ?? 0})
+                    </p>
+                </div>
+
+                <div className="flex gap-2">
+                    <Link href={`/${currentUser?.username}/owner/bikes/${bike.id}`}>
+                        <Button size="sm">View Details</Button>
+                    </Link>
                     <Button variant="outline" size="sm" onClick={onEdit}>
-                        <Edit className="h-4 w-4 mr-2" /> Edit
+                        <Edit className="h-4 w-4" /> Edit
                     </Button>
                     <AlertDialog>
                         <AlertDialogTrigger asChild>
                             <Button variant="destructive" size="sm">
-                                <Trash2 className="h-4 w-4 mr-2" /> Delete
+                                <Trash2 className="h-4 w-4" /> Delete
                             </Button>
                         </AlertDialogTrigger>
                         <AlertDialogContent>

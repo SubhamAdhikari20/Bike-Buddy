@@ -1,6 +1,7 @@
 // src/app/api/auth/reset-password/route.ts
 import bcrypt from "bcryptjs";
 import { getUserByEmail, updateUser } from "@/model/User";
+import { sendNotification } from "@/helpers/sendNotification";
 
 export async function PUT(request: Request) {
     try {
@@ -23,6 +24,17 @@ export async function PUT(request: Request) {
             verifyEmailResetPassword: null,
             verifyEmailResetPasswordExpiryDate: null,
         });
+
+        try {
+            await sendNotification(
+                user.id.toString(),
+                "account-password-reset",
+                { fullName: user.fullName }
+            );
+        }
+        catch (err) {
+            console.error("Knock notification error:", err);
+        }
 
         return Response.json(
             { success: true, message: "Password has been reset successfully." },

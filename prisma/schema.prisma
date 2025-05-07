@@ -1,3 +1,4 @@
+// prisma/schema.prisma
 generator client {
     provider = "prisma-client-js"
 }
@@ -113,6 +114,7 @@ model Booking {
     updatedAt        DateTime      @updatedAt
     customerId       Int?
     bikeId           Int?
+    ownerId          Int?
 
     // Relationships
     customer    User?         @relation(fields: [customerId], references: [id], onDelete: SetNull, onUpdate: Cascade)
@@ -182,6 +184,7 @@ model Review {
     createdAt                 DateTime @default(now())
     updatedAt                 DateTime @updatedAt
     rideJourneyId             Int?
+    reviewBikeImageUrl        String?  @db.VarChar(500)
 
     // Relationships
     customer    User?        @relation(fields: [customerId], references: [id], onDelete: SetNull, onUpdate: Cascade)

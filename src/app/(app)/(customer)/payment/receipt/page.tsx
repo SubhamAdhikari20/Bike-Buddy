@@ -171,11 +171,11 @@ export default function ReceiptPage() {
                         </div>
 
                         {isSuccess && invoiceData && (
-                            <div className="no-print flex flex-col sm:flex-row justify-end gap-2 mb-4 px-4">
+                            <div className="no-print flex flex-col sm:flex-row justify-center gap-2 mb-4 px-4">
                                 <Button onClick={() => handlePrint()}>Print Bill</Button>
-                                <Button variant="outline" onClick={() => downloadPdf()}>
+                                {/* <Button variant="outline" onClick={() => downloadPdf()}>
                                     Download PDF
-                                </Button>
+                                </Button> */}
                             </div>
                         )}
 

@@ -1,6 +1,14 @@
 // src/model/Payments.ts
+import { sendNotification } from "@/helpers/sendNotification";
 import prisma from "@/lib/prisma";
 import { Payment, PaymentStatus } from "@prisma/client";
+
+const fmtDate = (d: Date) => d.toLocaleDateString(undefined, {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+});
+const admins = await prisma.user.findMany({ where: { role: "admin" } })
 
 export async function createPaymentRecord(data: {
     bookingId: number;
@@ -88,6 +96,52 @@ export async function finalizePaymentWithKhalti(data: {
                     transactionId: updatedPayment.transactionId
                 },
             });
+
+            try {
+                await sendNotification(
+                    updatedBooking.customer!.id.toString(),
+                    "booking-created-customer",
+                    {
+                        customerName: updatedBooking.customer?.fullName,
+                        ownerName: updatedBooking.bike?.owner.fullName!,
+                        bikeName: updatedBooking.bike?.bikeName,
+                        startTime: updatedBooking.startTime ? fmtDate(new Date(updatedBooking.startTime)) : "N/A",
+                        endTime: updatedBooking.endTime ? fmtDate(new Date(updatedBooking.endTime)) : "N/A",
+                        totalPrice: updatedBooking.totalPrice
+                    }
+                );
+
+                await sendNotification(
+                    updatedBooking.bike!.owner.id.toString(),
+                    "booking-created-owner",
+                    {
+                        ownerName: updatedBooking.bike?.owner.fullName!,
+                        customerName: updatedBooking.customer?.fullName,
+                        bikeName: updatedBooking.bike?.bikeName,
+                        startTime: updatedBooking.startTime ? fmtDate(new Date(updatedBooking.startTime)) : "N/A",
+                        endTime: updatedBooking.endTime ? fmtDate(new Date(updatedBooking.endTime)) : "N/A",
+                        totalPrice: updatedBooking.totalPrice
+                    }
+                );
+
+                for (const admin of admins) {
+                    await sendNotification(
+                        admin.id.toString(),
+                        "booking-created-admin",
+                        {
+                            ownerName: updatedBooking.bike?.owner.fullName!,
+                            customerName: updatedBooking.customer?.fullName,
+                            bikeName: updatedBooking.bike?.bikeName,
+                            startTime: updatedBooking.startTime ? fmtDate(new Date(updatedBooking.startTime)) : "N/A",
+                            endTime: updatedBooking.endTime ? fmtDate(new Date(updatedBooking.endTime)) : "N/A",
+                            totalPrice: updatedBooking.totalPrice
+                        }
+                    );
+                }
+            }
+            catch (err) {
+                console.error("Knock notification error:", err);
+            }
         }
         return updatedPayment;
     });
@@ -159,6 +213,38 @@ export async function finalizePaymentWithEsewa(data: {
                     transactionId: updatedPayment.transactionId
                 },
             });
+
+            try {
+                await sendNotification(
+                    updatedBooking.customer!.id.toString(),
+                    "booking-created-customer",
+                    {
+                        customerName: updatedBooking.customer?.fullName,
+                        bikeName: updatedBooking.bike?.bikeName,
+                        startTime: updatedBooking.startTime ? fmtDate(new Date(updatedBooking.startTime)) : "N/A",
+                        endTime: updatedBooking.endTime ? fmtDate(new Date(updatedBooking.endTime)) : "N/A",
+                        totalPrice: updatedBooking.totalPrice
+                    }
+                );
+
+                await sendNotification(
+                    updatedBooking.bike!.owner.id.toString(),
+                    "booking-created-owner",
+                    {
+                        ownerName: updatedBooking.bike?.owner.fullName,
+                        customerName: updatedBooking.customer?.fullName,
+                        bikeName: updatedBooking.bike?.bikeName,
+                        startTime: updatedBooking.startTime ? fmtDate(new Date(updatedBooking.startTime)) : "N/A",
+                        endTime: updatedBooking.endTime ? fmtDate(new Date(updatedBooking.endTime)) : "N/A",
+                        totalPrice: updatedBooking.totalPrice
+                    }
+                );
+
+            }
+            catch (err) {
+                console.error("Knock notification error:", err);
+            }
+
         }
         return updatedPayment;
     });

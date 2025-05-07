@@ -82,8 +82,8 @@ const OwnerBikes = () => {
     const fetchBikes = async () => {
         try {
             const ownerId = Number(currentUser?.id);
-            const response = await axios.get<Bike[]>(`/api/bikes/owner?ownerId=${ownerId}`);
-            setBikes(response.data);
+            const response = await axios.get<{ bikes: Bike[] }>(`/api/bikes/owner?ownerId=${ownerId}`);
+            setBikes(response.data.bikes);
         }
         catch (error) {
             const axiosError = error as AxiosError<ApiResponse>;

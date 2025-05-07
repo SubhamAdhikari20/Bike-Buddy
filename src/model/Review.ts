@@ -10,6 +10,7 @@ export async function createReview(data: {
     rating: Rating;
     comment: string;
     rideJourneyId: number;
+    reviewBikeImageUrl?: string;
 }): Promise<Review> {
     return await prisma.review.create({
         data: {
@@ -20,6 +21,8 @@ export async function createReview(data: {
             customerName: data.customerName,
             customerProfilePictureUrl: data.customerProfilePictureUrl,
             rideJourneyId: data.rideJourneyId,
+            reviewBikeImageUrl: data.reviewBikeImageUrl
+
         },
     });
 }

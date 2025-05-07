@@ -8,20 +8,24 @@ import {
     CardFooter,
     CardHeader,
     CardTitle,
-} from "@/components/ui/card"
-
+} from "@/components/ui/card";
 import { Button } from "../ui/button";
-import { X } from "lucide-react";
 import { Bike } from "@prisma/client";
 import Image from "next/image";
 import Link from "next/link";
+import StarRatings from "react-star-ratings";
+
 
 type BikeCardProps = {
-    bike: Bike;
+    bike: Bike & {
+        avgRating?: number | null;
+        reviewCount?: number | null;
+    };
     onRent: () => void;
 }
 
 const BikeCard = ({ bike, onRent }: BikeCardProps) => {
+    const ratingValue = bike.avgRating ?? 0;
 
     return (
         <Card className="w-full max-w-md mx-auto shadow-lg overflow-hidden transition-shadow hover:shadow-xl py-0 gap-3">
@@ -61,13 +65,49 @@ const BikeCard = ({ bike, onRent }: BikeCardProps) => {
                     </div>
                 </div>
             </CardContent>
-            <CardFooter className="p-4! flex gap-2 justify-end border-t">
-                <Button variant="outline" className="text-sm" onClick={onRent}>
-                    Rent Now
-                </Button>
-                <Link href={`/bikes/${bike.id}`}>
-                    <Button size="sm">View Details</Button>
-                </Link>
+            <CardFooter className="p-4! flex flex-col sm:flex-row gap-2 sm:justify-between items-center border-t">
+                {/* ★★★★★ */}
+                {/* <div className="flex items-center space-x-1">
+                    {stars.map((s, idx) =>
+                        s === "full" ? (
+                            <Star key={idx} className="w-5 h-5 text-amber-500" />
+                        ) : s === "half" ? (
+                            <StarHalf key={idx} className="w-5 h-5 text-amber-500" />
+                        ) : (
+                            <StarOutline key={idx} className="w-5 h-5 text-amber-300" />
+                        )
+                    )}
+                    <span className="ml-2 text-sm text-gray-600">
+                        {ratingValue.toFixed(1)} ({bike.reviewCount})
+                    </span>
+                </div> */}
+
+                <div title={`${ratingValue.toFixed(1)} / 5`} className="text-center flex flex-col gap-2 sm:flex-row items-center space-x-1">
+                    <div className="cursor-pointer">
+                        <StarRatings
+                            rating={ratingValue}
+                            starRatedColor="#FBBF24"
+                            numberOfStars={5}
+                            starDimension="23px"
+                            starSpacing="2px"
+                            starEmptyColor="#E5E7EB"
+                            starHoverColor="#FBBF24"
+                            name="bike-rating"
+                        />
+                    </div>
+                    <p className="text-sm text-gray-600 mt-1">
+                        {ratingValue.toFixed(1)} ({bike.reviewCount ?? 0})
+                    </p>
+                </div>
+
+                <div className="flex gap-2">
+                    <Button variant="outline" className="text-sm" onClick={onRent}>
+                        Rent Now
+                    </Button>
+                    <Link href={`/bikes/${bike.id}`}>
+                        <Button size="sm">View Details</Button>
+                    </Link>
+                </div>
             </CardFooter>
         </Card>
     );

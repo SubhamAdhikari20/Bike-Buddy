@@ -19,6 +19,11 @@ import {
 import { FaUserCircle, FaSignOutAlt, FaClipboardList, FaLocationArrow, FaUserPlus, FaBars, FaTimes } from 'react-icons/fa';
 import { signOut } from "next-auth/react";
 import { Session, User } from "next-auth";
+import {
+    NotificationFeedPopover,
+    NotificationIconButton,
+} from "@knocklabs/react";
+import PortalWrapper from "../PortalWrapper";
 import axios, { AxiosError } from "axios";
 import { ApiResponse } from "@/types/ApiResponse";
 import { toast } from "sonner";
@@ -39,6 +44,8 @@ const SideBar: React.FC<SideBarProps> = ({ session, currentUser }) => {
     const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
 
     const popupRef = useRef<HTMLDivElement>(null);
+    const [feedOpen, setFeedOpen] = useState(false);
+    const notifButtonRef = useRef<HTMLButtonElement>(null);
 
     const handleToggleProfile = () => setIsProfileOpen((prev) => !prev);
     const handleMobileToggle = () => setIsMobileOpen((prev) => !prev);
@@ -192,7 +199,7 @@ const SideBar: React.FC<SideBarProps> = ({ session, currentUser }) => {
                     </nav>
 
                     {/* Profile Section */}
-                    <div className="relative mb-13">
+                    <div className="relative mb-7">
                         {isProfileOpen && (
                             <div
                                 ref={popupRef}
@@ -274,6 +281,24 @@ const SideBar: React.FC<SideBarProps> = ({ session, currentUser }) => {
                             </span>
                         </div>
                     </div>
+
+                    {currentUser ? (
+                        <div className="flex items-center gap-4 justify-center">
+                            <NotificationIconButton
+                                ref={notifButtonRef}
+                                onClick={() => setFeedOpen((v) => !v)}
+                            />
+                            {feedOpen && (
+                                <PortalWrapper>
+                                    <NotificationFeedPopover
+                                        buttonRef={notifButtonRef as React.RefObject<HTMLElement>}
+                                        isVisible={true}
+                                        onClose={() => setFeedOpen(false)}
+                                    />
+                                </PortalWrapper>
+                            )}
+                        </div>
+                    ) : null}
                 </aside>
 
                 {/* Mobile Sidebar Overlay */}

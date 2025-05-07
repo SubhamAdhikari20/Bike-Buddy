@@ -1,9 +1,10 @@
 // src/model/Booking.ts
 import prisma from "@/lib/prisma";
-import { Booking, BookingStatus } from "@prisma/client";
+import { Bike, Booking, BookingStatus, User } from "@prisma/client";
 
 export async function createBooking(data: {
     customerId: number;
+    ownerId: number;
     bikeId: number;
     startTime: Date | string;
     endTime: Date | string;
@@ -13,6 +14,7 @@ export async function createBooking(data: {
     return await prisma.booking.create({
         data: {
             customerId: data.customerId,
+            ownerId: data.ownerId,
             bikeId: data.bikeId,
             startTime: new Date(data.startTime),
             endTime: new Date(data.endTime),
@@ -29,7 +31,12 @@ export async function getBookingById(id: number): Promise<Booking | null> {
     return await prisma.booking.findUnique({ where: { id } });
 }
 
-export async function getBookingByCustomerId(customerId: number): Promise<Booking[] | null> {
+type BookingWithStats = Booking & {
+    bike: (Bike & { owner: User }) | null;
+    customer: User | null;
+};
+
+export async function getBookingByCustomerId(customerId: number): Promise<BookingWithStats[] | null> {
     return await prisma.booking.findMany({
         where: { customerId: customerId, status: "active" },
         include: {
@@ -42,6 +49,20 @@ export async function getBookingByCustomerId(customerId: number): Promise<Bookin
         },
     });
 }
+
+// export async function getBookingByOwnerId(ownerId: number): Promise<Booking[] | null> {
+//     return await prisma.booking.findMany({
+//         where: { ownerId: ownerId, status: "active" },
+//         include: {
+//             bike: {
+//                 include: {
+//                     customer: true
+//                 }
+//             },
+//             owner: true
+//         },
+//     });
+// }
 
 export async function getAllBookings(): Promise<Booking[]> {
     return await prisma.booking.findMany();

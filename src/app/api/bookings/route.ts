@@ -4,11 +4,12 @@ import { createBooking } from "@/model/Booking"
 
 export async function POST(request: Request) {
     try {
-        const { customerId, bikeId, startTime, endTime, totalPrice } = await request.json();
+        const { customerId, bikeId, startTime, endTime, totalPrice, ownerId } = await request.json();
 
         // Create the booking
         const booking = await createBooking({
             customerId,
+            ownerId,
             bikeId,
             startTime: new Date(startTime),
             endTime: new Date(endTime),

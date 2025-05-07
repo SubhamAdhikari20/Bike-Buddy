@@ -1,4 +1,4 @@
-// src/services/notificationService.ts
+// src/helpers/sendNotification.ts
 import knock from "@/lib/knock";
 
 export async function sendNotification(
@@ -14,7 +14,8 @@ export async function sendNotification(
 
         console.log("Notification sent:", response);
         return response;
-    } catch (error) {
+    }
+    catch (error) {
         console.error("Error sending notification:", error);
         throw error;
     }

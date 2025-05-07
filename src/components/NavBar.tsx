@@ -19,6 +19,11 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { FaSignOutAlt, FaBars, FaTimes, FaUserCircle, FaCog, FaUser } from 'react-icons/fa';
 import { signOut } from "next-auth/react";
 import { Session, User } from "next-auth";
+import {
+    NotificationFeedPopover,
+    NotificationIconButton,
+} from "@knocklabs/react";
+import PortalWrapper from "@/components/PortalWrapper";
 import axios, { AxiosError } from "axios";
 import { ApiResponse } from "@/types/ApiResponse";
 import { toast } from "sonner";
@@ -37,6 +42,9 @@ const NavBar: React.FC<NavBarProps> = ({ session, currentUser }) => {
     const [desktopMenuOpen, setDesktopMenuOpen] = useState(false);
     const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
+
+    const [feedOpen, setFeedOpen] = useState(false);
+    const notifButtonRef = useRef<HTMLButtonElement>(null);
 
     if (session && !currentUser) {
         signOut();
@@ -131,6 +139,24 @@ const NavBar: React.FC<NavBarProps> = ({ session, currentUser }) => {
                                 Contact
                             </Link>
                         </li>
+                        {currentUser ? (
+                            <div className="flex items-center gap-4">
+                                <NotificationIconButton
+                                    ref={notifButtonRef}
+                                    onClick={() => setFeedOpen((v) => !v)}
+                                />
+                                {feedOpen && (
+                                    <PortalWrapper>
+                                        <NotificationFeedPopover
+                                            buttonRef={notifButtonRef as React.RefObject<HTMLElement>}
+                                            isVisible={feedOpen}
+                                            onClose={() => setFeedOpen(false)}
+
+                                        />
+                                    </PortalWrapper>
+                                )}
+                            </div>
+                        ) : null}
                     </ul>
                     {currentUser ? (
                         <div className="relative" ref={menuRef}>

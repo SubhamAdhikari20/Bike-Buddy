@@ -13,6 +13,7 @@ export const bookingSchema = z
     .object({
         customerId: z.number(),
         bikeId: z.number(),
+        ownerId: z.number(),
         startTime: z.string().refine((s) => !isNaN(Date.parse(s)), { message: "Invalid start date" }),
         endTime: z.string().refine((s) => !isNaN(Date.parse(s)), { message: "Invalid end date" }),
         totalPrice: z.number().positive(),

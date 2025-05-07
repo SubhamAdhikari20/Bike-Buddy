@@ -27,7 +27,7 @@ export default function MyRentalsPage() {
     const fetchRentals = async () => {
         setLoading(true);
         try {
-            const response = await axios.get<{ success: boolean, rentals: RentalWithBikeAndCustomerAndOwner[] }>(`api/bookings/my-rentals?customerId=${userId}`);
+            const response = await axios.get<{ success: boolean, rentals: RentalWithBikeAndCustomerAndOwner[] }>(`/api/bookings/my-rentals?customerId=${userId}`);
             if (response.data.success) {
                 setRentals(response.data.rentals);
             }

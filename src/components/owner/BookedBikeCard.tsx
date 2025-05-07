@@ -1,4 +1,4 @@
-// src/components/customer/BookedBookedBikeCard.tsx
+// src/components/owner/BookedBookedBikeCard.tsx
 "use client";
 import React, { useState } from 'react';
 import {
@@ -9,7 +9,6 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card"
-
 import { Button } from "../ui/button";
 import { X } from "lucide-react";
 import { Bike, Booking, User } from "@prisma/client";
@@ -21,6 +20,7 @@ import axios, { AxiosError } from "axios";
 import { ApiResponse } from "@/types/ApiResponse";
 import StarRatings from "react-star-ratings";
 
+
 type BookedBikeCardProps = {
     booking: Booking & {
         bike: Bike & {
@@ -30,26 +30,27 @@ type BookedBikeCardProps = {
         };
         customer: User;
     };
+    currentUser: User;
 };
 
-const BookedBikeCard = ({ booking }: BookedBikeCardProps) => {
+const BookedBikeCard = ({ booking, currentUser }: BookedBikeCardProps) => {
     const router = useRouter();
     const ratingValue = booking.bike.avgRating ?? 0;
     const reviewCount = booking.bike.reviewCount ?? 0;
 
-    const startJourney = async () => {
+    const liveTrack = async () => {
         try {
             const response = await axios.post(`/api/bookings/my-rentals/${booking.id}/start`);
             if (!response.data.success) {
-                toast.error(response.data.message || "Failed to start ride");
+                toast.error(response.data.message || "Failed to track ride");
             }
-            router.replace(`/rentals/${booking.id}/${response.data.rideData.id}/in-progress`);
+            router.replace(`/${currentUser.username}/owner/rentals/${booking.id}/${response.data.rideData.id}/in-progress`);
         }
         catch (error) {
             const axiosError = error as AxiosError<ApiResponse>;
             toast.error(axiosError.response?.data.message);
         }
-    };
+    }
 
 
     return (
@@ -86,8 +87,8 @@ const BookedBikeCard = ({ booking }: BookedBikeCardProps) => {
                             <span>₹ {booking.totalPrice}</span>
                         </div>
                         <div>
-                            <span className="font-semibold">Owner: </span>
-                            <span>{booking.bike.owner.fullName}</span>
+                            <span className="font-semibold">Customer: </span>
+                            <span>{booking.customer.fullName}</span>
                         </div>
                     </div>
 
@@ -107,7 +108,7 @@ const BookedBikeCard = ({ booking }: BookedBikeCardProps) => {
                     </div>
                 </div>
             </CardContent>
-            <CardFooter className="p-4! flex gap-2 justify-end border-t">
+            <CardFooter className="p-4! flex gap-2 justify-between border-t items-center">
                 <div title={`${ratingValue.toFixed(1)} / 5`} className="text-center flex sm:flex-row flex-col gap-2 items-center">
                     <div className="cursor-pointer">
                         <StarRatings
@@ -127,12 +128,10 @@ const BookedBikeCard = ({ booking }: BookedBikeCardProps) => {
                 </div>
 
                 <div className="flex gap-2">
-                    {/* <Link href={`/rentals/${booking.id}/in-progress`} key={booking.id}> */}
-                    <Button className="text-sm bg-amber-500 hover:bg-amber-600" onClick={startJourney} size="sm">
-                        Start Journey
+                    <Button className="text-sm bg-amber-500 hover:bg-amber-600" onClick={liveTrack} size="sm">
+                        Live Track
                     </Button>
-                    {/* </Link> */}
-                    <Link href={`/bikes/${booking.bike.id}`}>
+                    <Link href={`/${currentUser.username}/owner/bikes/${booking.bike.id}`}>
                         <Button size="sm">View Details</Button>
                     </Link>
                 </div>

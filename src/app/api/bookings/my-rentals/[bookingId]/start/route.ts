@@ -2,6 +2,10 @@
 import { NextResponse } from "next/server";
 import { createRideJourney, updateRideJourney } from "@/model/RideJourney";
 import { getBookingById } from "@/model/Booking";
+import { sendNotification } from "@/helpers/sendNotification";
+import { getBikeById } from "@/model/Bike";
+import { getUserById } from "@/model/User";
+import prisma from "@/lib/prisma";
 
 export async function POST(req: Request, { params }: { params: { bookingId: string } }) {
     const { bookingId } = await params;
@@ -24,6 +28,62 @@ export async function POST(req: Request, { params }: { params: { bookingId: stri
         bikeId: booking.bikeId!,
         bookingId: booking.id
     });
+
+    const bike = await getBikeById(booking.bikeId!);
+    const admins = await prisma.user.findMany({ where: { role: "admin" } })
+    const customer = await getUserById(booking.customerId!);
+    const owner = await getUserById(booking.ownerId!);
+
+    const fmtDate = (d: Date) => d.toLocaleDateString(undefined, {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+    });
+
+    try {
+        await sendNotification(
+            booking.customerId!.toString(),
+            "live-tracking-customer",
+            {
+                bikeName: bike!.bikeName,
+                startTime: rideData.startTime ? fmtDate(new Date(rideData.startTime)) : "N/A",
+                endTime: booking.endTime ? fmtDate(new Date(booking.endTime)) : "N/A",
+                totalPrice: booking.totalPrice
+            }
+        );
+
+        await sendNotification(
+            booking.ownerId!.toString(),
+            "live-tracking-owner",
+            {
+                customerName: customer?.fullName,
+                bikeName: bike!.bikeName,
+                startTime: rideData.startTime ? fmtDate(new Date(rideData.startTime)) : "N/A",
+                endTime: booking.endTime ? fmtDate(new Date(booking.endTime)) : "N/A",
+                totalPrice: booking.totalPrice
+            }
+        );
+
+        for (const admin of admins) {
+            await sendNotification(
+                admin.id.toString(),
+                "live-tracking-started-admin",
+                {
+                    customerName: customer?.fullName,
+                    ownerName: owner?.fullName,
+                    bikeName: bike!.bikeName,
+                    startTime: rideData.startTime ? fmtDate(new Date(rideData.startTime)) : "N/A",
+                    endTime: booking.endTime ? fmtDate(new Date(booking.endTime)) : "N/A",
+                    totalPrice: booking.totalPrice
+                }
+            );
+        }
+
+    }
+    catch (err) {
+        console.error("Knock notification error:", err);
+    }
+
 
     return NextResponse.json({ success: true, rideData: rideData }, { status: 200 });
 }

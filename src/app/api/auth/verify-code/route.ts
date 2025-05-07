@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { usernameValidation } from "@/schemas/user-schemas/signUPSchema";
 import { getUserByUsername, updateUser } from "@/model/User";
+import { sendNotification } from "@/helpers/sendNotification";
 
 export async function POST(request: Request) {
     if (request.method !== "POST") {
@@ -42,6 +43,17 @@ export async function POST(request: Request) {
                 verifyCodeExpiryDate: null,
             });
 
+            try {
+                await sendNotification(
+                    user.id.toString(),
+                    "account-creation",
+                    { fullName: user.fullName }
+                );
+            } 
+            catch (err) {
+                console.error("Knock notification error:", err);
+            }
+
             return Response.json(
                 {
                     success: true,
@@ -68,8 +80,6 @@ export async function POST(request: Request) {
                 { status: 400 }
             );
         }
-
-
 
     }
     catch (error) {

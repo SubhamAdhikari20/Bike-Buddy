@@ -3,8 +3,13 @@ import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { FaFacebook, FaTwitter, FaInstagram } from "react-icons/fa";
+import { Session, User } from "next-auth";
 
-const Footer = () => {
+interface FooterProps {
+    currentUser?: User | null;
+}
+
+const Footer: React.FC<FooterProps> = ({ currentUser }) => {
     const currentYear = new Date().getFullYear();
     return (
         <footer className="bg-gray-900 text-gray-300">
@@ -31,8 +36,15 @@ const Footer = () => {
                         Home
                     </Link>
                     <Link href="/bikes" className="hover:text-white text-sm">
-                        Rent a bike
+                        Rent a Bike
                     </Link>
+                    {currentUser ? (
+                        <li>
+                            <Link href="/rentals" className="hover:text-white text-sm">
+                                My Rentals
+                            </Link>
+                        </li>
+                    ) : null}
                     <Link href="/about" className="hover:text-white text-sm">
                         About
                     </Link>

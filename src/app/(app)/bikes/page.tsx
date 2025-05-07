@@ -115,6 +115,7 @@ const RentBike = () => {
         defaultValues: {
             customerId: session?.user?.id ? Number(session.user.id) : undefined,
             bikeId: selectedBike?.id,
+            ownerId: selectedBike?.ownerId,
             startTime: "",
             endTime: "",
             totalPrice: 0,
@@ -157,6 +158,7 @@ const RentBike = () => {
         form.reset({
             customerId: Number(session?.user.id),
             bikeId: bike.id,
+            ownerId: bike.ownerId,
             startTime: "",
             endTime: "",
             totalPrice: Number(hourlyRate.toFixed(2)),

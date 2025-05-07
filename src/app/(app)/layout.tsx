@@ -5,8 +5,6 @@ import { usePathname } from "next/navigation";
 import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
 import { signOut, useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
 import { Loader2 } from "lucide-react";
 import { fetcher } from "@/lib/fetcher";
 import useSWR from "swr"
@@ -56,7 +54,7 @@ export default function AppLayout({
                 {children}
             </main>
 
-            {!isDashboardRoute && <Footer />}
+            {!isDashboardRoute && <Footer currentUser={dbUser} />}
         </>
     );
 };
