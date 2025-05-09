@@ -5,8 +5,10 @@ import CustomerTracker from "@/components/CustomerTracker";
 import RideControls from "@/components/customer/RideControls";
 import RideMap from "@/components/customer/RideMap";
 import { useSession } from "next-auth/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
+import axios from "axios";
+import { ApiResponse } from "@/types/ApiResponse";
 
 interface RideInProgressPageParams {
     bookingId: string;
@@ -21,7 +23,6 @@ export default function RideInProgressPage() {
 
     const { data: session } = useSession();
     const [isActive, setIsActive] = useState(true);
-
 
     return (
         <section className="p-4 space-y-6">
@@ -38,7 +39,7 @@ export default function RideInProgressPage() {
             <RideMap rideJourneyId={rideJourneyId} />
 
             {/* Pause/Resume & End ride controls */}
-            <RideControls bookingId={bookingId} rideJourneyId={rideJourneyId} />
+            <RideControls bookingId={bookingId} rideJourneyId={rideJourneyId} onToggleActive={setIsActive} />
         </section>
     );
 }

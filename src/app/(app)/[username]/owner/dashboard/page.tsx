@@ -30,7 +30,7 @@ export default function OwnerDashboard() {
     const fetchRentals = async () => {
         setLoading(true);
         try {
-            const response = await axios.get<{ success: boolean, rentals: RentalWithBikeAndCustomerAndOwner[] }>(`/api/bookings/owner/customer-rentals?ownerId=${userId}`);
+            const response = await axios.get<{ success: boolean, rentals: RentalWithBikeAndCustomerAndOwner[] }>(`/api/bookings/customer-rentals/owner?ownerId=${userId}`);
             if (response.data.success) {
                 setRentals(response.data.rentals);
             }

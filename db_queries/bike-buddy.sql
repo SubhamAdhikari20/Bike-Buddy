@@ -105,7 +105,7 @@ ALTER TABLE `User` MODIFY `username` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE 
 DELETE FROM `User` WHERE `email`="subhamadhikari0007@gmail.com";
 DELETE FROM `User` WHERE `id`= 7;
 DELETE FROM `Bike` WHERE `id`= 8;
-DELETE FROM `Booking` WHERE `id`= 17;
-DELETE FROM `Payment` WHERE `id`= 20;
+DELETE FROM `Booking` WHERE `id`= 35;
+DELETE FROM `Payment` WHERE `id`= 41;
 DELETE FROM `Invoice` WHERE `id`= 3;
 

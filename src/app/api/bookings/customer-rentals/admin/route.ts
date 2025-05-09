@@ -1,7 +1,7 @@
-// src/app/api/bookings/owner/customer-rentals/route.ts
+// src/app/api/bookings/customer-rentals/admin/route.ts
 import { NextResponse, NextRequest } from 'next/server';
 import prisma from "@/lib/prisma";
-import { Booking, BookingStatus, Rating } from "@prisma/client";
+import { Rating } from "@prisma/client";
 
 const ratingToNumber: Record<Rating, number> = {
     one: 1,
@@ -13,16 +13,16 @@ const ratingToNumber: Record<Rating, number> = {
 
 export async function GET(request: NextRequest) {
     try {
-        const { searchParams } = new URL(request.url);
-        const ownerId = Number(searchParams.get("ownerId"));
+        // const { searchParams } = new URL(request.url);
+        // const adminId = Number(searchParams.get("adminId"));
 
-        if (!ownerId) {
-            console.error("User Id is missing");
-            return NextResponse.json({ success: false, message: "Missing user id" }, { status: 400 });
-        }
+        // if (!adminId) {
+        //     console.error("User Id is missing");
+        //     return NextResponse.json({ success: false, message: "Missing user id" }, { status: 400 });
+        // }
 
         const rentals = await prisma.booking.findMany({
-            where: { ownerId: ownerId, status: "active" },
+            where: { status: "active" },
             include: {
                 bike: {
                     include: {
@@ -61,8 +61,6 @@ export async function GET(request: NextRequest) {
                 avgRating: statsMap[rental.bike!.id]?.avg ?? 0,
                 reviewCount: statsMap[rental.bike!.id]?.count ?? 0,
             },
-            // avgRating: rental.bike ? statsMap[rental.bike.id]?.avg || 0 : 0,
-            // reviewCount: rental.bike ? statsMap[rental.bike.id]?.count || 0 : 0,
         }));
 
         return NextResponse.json({ success: true, rentals: rentalWithBikeStats }, { status: 200 });

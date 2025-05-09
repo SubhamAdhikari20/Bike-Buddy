@@ -39,11 +39,9 @@ const Footer: React.FC<FooterProps> = ({ currentUser }) => {
                         Rent a Bike
                     </Link>
                     {currentUser ? (
-                        <li>
-                            <Link href="/rentals" className="hover:text-white text-sm">
-                                My Rentals
-                            </Link>
-                        </li>
+                        <Link href="/rentals" className="hover:text-white text-sm">
+                            My Rentals
+                        </Link>
                     ) : null}
                     <Link href="/about" className="hover:text-white text-sm">
                         About

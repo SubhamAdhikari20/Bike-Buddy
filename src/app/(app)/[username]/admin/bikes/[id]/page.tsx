@@ -1,6 +1,6 @@
-// src/app/(app)/bikes/[id]/page.tsx
+// src/app/(app)/[username]/admin/bikes/[id]/page.tsx
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Image from "next/image";
 import {
@@ -11,48 +11,29 @@ import {
     CardDescription,
     CardFooter,
 } from "@/components/ui/card";
-import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
-} from "@/components/ui/form";
-import { Textarea } from "@/components/ui/textarea";
-import {
-    Select,
-    SelectTrigger,
-    SelectValue,
-    SelectContent,
-    SelectItem,
-} from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
     MapPin,
-    DollarSign,
+    IndianRupeeIcon,
     Star,
     CalendarDays,
     Loader2,
-    IndianRupeeIcon,
+    Trash2,
 } from "lucide-react";
 import Link from "next/link";
 import { Bike, Review, User } from "@prisma/client";
 import axios, { AxiosError } from "axios";
 import { ApiResponse } from "@/types/ApiResponse";
 import { toast } from "sonner";
-import { signIn, useSession } from "next-auth/react";
-import { bookingSchema } from "@/schemas/bookingSchema";
+import { useSession } from "next-auth/react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Input } from "@/components/ui/input";
+import { bikeSchema } from "@/schemas/bikeSchema";
 import StarRatings from "react-star-ratings";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-
-type BookingForm = z.infer<typeof bookingSchema>;
 
 type ReviewWithUser = Review & {
     customer: User;
@@ -63,21 +44,19 @@ type BikeWithReviewsProps = Bike & User & {
     reviewCount?: number | null;
 };
 
+
 const BikeDetails = () => {
     const { id } = useParams();
     const bikeId = Number(id);
-    const router = useRouter();
     const { data: session, status } = useSession();
 
     const [bike, setBike] = useState<BikeWithReviewsProps | null>(null);
     const [reviews, setReviews] = useState<ReviewWithUser[]>([]);
     const [reviewsLoading, setReviewsLoading] = useState(true);
-    const [bookingLoading, setBookingLoading] = useState(false);
 
     const fetchBike = async () => {
         try {
             const { data } = await axios.get<{ success: boolean; bike: BikeWithReviewsProps }>(`/api/bikes/${bikeId}`);
-
             if (data.success) {
                 setBike(data.bike);
             }
@@ -118,84 +97,13 @@ const BikeDetails = () => {
         }
     }, [bikeId]);
 
-    // Booking form setup
-    const form = useForm<BookingForm>({
-        resolver: zodResolver(bookingSchema),
-        defaultValues: {
-            customerId: session?.user.id ? Number(session.user.id) : 0,
-            bikeId,
-            ownerId: bike?.ownerId,
-            startTime: "",
-            endTime: "",
-            totalPrice: 0,
-        },
-    });
-
-    useEffect(() => {
-        if (bike) {
-            form.setValue("ownerId", bike.ownerId);
-        }
-    }, [bike, form]);
-
-    const { watch, setValue, handleSubmit, control } = form;
-    const [st, et] = [watch("startTime"), watch("endTime")];
-
-    // recalc total price
-    useEffect(() => {
-        if (st && et && bike) {
-            const s = new Date(st).getTime();
-            const e = new Date(et).getTime();
-            if (e > s) {
-                const days = Math.max(1, Math.ceil((e - s) / (1000 * 60 * 60 * 24)));
-                setValue("totalPrice", Number((days * Number(bike.pricePerDay)).toFixed(2)));
-            }
-        }
-    }, [st, et, bike, setValue]);
-
-    // Handle booking
-    const onSubmit = async (data: BookingForm) => {
-        if (status !== "authenticated" || session?.user.role !== "customer") {
-            toast.error("You must be signed in as a customer to book");
-            signIn("credentials", { redirect: false });
-            router.replace("/sign-in");
-            return;
-        }
-        if (new Date(data.endTime) <= new Date(data.startTime)) {
-            return toast.error("End date must be after start date");
-        }
-
-        setBookingLoading(true);
-        try {
-            const res = await axios.post<ApiResponse & { booking?: { id: number; totalPrice: number } }>(
-                "/api/bookings",
-                data
-            );
-            if (!res.data.success || !res.data.booking) {
-                throw new Error(res.data.message || "Booking failed");
-            }
-            router.push(
-                `/payment/checkout?bookingId=${res.data.booking.id}&totalPrice=${res.data.booking.totalPrice}`
-            );
-        } catch (err: any) {
-            toast.error(err.message || "Booking failed");
-        } finally {
-            setBookingLoading(false);
-        }
-    };
-
-    const checkSignedIn = () => {
-        if (status === "unauthenticated" || !session || session?.user.role !== "customer") {
-            // kick to sign-in
-            toast.error("Booking Failed!", { description: "You need to sign in for renting a bike" });
-            signIn("credentials", { redirect: false });
-            router.replace("/sign-in");
-            return;
-        }
+    if (status === "loading") {
+        return (
+            <div className="flex items-center justify-center h-64">
+                <Loader2 className="animate-spin h-8 w-8" />
+            </div>
+        );
     }
-
-    // if (loading) {
-    //     return <div className="p-6 text-center">Loading…</div>;
-    // }
 
     if (!bike) {
         return <div className="p-6 text-center">Bike not found.</div>;
@@ -203,13 +111,14 @@ const BikeDetails = () => {
 
     return (
         <section className="container mx-auto p-6">
+            <h1 className="text-2xl font-bold text-gray-800 mb-4">Bikes Details</h1>
             {/* Hero */}
-            <div className="grid gap-6 lg:grid-cols-2">
+            <div className="grid gap-6 xl:grid-cols-2 grid-cols-1">
                 <div className="relative w-full h-64 md:h-[400px] rounded-lg overflow-hidden">
                     {bike?.bikeImageUrl ? (
                         <Image
                             src={bike.bikeImageUrl}
-                            alt={bike.bikeName}
+                            alt={"Preview"}
                             fill
                             className="object-cover"
                         />
@@ -220,24 +129,23 @@ const BikeDetails = () => {
                     )}
                 </div>
 
-
-                <div className="grid gap-2 md:grid-cols-2">
-                    <Card className="p-6 shadow-lg">
+                <div className="grid gap-2 2xl:grid-cols-2">
+                    <Card className="p-6 shadow-lg xl:block hidden">
                         <CardHeader>
                             <CardTitle className="text-xl xl:text-2xl">{bike?.bikeName}</CardTitle>
                         </CardHeader>
-                        <CardContent className="space-y-4">
+                        <CardContent className="space-y-4 mt-5">
                             <div className="flex items-center space-x-2 text-gray-600">
                                 <MapPin className="h-5 w-5" />
-                                <span>{bike?.bikeLocation}</span>
+                                <span className="text-sm md:text-[17px]">{bike?.bikeLocation}</span>
                             </div>
                             <div className="flex items-center space-x-2 text-gray-600">
                                 <IndianRupeeIcon className="h-5 w-5" />
-                                <span>{bike?.pricePerDay.toString()} / day</span>
+                                <span className="font-bold text-[17px] md:text-xl">{bike?.pricePerDay.toString()} / day</span>
                             </div>
                             <div className="flex items-center space-x-2 text-gray-600">
                                 <CalendarDays className="h-5 w-5" />
-                                <span>Type: {bike?.bikeType.toUpperCase()}</span>
+                                <span className="text-sm md:text-[17px]">Type: {bike?.bikeType.toUpperCase()}</span>
                             </div>
                             <div title={`${Number(bike?.avgRating).toFixed(1)} / 5`} className="text-center flex flex-col gap-2 sm:flex-row items-center space-x-1">
                                 <div className="cursor-pointer">
@@ -257,7 +165,7 @@ const BikeDetails = () => {
                                 </p>
                             </div>
 
-                            <Link href="/bikes">
+                            <Link href={`/${session?.user.username}/admin/dashboard`}>
                                 <Button
                                     className="mt-4 w-full"
                                 >
@@ -266,75 +174,73 @@ const BikeDetails = () => {
                             </Link>
                         </CardContent>
                     </Card>
-
-                    {bike.available &&
-                        <div className="w-full space-y-8 bg-white p-8 rounded-lg shadow-lg">
-                            <Form {...form}>
-                                <form
-                                    onSubmit={form.handleSubmit(onSubmit)}
-                                    className="space-y-4"
-                                >
-                                    <FormField
-                                        name="startTime"
-                                        control={form.control}
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel>Start Date &amp; Time</FormLabel>
-                                                <FormControl>
-                                                    <Input type="date" {...field} />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-                                    <FormField
-                                        name="endTime"
-                                        control={form.control}
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel>End Date &amp; Time</FormLabel>
-                                                <FormControl>
-                                                    <Input type="date" {...field} />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-                                    <FormField
-                                        name="totalPrice"
-                                        control={form.control}
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <div className="flex justify-between">
-                                                    <FormLabel>Total Price (₹)</FormLabel>
-                                                    <div className="text-sm">
-                                                        ₹{bike?.pricePerDay.toString()}/day
-                                                    </div>
-                                                </div>
-                                                <FormControl>
-                                                    <Input {...field} disabled className="bg-gray-50" />
-                                                </FormControl>
-                                            </FormItem>
-                                        )}
-                                    />
-                                    <Button type="submit" className="w-full" onClick={() => checkSignedIn()}>
-                                        {bookingLoading ? (
-                                            <>
-                                                Booking… <Loader2 className="animate-spin ml-2 h-4 w-4" />
-                                            </>
-                                        ) : (
-                                            "Book"
-                                        )}
-                                    </Button>
-                                </form>
-                            </Form>
-                        </div>
-                    }
                 </div>
-            </div>
 
+                <Card className="p-4 shadow-lg gap-2 xl:hidden">
+                    <CardHeader className="flex justify-between">
+                        <CardTitle className="text-xl md:text-2xl">{bike?.bikeName}</CardTitle>
+                        <div title={`${Number(bike?.avgRating).toFixed(1)} / 5`} className="text-center flex flex-col gap-2 sm:flex-row items-center space-x-1">
+                            <div className="cursor-pointer md:block hidden">
+                                <StarRatings
+                                    rating={Number(bike?.avgRating)}
+                                    starRatedColor="#FBBF24"
+                                    numberOfStars={5}
+                                    starDimension="25px"
+                                    starSpacing="2px"
+                                    starEmptyColor="#E5E7EB"
+                                    starHoverColor="#FBBF24"
+                                    name="bike-rating"
+                                />
+                            </div>
+                            <p className="text-sm text-gray-600 mt-1 md:block hidden">
+                                {Number(bike?.avgRating).toFixed(1)} ({bike.reviewCount ?? 0})
+                            </p>
+                        </div>
+                    </CardHeader>
+                    <CardContent className="flex flex-col lg:flex-row justify-between gap-2">
+                        <div className="flex items-center space-x-2 text-gray-600">
+                            <MapPin className="h-5 w-5" />
+                            <span className="text-sm md:text-[17px]">{bike?.bikeLocation}</span>
+                        </div>
+                        <div className="flex items-center space-x-2 text-gray-600">
+                            <IndianRupeeIcon className="h-5 w-5" />
+                            <span className="font-bold text-[17px] md:text-xl">{bike?.pricePerDay.toString()} / day</span>
+                        </div>
+                        <div className="flex items-center space-x-2 text-gray-600">
+                            <CalendarDays className="h-5 w-5" />
+                            <span className="text-sm md:text-[17px]">Type: {bike?.bikeType.toUpperCase()}</span>
+                        </div>
+                        <div title={`${Number(bike?.avgRating).toFixed(1)} / 5`} className="text-center flex flex-col gap-2 sm:flex-row space-x-1 ">
+                            <div className="cursor-pointer md:hidden">
+                                <StarRatings
+                                    rating={Number(bike?.avgRating)}
+                                    starRatedColor="#FBBF24"
+                                    numberOfStars={5}
+                                    starDimension="25px"
+                                    starSpacing="2px"
+                                    starEmptyColor="#E5E7EB"
+                                    starHoverColor="#FBBF24"
+                                    name="bike-rating"
+                                />
+                            </div>
+                            <p className="text-sm text-gray-600 mt-1 md:hidden">
+                                {Number(bike?.avgRating).toFixed(1)} ({bike.reviewCount ?? 0})
+                            </p>
+                        </div>
+                        <Link href={`/${session?.user.username}/admin/dashboard`}>
+                            <Button
+                                className="w-full"
+                                size="sm"
+                            >
+                                ← Back to Browse
+                            </Button>
+                        </Link>
+                    </CardContent>
+                </Card>
+
+            </div>
             {/* Overview / Reviews Tabs */}
-            <Tabs defaultValue="overview" className="space-y-4  mt-8">
+            <Tabs defaultValue="overview" className="space-y-4 mt-8">
                 <TabsList className="flex gap-2">
                     <TabsTrigger value="overview">Overview</TabsTrigger>
                     <TabsTrigger value="reviews">

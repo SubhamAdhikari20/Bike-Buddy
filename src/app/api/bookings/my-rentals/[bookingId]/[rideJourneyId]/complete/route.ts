@@ -1,41 +1,60 @@
 // src/app/api/bookings/my-rentals/[bookingId]/[rideJourneyId]/complete/route.ts
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 import { createRideJourney, updateRideJourney } from "@/model/RideJourney";
 import { updateBooking, getBookingById } from "@/model/Booking";
 import { updateBike } from "@/model/Bike";
 import prisma from "@/lib/prisma";
+import { adminDb } from "@/lib/firebaseAdmin";
 import { db } from "@/lib/firebase";
 import { ref, get, remove } from "firebase/database";
 import { sendNotification } from "@/helpers/sendNotification";
 import { getUserById } from "@/model/User";
 
-export async function POST(req: Request, { params }: { params: { bookingId: string, rideJourneyId: string } }) {
+export async function POST(req: NextRequest, { params }: { params: { bookingId: string, rideJourneyId: string } }) {
     const { bookingId } = await params;
     const { rideJourneyId } = await params;
     const id = Number(rideJourneyId);
     if (!id) return NextResponse.json({ success: false, message: "Invalid rideJourneyId" }, { status: 400 });
 
-    // 1) Fetch full path from RTDB
-    const snap = await get(ref(db, `tracking/${id}`));
-    const path = snap.val();  // expected { lat, lng, timestamp, ... } over time
+    // // 1) Fetch full points from RTDB and Read all points
+    // const snap = await get(ref(db, `tracking/${id}/points`));
+    // const pointsObj = snap.val() || {};
+    // const points = Object.values(pointsObj) as { lat: number; lng: number; timestamp: number; customerId: string }[];
 
-    // 2) Persist into TrackingPaths in MySQL
-    await prisma.trackingPaths.create({
-        data: {
-            rideJourneyId: id,
-            pathJson: path,
-        }
-    });
+    // 1) Read all points via Admin SDK
+    const snap = await adminDb.ref(`tracking/${id}/points`).once("value");
+    const pointsObj = snap.val() || {};
+    const points = Object.values(pointsObj) as {
+        lat: number; lng: number; timestamp: number; customerId: string;
+    }[];
 
-    // 3) Clear RTDB
-    await remove(ref(db, `tracking/${id}`));
+    // 2) Bulk insert to TrackingPoints and Persist latest snapshot as path for quick reference
+    if (points.length) {
+        await prisma.trackingPoints.createMany({
+            data: points.map((p) => ({
+                rideJourneyId: id,
+                lat: p.lat,
+                lng: p.lng,
+                timestamp: p.timestamp
+            })),
+            skipDuplicates: true
+        });
+
+        await prisma.trackingPaths.create({
+            data: { rideJourneyId: id, pathJson: points }
+        });
+    }
+
+    // // 3) Cleanup RTDB
+    // await remove(ref(db, `tracking/${id}`));
+
+    // 3) **Now** cleanup RTDB via Admin SDK
+    await adminDb.ref(`tracking/${id}`).remove();
 
     // 4) Mark booking completed and set endTime
     const now = new Date();
     const updatedRide = await updateRideJourney(id, { status: "completed", endTime: now });
-
     const updatedBooking = await updateBooking(Number(bookingId), { status: "completed" });
-
     const bike = await updateBike(Number(updatedBooking.bikeId), { available: true });
     const admins = await prisma.user.findMany({ where: { role: "admin" } })
     const customer = await getUserById(updatedBooking.customerId!);
@@ -144,7 +163,7 @@ export async function POST(req: Request, { params }: { params: { bookingId: stri
 }
 
 
-export async function GET(request: Request, { params }: { params: { bookingId: string, rideJourneyId: string } }) {
+export async function GET(request: NextRequest, { params }: { params: { bookingId: string, rideJourneyId: string } }) {
     const { bookingId } = await params;
     const id = Number(bookingId);
     if (!id) {
@@ -154,7 +173,7 @@ export async function GET(request: Request, { params }: { params: { bookingId: s
     try {
         const booking = await getBookingById(id);
 
-        return Response.json(
+        return NextResponse.json(
             {
                 success: true,
                 booking
@@ -163,7 +182,7 @@ export async function GET(request: Request, { params }: { params: { bookingId: s
         );
     } catch (error) {
         console.error("Error retrieving booking history:", error);
-        return Response.json(
+        return NextResponse.json(
             {
                 success: false,
                 message: "Error retrieving booking history"
