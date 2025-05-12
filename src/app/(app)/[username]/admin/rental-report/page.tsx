@@ -144,7 +144,7 @@ const RentalReport = () => {
                                                     <span className="sr-only md:not-sr-only md:ml-2">View Bill</span>
                                                 </Button>
                                             </DialogTrigger>
-                                            <DialogContent className="max-w-full min-w-3xl sm:max-w-md max-h-200 overflow-y-scroll">
+                                            <DialogContent className="max-w-full min-w-3xl sm:max-w-md max-h-200 overflow-y-auto">
                                                 <DialogHeader>
                                                     <DialogTitle>View Bill</DialogTitle>
                                                 </DialogHeader>

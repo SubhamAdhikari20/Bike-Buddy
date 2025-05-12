@@ -33,6 +33,7 @@ export async function GET(request: NextRequest) {
                 },
                 customer: true
             },
+            orderBy: [{ createdAt: "desc" }, { updatedAt: "desc" }]
         });
 
         // compute avg/count

@@ -36,7 +36,7 @@ export async function getAllBikes(): Promise<Bike[]> {
 export async function getAllBikesByOwnerId(ownerId: number): Promise<Bike[]> {
     return await prisma.bike.findMany({
         where: { ownerId: ownerId },
-        orderBy: { createdAt: "desc" },
+        orderBy: [{ createdAt: "desc" }, { updatedAt: "desc" }]
     });
 }
 

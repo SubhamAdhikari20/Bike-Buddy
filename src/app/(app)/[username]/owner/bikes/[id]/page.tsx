@@ -42,15 +42,13 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import {
     MapPin,
-    DollarSign,
     IndianRupeeIcon,
-    Star,
     CalendarDays,
     Loader2,
     Trash2,
 } from "lucide-react";
 import Link from "next/link";
-import { Bike, Review, User } from "@prisma/client";
+import { Bike, DamageReport, DamageReportImages, Review, User } from "@prisma/client";
 import axios, { AxiosError } from "axios";
 import { ApiResponse } from "@/types/ApiResponse";
 import { toast } from "sonner";
@@ -63,6 +61,7 @@ import { bikeSchema } from "@/schemas/bikeSchema";
 import { Switch } from "@/components/ui/switch";
 import StarRatings from "react-star-ratings";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
 
 type ReviewWithUser = Review & {
@@ -74,6 +73,12 @@ type BikeWithReviewsProps = Bike & User & {
     reviewCount?: number | null;
 };
 
+type DamageReportProps = DamageReport & {
+    images: DamageReportImages[];
+    customer: User;
+    bike: Bike;
+    owner: User;
+}
 
 const BikeDetails = () => {
     const { id } = useParams();
@@ -89,6 +94,25 @@ const BikeDetails = () => {
     const [reviews, setReviews] = useState<ReviewWithUser[]>([]);
     const [reviewsLoading, setReviewsLoading] = useState(true);
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    // Damage Report
+    const [damageReportSubmitting, setDamageReportSubmitting] = useState(false);
+    const [damageImagePreviews, setDamageImagePreviews] = useState<string[] | null>(null);
+    const [selectedFiles, setSelectedFiles] = useState<File[] | null>(null);
+    // fetch this owner's past damage reports on this bike
+    const [damageReports, setDamageReports] = useState<DamageReportProps[]>([]);
+    const [damageReportsLoading, setDamageReportsLoading] = useState(false);
+
+    const [openImage, setOpenImage] = useState<string | null>(null);
+
+
+    useEffect(() => {
+        if (!session || session.user.role !== "owner") {
+            signIn("credentials", { redirect: false });
+            router.replace("/sign-in");
+            return;
+        }
+    }, [session, bike?.available]);
 
     const form = useForm<z.infer<typeof bikeSchema>>({
         resolver: zodResolver(bikeSchema),
@@ -164,6 +188,33 @@ const BikeDetails = () => {
         });
         setPreview(bike.bikeImageUrl || "");
     }, [bike, form]);
+
+    const fetchDamageReports = async () => {
+        if (!session) return;
+        setDamageReportsLoading(true);
+        try {
+            const res = await axios.get<ApiResponse & { success: boolean; reports: DamageReportProps[] }>(
+                `/api/bikes/${bikeId}/damages/owner/${session?.user.id}`
+            );
+            if (res.data.success) {
+                setDamageReports(res.data.reports);
+            }
+            else toast.error("Failed to load your reports");
+        }
+        catch (error) {
+            const axiosError = error as AxiosError<ApiResponse>;
+            toast.error(axiosError.response?.data.message || "Error loading reports");
+        }
+        finally {
+            setDamageReportsLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        if (session && session.user.role === "owner" && !bike?.available) {
+            fetchDamageReports();
+        }
+    }, [session, bike?.available]);
 
     const handleClear = () => {
         form.reset({
@@ -489,6 +540,11 @@ const BikeDetails = () => {
                     <TabsTrigger value="reviews">
                         Reviews ({reviews.length})
                     </TabsTrigger>
+                    {!bike?.available &&
+                        <TabsTrigger value="damages">
+                            Damages Report ({damageReports.length})
+                        </TabsTrigger>
+                    }
                 </TabsList>
 
                 <TabsContent value="overview">
@@ -548,19 +604,27 @@ const BikeDetails = () => {
 
                                     <CardContent className="w-full flex-1 p-0">
                                         {/* Review Body */}
-                                        {r.reviewBikeImageUrl && (
-                                            <div className="relative lg:w-175 w-full md:h-100 sm:h-65 h-55 mb-4 rounded overflow-hidden">
-                                                <Image
-                                                    src={r.reviewBikeImageUrl!}
-                                                    alt="Review image"
-                                                    fill
-                                                    className="object-cover"
-                                                />
-                                            </div>
-                                        )}
+                                        <div className="flex overflow-x-auto space-x-4 py-2">
+                                            {r.reviewBikeImageUrl && (
+                                                <Dialog open={openImage === r.reviewBikeImageUrl} onOpenChange={val => setOpenImage(val ? r.reviewBikeImageUrl : null)}>
+                                                    <DialogTrigger asChild>
+                                                        <div className="flex-shrink-0 w-24 h-24 sm:w-32 sm:h-32 md:w-40 md:h-40 rounded-lg overflow-hidden cursor-pointer">
+                                                            <Image src={r.reviewBikeImageUrl!} width={160} height={160} className="object-cover w-full h-full" alt="damage" />
+                                                        </div>
+                                                    </DialogTrigger>
+                                                    <DialogContent className="p-5 lg:max-w-fit! max-h-200 overflow-y-auto">
+                                                        <DialogHeader>
+                                                            <DialogTitle>Preview</DialogTitle>
+                                                        </DialogHeader>
+                                                        <div className="w-full">
+                                                            <Image src={r.reviewBikeImageUrl!} width={600} height={400} className="object-contain rounded" alt="damage-large" />
+                                                        </div>
+                                                    </DialogContent>
+                                                </Dialog>
+                                            )}
+                                        </div>
                                         <CardDescription className="mt-2 text-gray-800">{r.comment}</CardDescription>
                                     </CardContent>
-
                                     <CardFooter className="p-0 w-full flex items-center">
                                         <p className="mt-1 text-xs text-gray-500">
                                             {new Date(r.createdAt).toLocaleDateString()}
@@ -571,6 +635,73 @@ const BikeDetails = () => {
                         </div>
                     )}
                 </TabsContent>
+
+                {!bike.available &&
+                    <TabsContent value="damages">
+                        {damageReportsLoading ? (
+                            <div className="flex justify-center py-10">
+                                <Loader2 className="animate-spin h-8 w-8 text-gray-500" />
+                            </div>
+                        ) : damageReports.length === 0 ? (
+                            <p className="text-center text-gray-500">No damage reports yet.</p>
+                        ) : (
+                            <div className="space-y-6">
+                                {damageReports.map((damageReport) => (
+                                    <Card key={damageReport.id} className="p-5 flex gap-4 items-start">
+                                        <CardHeader className="w-full flex flex-col gap-2 p-0">
+                                            <div className="flex gap-2 items-center">
+                                                {/* Avatar */}
+                                                <Avatar className="h-10 w-10 cursor-pointer border-1 border-gray-900">
+                                                    {(damageReport.customer.profilePictureUrl) ? (
+                                                        <AvatarImage src={damageReport.customer.profilePictureUrl} alt={damageReport.customer.fullName} />
+                                                    ) : (
+                                                        <AvatarFallback>
+                                                            {((damageReport.customer.fullName ?? damageReport.customer.username ?? "U")
+                                                                .split(" ")
+                                                                .map((n) => n[0])
+                                                                .join("")
+                                                                .toUpperCase())}
+                                                        </AvatarFallback>
+                                                    )}
+                                                </Avatar>
+                                                <CardTitle className="font-semibold">{damageReport.customer.fullName}</CardTitle>
+                                            </div>
+                                        </CardHeader>
+
+                                        <CardContent className="w-full flex-1 p-0">
+                                            <div className="flex overflow-x-auto space-x-4 py-2">
+                                                {damageReport.images.map(img => (
+                                                    <Dialog key={img.id} open={openImage === img.imageUrl} onOpenChange={val => setOpenImage(val ? img.imageUrl : null)}>
+                                                        <DialogTrigger asChild>
+                                                            <div className="flex-shrink-0 w-24 h-24 sm:w-32 sm:h-32 md:w-40 md:h-40 rounded-lg overflow-hidden cursor-pointer">
+                                                                <Image src={img.imageUrl} width={160} height={160} className="object-cover w-full h-full" alt="damage" />
+                                                            </div>
+                                                        </DialogTrigger>
+                                                        <DialogContent className="p-5 lg:max-w-fit! max-h-200 overflow-y-auto" >
+                                                            <DialogHeader>
+                                                                <DialogTitle>Preview</DialogTitle>
+                                                            </DialogHeader>
+                                                            <div className="w-full">
+                                                                <Image src={img.imageUrl} width={600} height={400} className="object-contain" alt="damage-large" />
+                                                            </div>
+                                                        </DialogContent>
+                                                    </Dialog>
+                                                ))}
+                                            </div>
+                                            <CardDescription className="mt-2 text-gray-800">{damageReport.description}</CardDescription>
+                                        </CardContent>
+
+                                        <CardFooter className="p-0 w-full flex items-center">
+                                            <p className="mt-1 text-xs text-gray-500">
+                                                {new Date(damageReport.createdAt).toLocaleDateString()}
+                                            </p>
+                                        </CardFooter>
+                                    </Card>
+                                ))}
+                            </div>
+                        )}
+                    </TabsContent>
+                }
             </Tabs>
         </section>
     );

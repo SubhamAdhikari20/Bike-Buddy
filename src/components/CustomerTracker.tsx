@@ -15,7 +15,7 @@ export default function CustomerTracker({ rideJourneyId, customerId, isActive }:
     const watcherIdRef = useRef<number | null>(null);
 
     useEffect(() => {
-        if (!navigator.geolocation || !customerId) {
+        if (!isActive || !navigator.geolocation || !customerId) {
             // stop if paused or unmounted
             if (watcherIdRef.current !== null) {
                 navigator.geolocation.clearWatch(watcherIdRef.current);
@@ -27,7 +27,6 @@ export default function CustomerTracker({ rideJourneyId, customerId, isActive }:
         let lastWrite = 0;
 
         const writePos = (lat: number, lng: number, timestamp: number) => {
-            if (!isActive) return;
             const now = Date.now();
             if (now - lastWrite < 1000) return; // throttle to 1 write/sec
             lastWrite = now;
@@ -61,65 +60,3 @@ export default function CustomerTracker({ rideJourneyId, customerId, isActive }:
 
     return null;
 }
-
-
-
-
-
-
-
-// interface Props {
-//     rideJourneyId: string;
-//     customerId?: string;
-//     isActive: boolean;
-// }
-
-// export default function CustomerTracker({ rideJourneyId, customerId, isActive }: Props) {
-//     const watcherIdRef = useRef<number | null>(null);
-//     useEffect(() => {
-//         if (!navigator.geolocation || !customerId) return;
-
-//         // Helper to write a position to Firebase
-//         const writePos = (lat: number, lng: number, ts: number) =>
-//             set(ref(db, `tracking/${rideJourneyId}`), { lat, lng, customerId, timestamp: ts });
-
-//         // 1) Try a quick, one-time position grab
-//         navigator.geolocation.getCurrentPosition(
-//             (pos) => writePos(pos.coords.latitude, pos.coords.longitude, pos.timestamp),
-//             (err) => {
-//                 console.warn("Initial GPS failed:", err);
-//                 // We’ll still try watchPosition below
-//             },
-//             { enableHighAccuracy: true, timeout: 20000 } // give it more time for the first lock
-//         );
-
-//         // 2) Then start watchPosition
-//         if (isActive) {
-//             watcherIdRef.current = navigator.geolocation.watchPosition(
-//                 (pos) => writePos(pos.coords.latitude, pos.coords.longitude, pos.timestamp),
-//                 (err) => {
-//                     toast.error(`GPS error (${err.code}): ${err.message}`);
-//                     // Stop watching on fatal errors
-//                     if (watcherIdRef.current !== null) {
-//                         navigator.geolocation.clearWatch(watcherIdRef.current);
-//                         watcherIdRef.current = null;
-//                     }
-//                 },
-//                 {
-//                     enableHighAccuracy: true,
-//                     maximumAge: 0,
-//                     timeout: 30000,
-//                 }
-//             );
-//         }
-
-//         return () => {
-//             if (watcherIdRef.current !== null) {
-//                 navigator.geolocation.clearWatch(watcherIdRef.current);
-//                 watcherIdRef.current = null;
-//             }
-//         };
-//     }, [rideJourneyId, customerId, isActive]);
-
-//     return null;
-// }

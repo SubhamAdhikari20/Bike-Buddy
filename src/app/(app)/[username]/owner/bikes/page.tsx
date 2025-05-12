@@ -214,7 +214,7 @@ const OwnerBikes = () => {
                             Add Bike
                         </Button>
                     </DialogTrigger>
-                    <DialogContent className="sm:max-w-md max-h-200 overflow-y-scroll">
+                    <DialogContent className="sm:max-w-md max-h-200 overflow-y-auto">
                         <DialogHeader>
                             <DialogTitle>{editingBike ? "Update Bike Details" : "Add New Bike Deatils"}</DialogTitle>
                         </DialogHeader>

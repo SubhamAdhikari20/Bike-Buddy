@@ -29,6 +29,7 @@ type BookedBikeCardProps = {
             reviewCount?: number | null;
         };
         customer: User;
+        rideJourneyId: number | null;
     };
     currentUser: User;
 };
@@ -39,17 +40,19 @@ const BookedBikeCard = ({ booking, currentUser }: BookedBikeCardProps) => {
     const reviewCount = booking.bike.reviewCount ?? 0;
 
     const liveTrack = async () => {
+        // Don't conside the below code of the live track. Instead fetch the live data paints(lat, lng) from the firebase (of respective customer).
         try {
-            const response = await axios.post(`/api/bookings/my-rentals/${booking.id}/start`);
+            const response = await axios.get(`/api/bookings/customer-rentals/owner/live-track/${booking.id}/start`);
             if (!response.data.success) {
-                toast.error(response.data.message || "Failed to track ride");
+                toast.error("Failed to track ride");
             }
-            router.replace(`/${currentUser.username}/owner/rentals/${booking.id}/${response.data.rideData.id}/in-progress`);
+            router.replace(`/${currentUser.username}/owner/customer-rental/${booking.id}/${response.data.rideJourneyData.id}/in-progress/${booking.bikeId}`);
         }
         catch (error) {
             const axiosError = error as AxiosError<ApiResponse>;
             toast.error(axiosError.response?.data.message);
         }
+
     }
 
 

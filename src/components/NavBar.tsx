@@ -306,6 +306,13 @@ const NavBar: React.FC<NavBarProps> = ({ session, currentUser }) => {
                                 Rent a Bike
                             </Link>
                         </li>
+                        {currentUser ? (
+                            <li>
+                                <Link href="/rentals" className="hover:text-gray-900 text-sm">
+                                    My Rentals
+                                </Link>
+                            </li>
+                        ) : null}
                         <li>
                             <Link
                                 href="/about"

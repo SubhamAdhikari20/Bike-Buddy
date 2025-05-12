@@ -43,7 +43,7 @@ const BookedBikeCard = ({ booking }: BookedBikeCardProps) => {
             if (!response.data.success) {
                 toast.error(response.data.message || "Failed to start ride");
             }
-            router.replace(`/rentals/${booking.id}/${response.data.rideData.id}/in-progress`);
+            router.replace(`/rentals/${booking.id}/${response.data.rideData.id}/in-progress/${response.data.rideData.bikeId}`);
         }
         catch (error) {
             const axiosError = error as AxiosError<ApiResponse>;
@@ -132,7 +132,7 @@ const BookedBikeCard = ({ booking }: BookedBikeCardProps) => {
                         Start Journey
                     </Button>
                     {/* </Link> */}
-                    <Link href={`/bikes/${booking.bike.id}`}>
+                    <Link href={`/rentals/${booking.id}/bikes/${booking.bike.id}`}>
                         <Button size="sm">View Details</Button>
                     </Link>
                 </div>

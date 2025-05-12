@@ -1,5 +1,5 @@
 // src/app/api/bookings/my-rentals/[bookingId]/start/route.ts
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 import { createRideJourney, updateRideJourney } from "@/model/RideJourney";
 import { getBookingById } from "@/model/Booking";
 import { sendNotification } from "@/helpers/sendNotification";
@@ -7,8 +7,9 @@ import { getBikeById } from "@/model/Bike";
 import { getUserById } from "@/model/User";
 import prisma from "@/lib/prisma";
 
-export async function POST(req: Request, { params }: { params: { bookingId: string } }) {
-    const { bookingId } = await params;
+export async function POST(request: NextRequest, context: { params: Promise<{ bookingId: string }> }) {
+    const params = await context.params
+    const { bookingId } = params;
     const id = Number(bookingId);
     if (!id) return NextResponse.json({ success: false, message: "Invalid bookingId" }, { status: 400 });
 
@@ -17,9 +18,23 @@ export async function POST(req: Request, { params }: { params: { bookingId: stri
     const booking = await getBookingById(id);
     if (!booking) return NextResponse.json({ success: false, message: "Not found" }, { status: 404 });
 
-    // 1) Mark booking active and set startTime
     const now = new Date();
+    const existingRideJourney = await prisma.rideJourney.findFirst({
+        where: { bookingId: id, status: "active" },
+        orderBy: [{ createdAt: "desc" }, { updatedAt: "desc" }],
+        include: {
+            booking: true,
+            customer: true,
+            bike: true,
+        },
+    });
 
+    if (existingRideJourney) {
+        const updatedRideData = await updateRideJourney(existingRideJourney.id, { startTime: now, })
+        return NextResponse.json({ success: true, rideData: updatedRideData}, { status: 200 });
+    }
+
+    // 1) Mark booking active and set startTime
     const rideData = await createRideJourney({
         startTime: now,
         endTime: null,

@@ -58,9 +58,6 @@ export default function RideControls({ bookingId, rideJourneyId, onToggleActive 
             >
                 {isEnding ? 'Ending...' : 'End Ride'}
             </Button>
-            <div>
-                Lorem ipsum dolor sit amet consectetur, adipisicing elit. Suscipit, nam!
-            </div>
         </div>
     );
 }

@@ -1,4 +1,4 @@
-// src/components/customer/RideMap.tsx
+// src/components/owner/RideMap.tsx
 "use client";
 import { useState, useEffect, useRef } from 'react';
 import { MapContainer, TileLayer, Marker, Polyline, useMap } from 'react-leaflet';
@@ -6,20 +6,19 @@ import { onValue, off, ref, onChildAdded } from 'firebase/database';
 import { db } from '@/lib/firebase';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-defaulticon-compatibility';
-import L from 'leaflet';
-
+import L, { Tooltip } from 'leaflet';
+import 'leaflet-rotatedmarker';
 
 // Define the custom marker icon
 const customMarkerIcon = new L.Icon({
-    iconUrl: '/icons/placeholder.png',
-    iconSize: [30, 30],
+    iconUrl: '/icons/motorbike.png',
+    iconSize: [35, 35],
     iconAnchor: [7, 14],
     popupAnchor: [0, -64],
     shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
     shadowSize: [30, 30],
     shadowAnchor: [8, 16],
 });
-
 
 function FlyTo({ position }: { position: [number, number] | null }) {
     const map = useMap();
@@ -60,6 +59,7 @@ export default function RideMap({ rideJourneyId }: { rideJourneyId: string }) {
             <MapContainer
                 center={position || [27.7, 85.3]}
                 zoom={12}
+
                 scrollWheelZoom={false}
                 className="w-full h-full"
             >
@@ -76,11 +76,6 @@ export default function RideMap({ rideJourneyId }: { rideJourneyId: string }) {
                     </>
                 )}
             </MapContainer>
-            {!position && (
-                <div className="absolute inset-0 flex items-center justify-center bg-white/80">
-                    <p className="text-gray-700">Awaiting GPS…</p>
-                </div>
-            )}
         </div>
     );
 }

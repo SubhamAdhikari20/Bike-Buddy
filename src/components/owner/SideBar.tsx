@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { FaUserCircle, FaSignOutAlt, FaClipboardList, FaBiking, FaUserPlus, FaBars, FaTimes, FaLocationArrow } from 'react-icons/fa';
+import { FaUserCircle, FaSignOutAlt, FaClipboardList, FaBiking, FaBars, FaTimes, FaLocationArrow, FaExclamationTriangle, FaHome } from 'react-icons/fa';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
     AlertDialog,
@@ -161,6 +161,15 @@ const SideBar: React.FC<SideBarProps> = ({ session, currentUser }) => {
                         <ul className="space-y-4">
                             <li>
                                 <Link
+                                    href="/"
+                                    className="flex items-center px-4 py-2 hover:bg-gray-700 rounded"
+                                    onClick={() => setIsMobileOpen(false)}
+                                >
+                                    <FaHome className="mr-3" /> Dashboard
+                                </Link>
+                            </li>
+                            <li>
+                                <Link
                                     href={`/${currentUser?.username}/owner/bikes`}
                                     className="flex items-center px-4 py-2 hover:bg-gray-700 rounded"
                                     onClick={() => setIsMobileOpen(false)}
@@ -177,6 +186,15 @@ const SideBar: React.FC<SideBarProps> = ({ session, currentUser }) => {
                                     <FaLocationArrow className="mr-3" /> Track Live Bike
                                 </Link>
                             </li>
+                            <li>
+                                <Link
+                                    href={`/${currentUser?.username}/owner/damages`}
+                                    className="flex items-center px-4 py-2 hover:bg-gray-700 rounded"
+                                    onClick={() => setIsMobileOpen(false)}
+                                >
+                                    <FaExclamationTriangle className="mr-3" /> Damages
+                                </Link>
+                            </li>
                             {/* <li>
                                 <Link
                                     href="/admin/rental-report"
@@ -186,15 +204,7 @@ const SideBar: React.FC<SideBarProps> = ({ session, currentUser }) => {
                                     <FaClipboardList className="mr-3" /> Rental Report
                                 </Link>
                             </li>
-                            <li>
-                                <Link
-                                    href="/admin/transactions"
-                                    className="flex items-center px-4 py-2 hover:bg-gray-700 rounded"
-                                    onClick={() => setIsMobileOpen(false)}
-                                >
-                                    <FaClipboardList className="mr-3" /> Transaction Report
-                                </Link>
-                            </li> */}
+                            */}
                         </ul>
                     </nav>
 

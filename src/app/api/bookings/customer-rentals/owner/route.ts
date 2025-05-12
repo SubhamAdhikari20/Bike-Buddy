@@ -29,8 +29,13 @@ export async function GET(request: NextRequest) {
                         owner: true
                     }
                 },
-                customer: true
+                customer: true,
+                // rideJourney: {
+                //     where: { status: "active" },
+                //     take: 1,
+                // },
             },
+            orderBy: [{ createdAt: "desc" }, { updatedAt: "desc" }]
         });
 
         // compute avg/count

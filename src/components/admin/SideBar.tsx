@@ -16,7 +16,7 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { FaUserCircle, FaSignOutAlt, FaClipboardList, FaLocationArrow, FaUserPlus, FaBars, FaTimes } from 'react-icons/fa';
+import { FaUserCircle, FaSignOutAlt, FaClipboardList, FaLocationArrow, FaUserPlus, FaBars, FaTimes, FaHome } from 'react-icons/fa';
 import { signOut } from "next-auth/react";
 import { Session, User } from "next-auth";
 import {
@@ -159,6 +159,15 @@ const SideBar: React.FC<SideBarProps> = ({ session, currentUser }) => {
                     {/* Navigation Links */}
                     <nav className="flex-grow">
                         <ul className="space-y-4">
+                            <li>
+                                <Link
+                                    href="/"
+                                    className="flex items-center px-4 py-2 hover:bg-gray-700 rounded"
+                                    onClick={() => setIsMobileOpen(false)}
+                                >
+                                    <FaHome className="mr-3" /> Dashboard
+                                </Link>
+                            </li>
                             <li>
                                 <Link
                                     href={`/${currentUser?.username}/admin/owners`}

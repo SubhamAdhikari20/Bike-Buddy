@@ -91,6 +91,8 @@ SELECT * FROM `Bike`;
 SELECT * FROM `Booking`;
 SELECT * FROM `Payment`;
 SELECT * FROM `Invoice`;
+SELECT * FROM `DamageReport`;
+SELECT * FROM `DamageReportImages`;
 SELECT * FROM `RideJourney`;
 SELECT * FROM `TrackingPaths`;
 SELECT * FROM `TrackingPoints`;
@@ -108,4 +110,5 @@ DELETE FROM `Bike` WHERE `id`= 8;
 DELETE FROM `Booking` WHERE `id`= 35;
 DELETE FROM `Payment` WHERE `id`= 41;
 DELETE FROM `Invoice` WHERE `id`= 3;
-
+DELETE FROM `DamageReport` WHERE `id`= 7;
+DELETE FROM `RideJourney` WHERE `id` BETWEEN 36 AND 40;
