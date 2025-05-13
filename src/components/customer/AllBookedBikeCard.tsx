@@ -1,4 +1,4 @@
-// src/components/admin/BookedBikeCard.tsx
+// src/components/customer/BookedBookedBikeCard.tsx
 "use client";
 import React, { useState } from 'react';
 import {
@@ -9,7 +9,9 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card"
+
 import { Button } from "../ui/button";
+import { X } from "lucide-react";
 import { Bike, Booking, User } from "@prisma/client";
 import Image from "next/image";
 import Link from "next/link";
@@ -19,7 +21,6 @@ import axios, { AxiosError } from "axios";
 import { ApiResponse } from "@/types/ApiResponse";
 import StarRatings from "react-star-ratings";
 
-
 type BookedBikeCardProps = {
     booking: Booking & {
         bike: Bike & {
@@ -28,29 +29,27 @@ type BookedBikeCardProps = {
             reviewCount?: number | null;
         };
         customer: User;
-        rideJourneyId: number | null;
     };
-    currentUser: User;
 };
 
-const BookedBikeCard = ({ booking, currentUser }: BookedBikeCardProps) => {
+const AllBookedBikeCard = ({ booking }: BookedBikeCardProps) => {
     const router = useRouter();
     const ratingValue = booking.bike.avgRating ?? 0;
     const reviewCount = booking.bike.reviewCount ?? 0;
 
-    const liveTrack = async () => {
+    const startJourney = async () => {
         try {
-            const response = await axios.get(`/api/bookings/customer-rentals/admin/live-track/${booking.id}/start`);
+            const response = await axios.post(`/api/bookings/my-rentals/${booking.id}/start`);
             if (!response.data.success) {
-                toast.error(response.data.message || "Failed to track ride");
+                toast.error(response.data.message || "Failed to start ride");
             }
-            router.replace(`/${currentUser.username}/admin/live-track/${booking.id}/${response.data.rideJourneyData.id}/in-progress/${booking.bikeId}`);
+            router.replace(`/rentals/${booking.id}/${response.data.rideData.id}/in-progress/${response.data.rideData.bikeId}`);
         }
         catch (error) {
             const axiosError = error as AxiosError<ApiResponse>;
             toast.error(axiosError.response?.data.message);
         }
-    }
+    };
 
 
     return (
@@ -87,8 +86,8 @@ const BookedBikeCard = ({ booking, currentUser }: BookedBikeCardProps) => {
                             <span>₹ {booking.totalPrice}</span>
                         </div>
                         <div>
-                            <span className="font-semibold">Customer: </span>
-                            <span>{booking.customer.fullName}</span>
+                            <span className="font-semibold">Owner: </span>
+                            <span>{booking.bike.owner.fullName}</span>
                         </div>
                     </div>
 
@@ -102,13 +101,13 @@ const BookedBikeCard = ({ booking, currentUser }: BookedBikeCardProps) => {
                             <span>{booking.bike.bikeLocation}</span>
                         </div>
                         <div>
-                            <span className="font-semibold">Owner: </span>
-                            <span>{booking.bike.owner.fullName}</span>
+                            <span className="font-semibold">Status: </span>
+                            <span>{booking.status}</span>
                         </div>
                     </div>
                 </div>
             </CardContent>
-            <CardFooter className="p-4! flex gap-2 justify-between border-t items-center">
+            <CardFooter className="p-4! flex gap-2 justify-between border-t">
                 <div title={`${ratingValue.toFixed(1)} / 5`} className="text-center flex sm:flex-row flex-col gap-2 items-center">
                     <div className="cursor-pointer">
                         <StarRatings
@@ -128,10 +127,7 @@ const BookedBikeCard = ({ booking, currentUser }: BookedBikeCardProps) => {
                 </div>
 
                 <div className="flex gap-2">
-                    <Button className="text-sm bg-amber-500 hover:bg-amber-600" onClick={liveTrack} size="sm">
-                        Live Track
-                    </Button>
-                    <Link href={`/${currentUser.username}/admin/bikes/${booking.bike.id}`}>
+                    <Link href={`/rentals/${booking.id}/bikes/${booking.bike.id}`}>
                         <Button size="sm">View Details</Button>
                     </Link>
                 </div>
@@ -140,4 +136,4 @@ const BookedBikeCard = ({ booking, currentUser }: BookedBikeCardProps) => {
     );
 };
 
-export default BookedBikeCard;
+export default AllBookedBikeCard;

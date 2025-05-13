@@ -115,20 +115,20 @@ const SideBar: React.FC<SideBarProps> = ({ session, currentUser }) => {
     return (
         <>
             {/* Mobile Header */}
-            <header className="sticky top-0 inset-x-0 z-50 md:hidden flex items-center justify-between bg-gray-800 text-gray-200 p-4 shadow-md">
+            <header className="sticky top-0 inset-x-0 z-500 md:hidden flex items-center justify-between bg-gray-800 text-gray-200 p-4 shadow-md">
                 <Button onClick={handleMobileToggle} className="focus:outline-none">
                     {isMobileOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
                 </Button>
             </header>
 
             {/* Sidebar - Visible on Desktop or Mobile when toggled */}
-            <div className="flex">
+            <div className="flex bg-gray-800">
                 <aside
                     // className={`${isMobileOpen ? "fixed top-0 inset-y-0 left-0 z-40" : "hidden"
                     //     } md:static md:flex flex-col w-64 bg-gray-800 text-gray-200 p-4 shadow-md transition-transform duration-300 ease-in-out`}
 
                     className={`
-                        ${isMobileOpen ? "fixed top-0 inset-y-0 left-0 z-40" : "hidden"}
+                        ${isMobileOpen ? "fixed top-0 inset-y-0 left-0 z-500" : "hidden"}
                         md:sticky md:top-0 md:h-screen md:overflow-y-auto md:flex
                         flex-col w-64 bg-gray-800 text-gray-200 p-4 shadow-md
                         transition-transform duration-300 ease-in-out

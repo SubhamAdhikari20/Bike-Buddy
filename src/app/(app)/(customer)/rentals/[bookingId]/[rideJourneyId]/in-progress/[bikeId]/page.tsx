@@ -385,7 +385,7 @@ export default function RideInProgressPage() {
                                                             <Image src={img.imageUrl} width={160} height={160} className="object-cover w-full h-full" alt="damage" />
                                                         </div>
                                                     </DialogTrigger>
-                                                    <DialogContent className="p-5 lg:max-w-fit! max-h-200 overflow-y-auto" >
+                                                    <DialogContent className="p-5 lg:max-w-fit! max-h-200 overflow-y-auto z-1000" >
                                                         <DialogHeader>
                                                             <DialogTitle>Preview</DialogTitle>
                                                         </DialogHeader>
@@ -399,10 +399,19 @@ export default function RideInProgressPage() {
                                         <CardDescription className="mt-2 text-gray-800">{damageReport.description}</CardDescription>
                                     </CardContent>
 
-                                    <CardFooter className="p-0 w-full flex items-center">
+                                    <CardFooter className="p-0 w-full flex items-center justify-between">
                                         <p className="mt-1 text-xs text-gray-500">
                                             {new Date(damageReport.createdAt).toLocaleDateString()}
                                         </p>
+
+                                        <span className={`
+                                            px-2 py-1 rounded-full text-sm font-medium
+                                            ${damageReport.status === "pending" ? "bg-yellow-100 text-yellow-800" : ""}
+                                            ${damageReport.status === "reviewed" ? "bg-blue-100   text-blue-800" : ""}
+                                            ${damageReport.status === "resolved" ? "bg-green-100  text-green-800" : ""}
+                                            `}>
+                                            {damageReport.status.toUpperCase()}
+                                        </span>
                                     </CardFooter>
                                 </Card>
                             ))}

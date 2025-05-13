@@ -96,7 +96,8 @@ export async function finalizePaymentWithKhalti(data: {
                         paymentMethod: updatedPayment.method,
                         customerId: updatedBooking.customerId!,
                         bikeId: updatedBooking.bikeId!,
-                        transactionId: updatedPayment.transactionId
+                        transactionId: updatedPayment.transactionId,
+                        bookingId: updatedBooking.id
                     },
                 });
             }

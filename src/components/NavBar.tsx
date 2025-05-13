@@ -93,7 +93,7 @@ const NavBar: React.FC<NavBarProps> = ({ session, currentUser }) => {
     };
 
     return (
-        <header className="sticky top-0 inset-x-0 z-50 bg-white shadow-md transition-all">
+        <header className="sticky top-0 inset-x-0 z-500 bg-white shadow-md transition-all">
             <nav className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
                 {/* Branding */}
                 <Link href="/" className="flex items-center gap-2">

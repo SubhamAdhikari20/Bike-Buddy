@@ -42,14 +42,6 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 
-// type Bike = {
-//     id: number;
-//     bikeName: string;
-//     bikeDescription: string;
-//     bikeLocation: string;
-//     pricePerDay: number;
-//     bikeImageUrl?: string[];
-// };
 
 const RentBike = () => {
     const { data: session, status } = useSession();
@@ -335,7 +327,7 @@ const RentBike = () => {
                     <Loader2 className="animate-spin h-8 w-8 text-green-600" />
                 </div>
             ) : bikes.length ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                     {bikes.map((bike) => (
                         <BikeCard key={bike.id} bike={bike as any} onRent={() => handleRentClick(bike)} />
                     ))}

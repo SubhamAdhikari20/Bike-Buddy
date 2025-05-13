@@ -81,7 +81,7 @@ export default function Home() {
                                 <Link href="/bikes">
                                     <Button className="px-6 py-3 text-base">Browse Bikes</Button>
                                 </Link>
-                                <Link href="/rental-history">
+                                <Link href="/rentals">
                                     <Button variant="outline" className="px-6 py-3 text-base">
                                         Rental History
                                     </Button>

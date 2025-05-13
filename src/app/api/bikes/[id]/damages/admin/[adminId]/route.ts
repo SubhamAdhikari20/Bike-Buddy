@@ -1,14 +1,14 @@
-// src/api/bikes/[id]/damages/owner/[ownerId]/route.ts
+// src/api/bikes/[id]/damages/admin/[adminId]/route.ts
 import { NextResponse, NextRequest } from "next/server";
 import prisma from "@/lib/prisma";
 
-export const GET = async (request: NextRequest, context: { params: Promise<{ id: string, ownerId: string }> }) => {
+export const GET = async (request: NextRequest, context: { params: Promise<{ id: string, adminId: string }> }) => {
     try {
         const params = await context.params;
-        const ownerId = Number(params.ownerId);
-        if (!ownerId) {
+        const adminId = Number(params.adminId);
+        if (!adminId) {
             return Response.json(
-                { success: false, message: "Owner Id is required" },
+                { success: false, message: "Admin Id is required" },
                 { status: 400 }
             );
         }
@@ -22,8 +22,7 @@ export const GET = async (request: NextRequest, context: { params: Promise<{ id:
         }
         const reports = await prisma.damageReport.findMany({
             where: {
-                bikeId,
-                ownerId
+                bikeId
             },
             include: {
                 bike: {

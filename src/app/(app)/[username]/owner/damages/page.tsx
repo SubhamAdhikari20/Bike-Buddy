@@ -18,7 +18,7 @@ import { ApiResponse } from "@/types/ApiResponse";
 import { toast } from "sonner";
 import { signIn, useSession } from "next-auth/react";
 import Link from "next/link";
-import { Loader2 } from "lucide-react";
+import { CheckIcon, EyeIcon, Loader2 } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 
@@ -34,9 +34,10 @@ type DamageReportProps = DamageReport & {
 
 const DamagesPage = () => {
     const { id } = useParams();
-    const bikeId = Number(id);
+    // const bikeId = Number(id);
     const router = useRouter();
     const { data: session, status } = useSession();
+    const ownerId = Number(session?.user.id);
 
     // Damage Report States
     const [loading, setLoading] = useState(false);
@@ -73,6 +74,20 @@ const DamagesPage = () => {
         }
         finally {
             setLoading(false);
+        }
+    };
+
+    const updateStatus = async (id: number, newStatus: "reviewed" | "resolved") => {
+        try {
+            const response = await axios.put<ApiResponse & { success: boolean; damageReports: DamageReportProps[] }>(`/api/bikes/damages/owner/${ownerId}/${id}/${newStatus}`, { status: newStatus });
+            if (response.data.success) {
+                setDamageReports(response.data.damageReports);
+                toast.success(`Marked ${newStatus}`);
+            }
+
+            fetchDamageReports();
+        } catch {
+            toast.error("Update failed")
         }
     };
 
@@ -190,10 +205,45 @@ const DamagesPage = () => {
                                     <CardDescription className="mt-2 text-gray-800">{damageReport.description}</CardDescription>
                                 </CardContent>
 
-                                <CardFooter className="p-0 w-full flex items-center">
+                                <CardFooter className="p-0 w-full flex items-center justify-between">
                                     <p className="mt-1 text-xs text-gray-500">
                                         {new Date(damageReport.createdAt).toLocaleDateString()}
                                     </p>
+
+                                    <div className="flex flex-col sm:flex-row sm:justify-between items-start gap-2">
+                                        <span
+                                            className={`
+                                                            px-2 py-1 rounded-full text-sm font-medium
+                                                            ${damageReport.status === "pending" ? "bg-yellow-100 text-yellow-800" : ""}
+                                                            ${damageReport.status === "reviewed" ? "bg-blue-100   text-blue-800" : ""}
+                                                            ${damageReport.status === "resolved" ? "bg-green-100  text-green-800" : ""}
+                                                        `}
+                                        >
+                                            {damageReport.status.toUpperCase()}
+                                        </span>
+
+                                        <div className="flex gap-2">
+                                            <Button
+                                                size="sm"
+                                                variant={damageReport.status === "reviewed" ? "outline" : "default"}
+                                                disabled={damageReport.status !== "pending"}
+                                                onClick={() => updateStatus(damageReport.id, "reviewed")}
+                                                className="flex items-center gap-1"
+                                            >
+                                                <EyeIcon className="h-4 w-4" /> Review
+                                            </Button>
+
+                                            <Button
+                                                size="sm"
+                                                variant={damageReport.status === "resolved" ? "outline" : "default"}
+                                                disabled={(damageReport.status === "pending") || (damageReport.status === "resolved")}
+                                                onClick={() => updateStatus(damageReport.id, "resolved")}
+                                                className="flex items-center gap-1"
+                                            >
+                                                <CheckIcon className="h-4 w-4" /> Resolve
+                                            </Button>
+                                        </div>
+                                    </div>
                                 </CardFooter>
                             </Card>
                         );

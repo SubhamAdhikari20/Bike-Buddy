@@ -1,4 +1,4 @@
-// src/app/(app)/[username/owner]/customer-rental/[bookingId]/[rideJourneyId]/in-progress/[bikeId]/page.tsx
+// src/app/(app)/[username/owner]/live-track/[bookingId]/[rideJourneyId]/in-progress/[bikeId]/page.tsx
 "use client";
 import React, { useEffect, useRef, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
@@ -16,13 +16,11 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
-    CheckIcon,
-    EyeIcon,
     Loader2,
 } from "lucide-react";
 import Link from "next/link";
 import { Bike, Booking, DamageReport, DamageReportImages, Review, User } from "@prisma/client";
-import RideMap from "@/components/owner/RideMap";
+import RideMap from "@/components/admin/RideMap";
 import { signIn, useSession } from "next-auth/react";
 import axios, { AxiosError } from "axios";
 import { ApiResponse } from "@/types/ApiResponse";
@@ -57,7 +55,7 @@ const LiveTrack = () => {
     const router = useRouter();
 
     useEffect(() => {
-        if (!session || session.user.role !== "owner") {
+        if (!session || session.user.role !== "admin") {
             signIn("credentials", { redirect: false });
             router.replace("/sign-in");
             return;
@@ -67,7 +65,6 @@ const LiveTrack = () => {
     // Damage Report
     const bookingID = Number(bookingId);
     const bikeID = Number(bikeId);
-    const ownerId = Number(session?.user.id);
 
     const [openImage, setOpenImage] = useState<string | null>(null);
 
@@ -80,7 +77,7 @@ const LiveTrack = () => {
         setDamageReportsLoading(true);
         try {
             const res = await axios.get<ApiResponse & { success: boolean; reports: DamageReportProps[] }>(
-                `/api/bikes/${bikeID}/damages/owner/${session?.user.id}`
+                `/api/bikes/${bikeID}/damages/admin/${session?.user.id}`
             );
             if (res.data.success) {
                 setDamageReports(res.data.reports);
@@ -97,25 +94,10 @@ const LiveTrack = () => {
     };
 
     useEffect(() => {
-        if (session && session.user.role === "owner") {
+        if (session && session.user.role === "admin") {
             fetchDamageReports();
         }
     }, [session]);
-
-    const updateStatus = async (id: number, newStatus: "reviewed" | "resolved") => {
-        try {
-            const response = await axios.put<ApiResponse & { success: boolean; damageReports: DamageReportProps[] }>(`/api/bikes/${bikeId}/damages/owner/${ownerId}/${id}/${newStatus}`, { status: newStatus });
-            if (response.data.success) {
-                setDamageReports(response.data.damageReports);
-                toast.success(`Marked ${newStatus}`);
-            }
-
-            // setDamageReports(r => r.map(x => x.id === id ? { ...x, status: newStatus } : x));
-            fetchDamageReports();
-        } catch {
-            toast.error("Update failed")
-        }
-    };
 
     return (
         <section className="p-4 space-y-6">
@@ -199,40 +181,14 @@ const LiveTrack = () => {
                                             {new Date(damageReport.createdAt).toLocaleDateString()}
                                         </p>
 
-                                        <div className="flex flex-col sm:flex-row sm:justify-between items-start gap-2">
-                                            <span
-                                                className={`
-                                                            px-2 py-1 rounded-full text-sm font-medium
-                                                            ${damageReport.status === "pending" ? "bg-yellow-100 text-yellow-800" : ""}
-                                                            ${damageReport.status === "reviewed" ? "bg-blue-100   text-blue-800" : ""}
-                                                            ${damageReport.status === "resolved" ? "bg-green-100  text-green-800" : ""}
-                                                        `}
-                                            >
-                                                {damageReport.status.toUpperCase()}
-                                            </span>
-
-                                            <div className="flex gap-2">
-                                                <Button
-                                                    size="sm"
-                                                    variant={damageReport.status === "reviewed" ? "outline" : "default"}
-                                                    disabled={damageReport.status !== "pending"}
-                                                    onClick={() => updateStatus(damageReport.id, "reviewed")}
-                                                    className="flex items-center gap-1"
-                                                >
-                                                    <EyeIcon className="h-4 w-4" /> Review
-                                                </Button>
-
-                                                <Button
-                                                    size="sm"
-                                                    variant={damageReport.status === "resolved" ? "outline" : "default"}
-                                                    disabled={(damageReport.status === "pending") || (damageReport.status === "resolved")}
-                                                    onClick={() => updateStatus(damageReport.id, "resolved")}
-                                                    className="flex items-center gap-1"
-                                                >
-                                                    <CheckIcon className="h-4 w-4" /> Resolve
-                                                </Button>
-                                            </div>
-                                        </div>
+                                        <span className={`
+                                            px-2 py-1 rounded-full text-sm font-medium
+                                            ${damageReport.status === "pending" ? "bg-yellow-100 text-yellow-800" : ""}
+                                            ${damageReport.status === "reviewed" ? "bg-blue-100   text-blue-800" : ""}
+                                            ${damageReport.status === "resolved" ? "bg-green-100  text-green-800" : ""}
+                                            `}>
+                                            {damageReport.status.toUpperCase()}
+                                        </span>
                                     </CardFooter>
                                 </Card>
                             ))}

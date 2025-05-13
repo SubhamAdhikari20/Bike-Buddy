@@ -137,7 +137,7 @@ model RideJourney {
     status     RideJourneyStatus @default(active)
     createdAt  DateTime          @default(now())
     updatedAt  DateTime          @updatedAt
-    bookingId  Int               
+    bookingId  Int
     customerId Int
     bikeId     Int
 
@@ -248,6 +248,7 @@ model Invoice {
     customerId      Int
     bikeId          Int
     transactionId   String   @unique
+    bookingId       Int?
 
     // customer User? @relation(fields: [customerId], references: [id], onDelete: SetNull, onUpdate: Cascade)
     // bike     Bike? @relation(fields: [bikeId], references: [id], onDelete: SetNull, onUpdate: Cascade, name: "InvoiceToBike")

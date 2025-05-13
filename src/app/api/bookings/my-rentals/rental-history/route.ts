@@ -1,5 +1,6 @@
-// src/app/api/bookings/customer-rentals/admin/route.ts
+// src/app/api/bookings/my-rentals/rental-history/route.ts
 import { NextResponse, NextRequest } from 'next/server';
+import { getBookingByCustomerId } from "@/model/Booking";
 import prisma from "@/lib/prisma";
 import { Rating } from "@prisma/client";
 
@@ -13,16 +14,17 @@ const ratingToNumber: Record<Rating, number> = {
 
 export async function GET(request: NextRequest) {
     try {
-        // const { searchParams } = new URL(request.url);
-        // const adminId = Number(searchParams.get("adminId"));
+        const { searchParams } = new URL(request.url);
+        const customerId = Number(searchParams.get("customerId"));
 
-        // if (!adminId) {
-        //     console.error("User Id is missing");
-        //     return NextResponse.json({ success: false, message: "Missing user id" }, { status: 400 });
-        // }
+        if (!customerId) {
+            console.error("User Id is missing");
+            return NextResponse.json({ success: false, message: "Missing user id" }, { status: 400 });
+        }
 
+        // const rentals = await getBookingByCustomerId(customerId);
         const rentals = await prisma.booking.findMany({
-            where: { status: "active" },
+            where: { customerId: customerId, status: "completed" },
             include: {
                 bike: {
                     include: {
@@ -35,13 +37,13 @@ export async function GET(request: NextRequest) {
         });
 
         // compute avg/count
-        const bikeIds = rentals.filter((rental) => rental.bike !== null).map((rental) => rental.bike!.id);
+        const bikeIds = rentals?.filter((rental) => rental.bike !== null).map((rental) => rental.bike!.id);
         const allReviews = await prisma.review.findMany({
             where: { bikeId: { in: bikeIds } },
             select: { bikeId: true, rating: true },
         });
 
-        const statsMap = bikeIds.reduce<Record<number, { avg: number; count: number }>>(
+        const statsMap = bikeIds!.reduce<Record<number, { avg: number; count: number }>>(
             (acc, id) => {
                 const reviews = allReviews.filter((r) => r.bikeId === id);
                 const count = reviews.length;
@@ -55,7 +57,7 @@ export async function GET(request: NextRequest) {
             {}
         );
 
-        const rentalWithBikeStats = rentals.map((rental) => ({
+        const rentalWithBikeStats = rentals?.map((rental) => ({
             ...rental,
             bike: {
                 ...rental.bike!,

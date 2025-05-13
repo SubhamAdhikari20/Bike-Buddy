@@ -1,4 +1,4 @@
-// src/app/api/bookings/customer-rentals/owner/live-track/[bookingId]/start/route.ts
+// src/app/api/bookings/customer-rentals/admin/live-track/[bookingId]/start/route.ts
 import { NextResponse, NextRequest } from 'next/server';
 import prisma from "@/lib/prisma";
 
@@ -19,7 +19,7 @@ export async function GET(request: NextRequest, context: { params: Promise<{ boo
             },
         });
 
-        return NextResponse.json({ success: true, rideJourneyData: rideJourney, message:`rideJourneyId: ${rideJourney}` }, { status: 200 });
+        return NextResponse.json({ success: true, rideJourneyData: rideJourney, message: `rideJourneyId: ${rideJourney}` }, { status: 200 });
     }
     catch (error) {
         console.error("Error retrieving rentals per user:", error);

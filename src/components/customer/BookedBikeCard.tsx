@@ -107,7 +107,7 @@ const BookedBikeCard = ({ booking }: BookedBikeCardProps) => {
                     </div>
                 </div>
             </CardContent>
-            <CardFooter className="p-4! flex gap-2 justify-end border-t">
+            <CardFooter className="p-4! flex gap-2 justify-between border-t">
                 <div title={`${ratingValue.toFixed(1)} / 5`} className="text-center flex sm:flex-row flex-col gap-2 items-center">
                     <div className="cursor-pointer">
                         <StarRatings
@@ -126,16 +126,23 @@ const BookedBikeCard = ({ booking }: BookedBikeCardProps) => {
                     </p>
                 </div>
 
-                <div className="flex gap-2">
-                    {/* <Link href={`/rentals/${booking.id}/in-progress`} key={booking.id}> */}
-                    <Button className="text-sm bg-amber-500 hover:bg-amber-600" onClick={startJourney} size="sm">
-                        Start Journey
-                    </Button>
-                    {/* </Link> */}
-                    <Link href={`/rentals/${booking.id}/bikes/${booking.bike.id}`}>
-                        <Button size="sm">View Details</Button>
-                    </Link>
-                </div>
+                {booking.status === "active" &&
+                    <div className="flex gap-2">
+                        <Button className="text-sm bg-amber-500 hover:bg-amber-600" onClick={startJourney} size="sm">
+                            Start Journey
+                        </Button>
+                        <Link href={`/rentals/${booking.id}/bikes/${booking.bike.id}`}>
+                            <Button size="sm">View Details</Button>
+                        </Link>
+                    </div>
+                }
+                {booking.status === "completed" &&
+                    <div className="flex">
+                        <Link href={`/bikes/${booking.bike.id}`}>
+                            <Button size="sm">View Details</Button>
+                        </Link>
+                    </div>
+                }
             </CardFooter>
         </Card>
     );
